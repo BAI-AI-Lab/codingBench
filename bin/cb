@@ -1,0 +1,125 @@
+#!/bin/bash
+# cb: run code benchmarks against an OpenAI-compatible model.
+#
+#   export MODEL=<model name on the endpoint> OPENAI_BASE_URL=https://.../v1 OPENAI_API_KEY=sk-...
+#   cb all                 # bigcodebench livecodebench cruxeval
+#   cb bigcodebench cruxeval
+#   cb all --smoke         # 5 problems each, to check the endpoint and the pipeline first
+#   cb summary             # scores of every finished run
+#   cb report <run dir>    # Markdown report of a LiveCodeBench run (by difficulty / platform / month / failure);
+#                          # a relative <run dir> is taken from runs/, e.g. cb report <model>/livecodebench-full
+#
+# Optional: MAX_TOKENS (default 16384; must fit the model's context; "none" = send no limit, LiveCodeBench only), WORKERS (parallel requests, default 16),
+#           LCB_RELEASE (default release_v6), LCB_START (only problems released on/after this date, e.g. 2025-01-01),
+#           LCB_IDS (file of question_ids: run exactly those LiveCodeBench problems, e.g. samples/lcb_newest100.txt),
+#           LCB_TIMEOUT (seconds per request, default 1800; long-thinking models with a large MAX_TOKENS need more),
+#           CRUX_MAX_TOKENS (CRUXEval's own limit is 100 direct / 1000 CoT; reasoning models count their thinking
+#           in max_tokens, so set it, e.g. to $MAX_TOKENS).
+# Model-generated code is executed, so everything runs as the unprivileged user "bench".
+set -euo pipefail
+CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,CRUX_MAX_TOKENS
+if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
+source $CB/env.sh
+export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
+cd $CB/runs   # harnesses chdir back to the start dir; root's cwd is unreadable for bench
+
+summary() {
+  python3 - "$CB/runs" <<'PY'
+import glob, json, os, sys
+rows = []
+for f in sorted(glob.glob(os.path.join(sys.argv[1], "*", "*", "result.json"))):
+    r = json.load(open(f))
+    rows.append((r["model"], r["benchmark"], r.get("pass@1"), r.get("problems"), "full" if r.get("full_set") else "SMOKE/partial", os.path.dirname(f)))
+if not rows:
+    print("no finished runs yet"); sys.exit()
+w = max(len(r[0]) for r in rows)
+print(f"{'model':<{w}}  {'benchmark':<24} {'pass@1':>7} {'n':>5}  set")
+for m, b, p, n, s, d in rows:
+    print(f"{m:<{w}}  {b:<24} {p if p is not None else '-':>7} {n:>5}  {s}")
+PY
+}
+
+[ $# -ge 1 ] || { sed -n 2,17p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ "$1" = summary ] && { summary; exit; }
+if [ "$1" = report ]; then
+  [ -n "${2:-}" ] || { echo "usage: cb report <run dir>" >&2; exit 1; }
+  exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_report.py "$(readlink -f "$2")" "${@:3}"
+fi
+SMOKE=0; BENCHES=()
+for a in "$@"; do
+  case $a in
+    --smoke) SMOKE=1 ;;
+    all) BENCHES+=(bigcodebench livecodebench cruxeval) ;;
+    bigcodebench|livecodebench|cruxeval) BENCHES+=("$a") ;;
+    *) echo "unknown argument: $a" >&2; exit 1 ;;
+  esac
+done
+: "${MODEL:?set MODEL}" "${OPENAI_BASE_URL:?set OPENAI_BASE_URL}" "${OPENAI_API_KEY:?set OPENAI_API_KEY}"
+export OPENAI_KEY=$OPENAI_API_KEY   # LiveCodeBench reads OPENAI_KEY
+if [ -n "${LCB_IDS:-}" ]; then   # a relative path is taken from the install dir, e.g. samples/lcb_newest100.txt
+  [ "${LCB_IDS:0:1}" = / ] || LCB_IDS=$CB/$LCB_IDS
+  [ -f "$LCB_IDS" ] || { echo "LCB_IDS: no such file $LCB_IDS" >&2; exit 1; }
+  export LCB_IDS
+fi
+MAX_TOKENS=${MAX_TOKENS:-16384}; WORKERS=${WORKERS:-16}
+TAG=$( [ $SMOKE = 1 ] && echo smoke || echo full )
+SAFE=${MODEL//\//_}
+
+result() {  # benchmark score problems full dir
+  [ "${4:-0}" -gt 0 ] || { echo "no problems were scored (check the date filter / dataset)" >&2; return 1; }
+  python3 -c 'import json,sys; b,m,s,n,f,d=sys.argv[1:]; json.dump({"benchmark":b,"model":m,"pass@1":round(float(s),2),"problems":int(n),"full_set":f=="1"}, open(d+"/result.json","w"), indent=1)' "$@"
+}
+
+run_bigcodebench() {
+  local d=$CB/runs/$SAFE/bigcodebench-hard-$TAG; mkdir -p "$d"; cd "$d"
+  local extra=()
+  if [ $SMOKE = 1 ]; then
+    local ids; ids=$($CB/venvs/bigcodebench/bin/python -c "
+from bigcodebench.data import get_bigcodebench
+print(','.join(list(get_bigcodebench(subset='hard'))[:5]))")
+    extra=(--id_range 0-5 --selective_evaluate "$ids")
+  fi
+  $CB/venvs/bigcodebench/bin/bigcodebench.evaluate --model "$MODEL" --backend openai --base_url "$OPENAI_BASE_URL" \
+    --split instruct --subset hard --execution local --greedy --max_new_tokens "$MAX_TOKENS" --parallel "$WORKERS" \
+    --root "$d/bcb_results" --pass_k 1 "${extra[@]}" || return 1
+  local f; f=$(ls "$d"/bcb_results/*_pass_at_k.json | head -1)
+  local p1 n; read -r p1 n < <(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); e=json.load(open(sys.argv[1].replace("_pass_at_k.json","_eval_results.json"))); print(r["pass@1"]*100, len(e["eval"]))' "$f")
+  result bigcodebench-hard-instruct "$MODEL" "$p1" "$n" $([ $SMOKE = 1 ] && echo 0 || echo 1) "$d"
+}
+
+run_livecodebench() {
+  local d=$CB/runs/$SAFE/livecodebench${LCB_IDS:+-$(basename "$LCB_IDS" .txt)}-$TAG; mkdir -p "$d"; cd "$d"
+  ln -sfn $CB/src/LiveCodeBench/lcb_runner lcb_runner   # it opens prompt files by relative path
+  local lcb_max=$MAX_TOKENS; [ "$MAX_TOKENS" = none ] && lcb_max=0   # lcb_run.py then drops max_tokens from the request
+  # On a resumed run LCB only grades problems missing from the old _eval_all.json, so an answer regenerated after
+  # an empty one (e.g. with a larger MAX_TOKENS) would keep its old grade. Re-grade every saved answer instead:
+  # generation still resumes (no repeated API calls), grading is local and takes seconds to minutes.
+  rm -f "$d"/output/*/Scenario.codegeneration_*_eval.json "$d"/output/*/Scenario.codegeneration_*_eval_all.json
+  local extra=()
+  [ -n "${LCB_START:-}" ] && extra+=(--start_date "$LCB_START")
+  [ $SMOKE = 1 ] && extra=(--start_date 2025-04-01)   # a handful of the newest problems (release_v6 ends 2025-04-06)
+  $CB/venvs/livecodebench/bin/python $CB/bin/lcb_run.py --scenario codegeneration \
+    --release_version "${LCB_RELEASE:-release_v6}" --n 1 --temperature 0.2 --max_tokens "$lcb_max" \
+    --openai_timeout "${LCB_TIMEOUT:-1800}" --multiprocess "$WORKERS" --evaluate --num_process_evaluate "$WORKERS" \
+    --continue_existing_with_eval "${extra[@]}" || return 1
+  local f; f=$(ls "$d"/output/*/Scenario.codegeneration_1_0.2_eval.json | head -1)
+  local p1 n; read -r p1 n < <(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); r=r[0] if isinstance(r,list) else r; print(r["pass@1"]*100 if r["pass@1"]<=1 else r["pass@1"], len(json.load(open(sys.argv[1].replace("_eval.json","_eval_all.json")))))' "$f")
+  result "livecodebench-${LCB_RELEASE:-release_v6}${LCB_START:+-from-$LCB_START}${LCB_IDS:+-$(basename "$LCB_IDS" .txt)}" "$MODEL" "$p1" "$n" $([ $SMOKE = 1 ] && echo 0 || echo 1) "$d"
+}
+
+run_cruxeval() {
+  local lim=(); [ $SMOKE = 1 ] && lim=(--limit 5)
+  [ -n "${CRUX_MAX_TOKENS:-}" ] && lim+=(--max_tokens "$CRUX_MAX_TOKENS")
+  for mode in input output; do
+    local d=$CB/runs/$SAFE/cruxeval-$mode-$TAG; mkdir -p "$d"; cd "$d"
+    $CB/venvs/cruxeval/bin/python $CB/bin/crux_run.py --mode $mode --n 1 --temperature 0.2 --workers "$WORKERS" \
+      --out "$d" "${lim[@]}" || return 1
+  done
+}
+
+for b in "${BENCHES[@]}"; do
+  echo "=== $b ($TAG) model=$MODEL  $(date +%F\ %T)"
+  if "run_$b"; then echo "=== $b done"; else echo "=== $b FAILED (exit $?)" >&2; fi
+done
+summary
