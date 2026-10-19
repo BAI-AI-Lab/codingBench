@@ -1,0 +1,49 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"   # the livecodebench env on the server
+      - name: Python syntax
+        run: |
+          git ls-files '*.py' | while read -r f; do python -m py_compile "$f" || exit 1; done
+      - name: Shell syntax
+        run: |
+          for f in $(git ls-files '*.sh') bin/cb; do bash -n "$f" || exit 1; done
+      - name: ShellCheck (errors only)
+        run: shellcheck -S error $(git ls-files '*.sh') bin/cb
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: LiveCodeBench report
+        run: python tests/test_lcb_report.py
+
+  secrets:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # scan every commit, not just the last one
+      - name: gitleaks
+        env:
+          GITLEAKS_VERSION: 8.21.2
+        run: |
+          curl -fsSL "https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" | tar -xz gitleaks
+          ./gitleaks git . --config .gitleaks.toml --redact --verbose
