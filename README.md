@@ -8,17 +8,7 @@
 | `livecodebench` | LiveCodeBench release_v6 | ICLR 2025 | 竞赛编程题（LeetCode / AtCoder / Codeforces），按发布日期切分，可以只算模型训练截止之后的新题 | 1055 |
 | `cruxeval` | CRUXEval 的 input 和 output 两项 | ICML 2024 | 读代码推理：给定函数和输出，写出输入（input）；或给定输入，算出输出（output） | 各 800 |
 
-## 安装（新服务器，root）
 
-```bash
-git clone git@github.com:BAI-AI-Lab/codingBench.git && cd codingBench
-deploy/setup.sh                                   # 建用户 bench 和安装目录（默认 /data/hx/code_bench，可用 CB=... 改），装上 cb 命令
-sudo -u bench -H bash /data/hx/code_bench/install.sh   # 拉官方仓库、建环境、下数据（十几分钟，约 18 GB）
-```
-
-以后更新：`git pull && deploy/setup.sh`（`deploy/setup.sh --check` 只看会改什么）。只有 `install.sh` 变了才需要重跑它。
-
-`install.sh` 用国内镜像：pip 用北外镜像，HF 用 hf-mirror，LiveCodeBench 的题目从 OpenCompass 的阿里云镜像下载，并逐个核对 sha256，保证和 HF 官方文件一致。
 
 ## 用法
 
@@ -42,18 +32,13 @@ cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按
 
 结果在 `runs/<模型名>/<benchmark>-full/result.json`，模型的原始回答也在同一个目录里。中途断了直接重跑同一条命令：已经答过的题不会再请求一次（每次都会把已有的回答重新判一遍分，在本机跑，不花钱）。
 
-## 费用
 
-全量之前一定先跑 `--smoke`。三个里最贵的是 LiveCodeBench：1055 题，每题最多 16384 个输出 token，推理模型全量可能要上千万 token。想省钱可以用 `LCB_START=2025-01-01` 只跑最新的 175 题。
 
 ## 打分口径
 
 - 都是 pass@1。BigCodeBench 用贪心解码（temperature 0），LiveCodeBench 和 CRUXEval 用 temperature 0.2、每题 1 次。
 - 和官方排行榜的提示词、打分程序相同。CRUXEval 官方排行榜每题采样 10 次再算 pass@1，这里每题 1 次，所以单次结果会有几个点的波动。
 
-## 安全
-
-模型写的代码会在这台机器上直接执行，所以全部以普通用户 `bench` 运行（`cb` 会自动切换），它只能写 `runs/`、`venvs/` 等工作目录，不能动服务器上的其他东西。
 
 ## 目录
 
