@@ -92,6 +92,10 @@ run_livecodebench() {
   local d=$CB/runs/$SAFE/livecodebench${LCB_IDS:+-$(basename "$LCB_IDS" .txt)}-$TAG; mkdir -p "$d"; cd "$d"
   ln -sfn $CB/src/LiveCodeBench/lcb_runner lcb_runner   # it opens prompt files by relative path
   local lcb_max=$MAX_TOKENS; [ "$MAX_TOKENS" = none ] && lcb_max=0   # lcb_run.py then drops max_tokens from the request
+  # On a resumed run LCB only grades problems missing from the old _eval_all.json, so an answer regenerated after
+  # an empty one (e.g. with a larger MAX_TOKENS) would keep its old grade. Re-grade every saved answer instead:
+  # generation still resumes (no repeated API calls), grading is local and takes seconds to minutes.
+  rm -f "$d"/output/*/Scenario.codegeneration_*_eval.json "$d"/output/*/Scenario.codegeneration_*_eval_all.json
   local extra=()
   [ -n "${LCB_START:-}" ] && extra+=(--start_date "$LCB_START")
   [ $SMOKE = 1 ] && extra=(--start_date 2025-04-01)   # a handful of the newest problems (release_v6 ends 2025-04-06)

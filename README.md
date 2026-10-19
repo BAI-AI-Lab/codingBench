@@ -40,7 +40,7 @@ cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按
 - `LCB_TIMEOUT`：每个请求最多等多少秒，默认 1800。推理模型把 `MAX_TOKENS` 调得很大时要跟着调大。
 - `CRUX_MAX_TOKENS`：CRUXEval 官方每次回答只给 100 个 token（带思维链的模式是 1000），那是给普通模型定的。推理模型的思考也算在 token 数里，会被截断成空答案，所以推理模型要设成和 `MAX_TOKENS` 一样。
 
-结果在 `runs/<模型名>/<benchmark>-full/result.json`，模型的原始回答也在同一个目录里。中途断了直接重跑同一条命令：已经答过的题不会再请求一次。
+结果在 `runs/<模型名>/<benchmark>-full/result.json`，模型的原始回答也在同一个目录里。中途断了直接重跑同一条命令：已经答过的题不会再请求一次（每次都会把已有的回答重新判一遍分，在本机跑，不花钱）。
 
 ## 费用
 
