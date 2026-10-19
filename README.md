@@ -61,6 +61,7 @@ cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按
 - `tools/lcb_report.py`：LiveCodeBench 报告
 - `samples/`：固定的题目清单
 - `deploy/setup.sh`：安装和更新（只在仓库里）
+- `reports/`：跑过的评测报告（例如 `2026-10-19_lcb_newest100.md`：DeepSeek-V4.1-Flash 对比 Qwen2.5-3B）
 - `SURVEY.md`：选这几个 benchmark 时调研过的约 45 个代码 benchmark（会议、获奖级别、怎么跑、国内能不能下）
 - `src/`：三个官方仓库（`install.sh` 拉取，钉在测过的 commit 上）
 - `venvs/`：每个 benchmark 一个独立的 Python 环境
