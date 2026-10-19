@@ -1,3 +1,4 @@
+# shellcheck shell=bash
 # source this as the bench user: shared settings for every code benchmark
 CB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export CB
