@@ -1,0 +1,15 @@
+# gitleaks config: the default rules plus the ways a server password has leaked into scripts before
+[extend]
+useDefault = true
+
+[[rules]]
+id = "sshpass-password"
+description = "Password given to sshpass on the command line or in SSHPASS"
+regex = '''(?i)(sshpass\s+-p\s*['"]?[^\s'"$]{4,}|SSHPASS=['"]?[^\s'"$]{4,})'''
+keywords = ["sshpass"]
+
+[[rules]]
+id = "openai-style-api-key"
+description = "OpenAI-format API key (sk-...), e.g. a DeepSeek key pasted into a run script"
+regex = '''\bsk-[A-Za-z0-9]{20,}\b'''
+keywords = ["sk-"]

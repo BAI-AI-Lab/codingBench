@@ -1,0 +1,22 @@
+# secrets and server-local settings never go in the repo
+*.env
+.env*
+srv.sh
+*.pem
+id_rsa*
+id_ed25519*
+
+# created on the server by install.sh / runs
+src/
+venvs/
+data/
+runs/
+python/
+.cache/
+.local/
+__pycache__/
+*.pyc
+*.log
+
+.DS_Store
+._*
