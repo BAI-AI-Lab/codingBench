@@ -1,0 +1,255 @@
+\documentclass[11pt,a4paper,fontset=none]{ctexart}
+\usepackage[margin=2.2cm]{geometry}
+\usepackage{newtxmath}
+\setmainfont{Times New Roman}
+\setsansfont{Times New Roman}
+\newcommand{\KaiPath}{/System/Library/AssetsV2/com_apple_MobileAsset_Font8/88d6cc32a907955efa1d014207889413890573be.asset/AssetData/}
+\setCJKmainfont{Kaiti.ttc}[Path=\KaiPath, FontIndex=0, BoldFont=Kaiti.ttc, BoldFeatures={FontIndex=3}]
+\setCJKsansfont{Kaiti.ttc}[Path=\KaiPath, FontIndex=0, BoldFont=Kaiti.ttc, BoldFeatures={FontIndex=3}]
+\setCJKmonofont{Kaiti.ttc}[Path=\KaiPath, FontIndex=0]
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{xcolor}
+\usepackage{enumitem}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepackage{pifont}
+\usepackage{xurl}
+\usepackage[hidelinks]{hyperref}
+\usepackage{fancyhdr}
+
+\definecolor{kimi}{HTML}{4C6EF5}
+\definecolor{dsflash}{HTML}{12B886}
+\definecolor{dspro}{HTML}{F08C00}
+\newcommand{\ok}{\ding{51}}
+\newcommand{\no}[1]{\ding{55}\,{\scriptsize #1}}
+\setlist{nosep,leftmargin=1.4em}
+\ctexset{section={format=\Large\bfseries\raggedright},subsection={format=\large\bfseries\raggedright}}
+\setlength{\parskip}{0.3em}
+\renewcommand{\arraystretch}{1.15}
+\pagestyle{fancy}\fancyhf{}
+\lhead{\small BAI AI Lab 代码能力评测}\rhead{\small 2026-10-23}\cfoot{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\input{data.tex}
+\input{summary.tex}
+
+\begin{document}
+
+\begin{center}
+{\LARGE\bfseries LiveCodeBench 代码能力评测}\\[0.4em]
+{\large Kimi K3.1 Pro / DeepSeek-V4.1-Flash / DeepSeek-V4-Pro}\\[0.3em]
+{\small 2026-10-23（UTC） \quad LiveCodeBench release\_v6 最新 35 题（中等 10、困难 25）}
+\end{center}
+
+\section*{结论}
+\begin{itemize}
+  \item 正确率：\KeySummaryPass
+  \item 速度：\KeySummarySpeed
+  \item 费用：\KeySummaryCost
+  \item \KeySummaryTakeaway
+\end{itemize}
+
+\section{模型}
+
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{2.2cm}*{3}{>{\raggedright\arraybackslash}X}@{}}
+\toprule
+ & Kimi K3.1 Pro & DeepSeek-V4.1-Flash & DeepSeek-V4-Pro \\
+\midrule
+API 模型名 & \texttt{kimi-k3.1-pro} & \texttt{deepseek-flash} & \texttt{deepseek-v4-pro} \\
+最近更新 & K3.1 系列首发 & 2026-10-17（1017 版） & 2026-08-13（GA） \\
+规模 & 3T 级，K3（2.8T）后训练 & 552B MoE，激活 8B 输入 / 16B 输出 & 未公布 \\
+权重 & 开放 & 开放，MIT & — \\
+上下文 / 最大输出 & 1M / 默认 131,072 & 1M / 393,216 & 1M / 393,216 \\
+输入 & 文本、图像 & 文本、图像 & 文本 \\
+思考档位 & 恒开；low/high/max，默认 max & low/high/max，默认 high & low/high/max，默认 high \\
+采样 & 固定 T=1.0、top\_p=0.95 & 推荐 T=1.0 & — \\
+单价（美元/百万 token，输入 / 缓存 / 输出） & 2 / 0.2 / 10，无峰谷 & 0.3 / 0.006 / 1.2，谷时半价 & 1.32 / 0.044 / 3.96，谷时半价 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Kimi K3.1 Pro}
+\begin{itemize}
+  \item 变更：在 K3 上大幅增加后训练算力，覆盖数百个领域联合 RL；重做 RL 框架、长上下文推理、沙箱、rollout 调度。
+  \item 官方提升方向：编程、3D 建模（直接写 Blender / CAD 脚本）、金融研究（内部 Financial Research 比 K3 高 11.6 分）、智能体。
+  \item 安全：中期训练与 RL 数据剔除网络安全内容；xdev-bench-hard pass@3 81.0\%（不剔除 90.5\%）。
+  \item 高速版 \texttt{kimi-k3.1-pro-highspeed}：速度 2--3 倍，价格 2 倍。K2 系列 2026 年底下线。
+  \item 使用限制：充值 $\ge$1 美元解锁；累计充值决定并发 / TPM；temperature、top\_p、n、penalty 不可传。
+  \item 官方文档中的编程基准分数为占位符（“[xx.x\%]”），无可引用数据。
+\end{itemize}
+
+\subsection{DeepSeek-V4.1-Flash}
+\begin{itemize}
+  \item 2026-09-10 发布：20 层因果编码器 + 20 层解码器；MoE 1 共享 + 384 路由专家，每 token 激活 6 个；KV 缓存 890 字节/token，HBM 为上一代 1/4、SSD 为 1/8；原生视觉；降价；V4-Flash 下线。
+  \item 2026-10-17 更新为 1017 版（新 / 旧）：Terminal-Bench 4.0 42.3 / 31.2，DeepSWE v1.1 77.0 / 74.2，ProgramBench 29.1 / 20.3，NL2Repo 68.2 / 65.4，HLE 42.6 / 36.8；输出更短、耗时更少；价格与调用方式不变。
+  \item Codeforces 3471（max 档；同表 V4-Pro 3348）。输出单价为 V4-Pro 的 30\%、Kimi K3.1 Pro 的 12\%。
+\end{itemize}
+
+\subsection{DeepSeek-V4-Pro}
+\begin{itemize}
+  \item 2026-04-24 首发；2026-08-13 GA：HLE 42.7 / 60.0（无 / 有工具），Terminal-Bench 2.1 87.9，DeepSWE 62.7，NL2Repo 61.5，Toolathlon-Verified 74.1；引入 low/high/max 三档；2026-08-16 起峰谷定价。
+  \item V4.1-Flash 新闻稿称 9 月 14 日起该模型名改由 V4.1-Flash 承接，更新日志称继续提供、计费不变。本次 API 返回模型名 \DSProServed，按 V4-Pro 单价扣费（见 \ref{sec:cost}）。
+  \item 仅文本输入；单价为 V4.1-Flash 的 3.3 倍；DeepSeek 自报多数基准低于 V4.1-Flash。
+\end{itemize}
+
+\section{评测方法}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{2.4cm}X@{}}
+\toprule
+项目 & 设置 \\
+\midrule
+评测集 & LiveCodeBench release\_v6（ICLR 2025），官方提示词、官方判题，隐藏用例全过才算通过 \\
+指标 & pass@1，每题 1 次 \\
+调用 & 官方 API；\texttt{BAI-AI-Lab/codingBench}，\texttt{cb livecodebench} \\
+思考档位 & 各模型默认（Kimi max，DeepSeek high） \\
+采样 & DeepSeek：temperature 0.2（LCB 官方）；Kimi：固定 1.0 \\
+输出上限 & DeepSeek 262,144；Kimi 131,072（默认）；\TruncNote \\
+并发 & V4.1-Flash 16，V4-Pro 8；Kimi 前 32 题 4 路非流式，后 3 题 1 路流式（5 分钟无 token 判超时）；延迟含服务端排队 \\
+计量 & 每次调用记录起止时间与服务端返回的 token（含思考） \\
+费用 & 官方单价 $\times$ token，DeepSeek 按调用时段区分峰谷；用账户余额变化核对 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{评测题目}
+
+\subsection{分布}
+release\_v6 最新 100 题中，按难度各取最新：中等 10、困难 25；发布于 2025-03-15 至 2025-04-06。
+
+\begin{center}
+\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+难度 & AtCoder & LeetCode & 合计 \\
+\midrule
+中等 & 7 & 3 & 10 \\
+困难 & 19 & 6 & 25 \\
+合计 & 26 & 9 & 35 \\
+\bottomrule
+\end{tabular}
+\qquad
+\begin{tabular}{@{}lrl@{}}
+\toprule
+来源 & 题数 & 形式 \\
+\midrule
+AtCoder ABC 397--400 & 17 & 完整程序，标准输入输出 \\
+AtCoder ARC 195--196 & 9 & 完整程序，标准输入输出 \\
+LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{示例}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{2.6cm}X@{}}
+\toprule
+题目 & 内容 \\
+\midrule
+\textbf{ABC 400 C}\newline “2\^{}a b\^{}2”\newline 中等，2025-04-05 &
+\textbf{题意}：$X = 2^a b^2$（$a,b \ge 1$）为好数；给定 $N \le 10^{18}$，求 $[1,N]$ 内好数个数。$N=20$ 时为 5（2, 4, 8, 16, 18）。\newline
+\textbf{考点}：好数恰为 $2m^2$ 或 $4m^2$ 两类且互不重叠，答案 $\lfloor\sqrt{N/2}\rfloor+\lfloor\sqrt{N/4}\rfloor$；须用整数开方，浮点 \texttt{sqrt} 在 $10^{18}$ 附近出错。\newline
+\textbf{结果}：\ExampleAResult \\
+\addlinespace
+\textbf{ARC 195 D}\newline “Swap and Erase”\newline 困难，2025-03-23 &
+\textbf{题意}：可交换相邻元素，或删除开头一段全部相等的前缀；求删空序列的最少操作数。$T \le 10^5$，$\sum N \le 2\times 10^5$。\newline
+\textbf{考点}：交换与删除的组合优化，须近线性时间。样例：$(1,1,2,1,2)$ 为 3（1 次交换 + 2 次删除），$(4,2,1,3)$ 为 4（不交换）。\newline
+\textbf{结果}：\ExampleBResult \\
+\addlinespace
+\textbf{LeetCode 3801}\newline “Count Beautiful Numbers”\newline 困难，2025-03-15 &
+\textbf{题意}：各位数字之积能被各位数字之和整除的正整数为美丽数；给定 $1 \le l \le r < 10^9$，求区间内个数。补全 \texttt{beautifulNumbers(self, l, r)}。\newline
+\textbf{考点}：数位 DP；含 0 时积为 0 必满足，否则积为 $2^a3^b5^c7^d$，状态有限；暴力枚举超时。\newline
+\textbf{结果}：\ExampleCResult \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\section{评测结果}
+
+\subsection{总表}
+\begin{center}
+\small
+\begin{tabular}{@{}lccc@{}}
+\toprule
+指标 & Kimi K3.1 Pro & DS-V4.1-Flash & DS-V4-Pro \\
+\midrule
+\OverallRows
+\bottomrule
+\end{tabular}
+\end{center}
+{\footnotesize 粗体为该行最优。1 题 = 2.9 个百分点。有效运行时间 = 成功请求覆盖的时长（不含因余额不足暂停的时间）。API 出错：DS-V4-Pro 13 次为余额不足（402）；Kimi 30 次为挂起请求被切断后的连接错误，1 次为余额不足（429）。}
+
+\begin{center}
+\begin{tikzpicture}
+\begin{axis}[ybar=2pt, width=0.86\linewidth, height=5.4cm, bar width=16pt, area legend, legend image post style={draw=none},
+  ymin=0, ymax=114, ytick={0,20,40,60,80,100}, ylabel={pass@1（\%）}, symbolic x coords={中等,困难,总计}, xtick=data, enlarge x limits=0.25,
+  nodes near coords={\pgfmathprintnumber[fixed,precision=0]{\pgfplotspointmeta}}, nodes near coords style={font=\scriptsize},
+  legend style={at={(0.5,1.03)},anchor=south,legend columns=3,draw=none,font=\small,/tikz/every even column/.append style={column sep=10pt}},
+  ymajorgrids, grid style={black!10}]
+\addplot[fill=kimi,draw=none] coordinates {\KimiCoords};
+\addplot[fill=dsflash,draw=none] coordinates {\DSFlashCoords};
+\addplot[fill=dspro,draw=none] coordinates {\DSProCoords};
+\legend{Kimi K3.1 Pro, DeepSeek-V4.1-Flash, DeepSeek-V4-Pro}
+\end{axis}
+\end{tikzpicture}
+\end{center}
+
+\subsection{按难度}
+\begin{center}
+\small
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+难度 & 模型 & 通过 & 延迟中位数（秒） & 平均输出 token & 最多输出 token \\
+\midrule
+\DiffRows
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{费用核对}\label{sec:cost}
+\CostCheck
+
+\subsection{分析}
+\Analysis
+
+\subsection{逐题结果}
+{\footnotesize 每个模型：结果 / 输出 token（含思考）/ 延迟（秒）。}
+{\scriptsize
+\setlength{\tabcolsep}{3pt}
+\begin{longtable}{@{}llclrrlrrlrr@{}}
+\toprule
+题号 & 题目 & 难度 & \multicolumn{3}{c}{Kimi K3.1 Pro} & \multicolumn{3}{c}{DS-V4.1-Flash} & \multicolumn{3}{c}{DS-V4-Pro} \\
+\midrule
+\endfirsthead
+\toprule
+题号 & 题目 & 难度 & \multicolumn{3}{c}{Kimi K3.1 Pro} & \multicolumn{3}{c}{DS-V4.1-Flash} & \multicolumn{3}{c}{DS-V4-Pro} \\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+\ProblemRows
+\end{longtable}}
+
+\section{局限}
+\begin{itemize}
+  \item 35 题、每题 1 次：30/35 的 95\% 置信区间约 70\%--95\%，相差 1--2 题不显著。
+  \item 采样温度不同：DeepSeek 0.2，Kimi 固定 1.0。
+  \item 延迟受并发和服务端负载影响。
+  \item 题目早于三个模型发布，不排除训练数据污染。
+  \item LCB 官方判题不支持 \texttt{sys.stdout.buffer}，影响 \texttt{abc398\_f}（未修改官方实现）。
+  \item Kimi 的 \texttt{abc399\_e} 回答与题目无关，按原样计为失败；余额不足，未重跑。
+\end{itemize}
+
+\section*{来源}
+{\small
+\begin{itemize}
+  \item Kimi：\url{https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart}，\url{https://platform.kimi.ai/docs/models}，\url{https://platform.kimi.ai/docs/pricing/chat}
+  \item DeepSeek：\url{https://api-docs.deepseek.com/updates/}，\url{https://www.deepseek.com/en/news/deepseek-v4-1-flash/}，\url{https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash}，\url{https://api-docs.deepseek.com/quick_start/pricing}
+  \item 上下文、最大输出、默认档位：两家 API \texttt{/v1/models}（2026-10-23）
+  \item LiveCodeBench：\url{https://livecodebench.github.io}
+\end{itemize}}
+
+\end{document}

@@ -1,0 +1,27 @@
+\newcommand{\KeySummaryPass}{DS-V4-Pro 32/35（91.4\%）最高；Kimi K3.1 Pro、DS-V4.1-Flash 均 30/35（85.7\%）。相差 2 题，35 题样本内不显著。中等题 Kimi、DS-V4-Pro 10/10，DS-V4.1-Flash 9/10；困难题（25 题）DS-V4-Pro 22、DS-V4.1-Flash 21、Kimi 20。}
+\newcommand{\KeySummarySpeed}{每题延迟中位数 DS-V4.1-Flash 64 秒、Kimi 199 秒、DS-V4-Pro 285 秒；输出速度中位数 DS-V4.1-Flash 179、DS-V4-Pro 134、Kimi 65 token/秒。}
+\newcommand{\KeySummaryCost}{按 token 计：DS-V4.1-Flash \$0.39、DS-V4-Pro \$3.33、Kimi \$8.57；每道通过题 \$0.013 / \$0.104 / \$0.286。Kimi 实际扣费 \$17.59，其中 \$9.02 花在 7 个未返回结果的请求上。}
+\newcommand{\KeySummaryTakeaway}{选型：性价比 DS-V4.1-Flash（与 Kimi 同分，费用为 Kimi 的 1/22，速度最快）；最高正确率 DS-V4-Pro（每题输出 token 中位数为 Flash 的 3.2 倍）；Kimi K3.1 Pro 中等题全对，但最慢、单价最高，非流式长请求在余额不足时挂起 1 小时以上且照常扣费，须用流式 + 空闲超时调用。}
+
+\newcommand{\CostCheck}{%
+\begin{itemize}
+  \item DS-V4.1-Flash：账户余额 ¥11.32 → ¥9.37，实扣 ¥1.95；按美元价目折算 \$0.39（人民币账户按人民币价目扣费）。
+  \item DS-V4-Pro：按 token 计 \$3.33（全部在谷时）。运行中两次充值金额未记录，无法用余额核对。13 次调用因余额不足立即返回 402、不生成内容，充值后补跑。
+  \item Kimi K3.1 Pro：三次充值共 \$17.50，最终余额 $-$\$0.09，实扣 \$17.59。成功返回的 35 次调用按 token 计 \$8.57。差额 \$9.02（按余额变化推算）对应 7 个未返回结果的请求：4 个在余额耗尽后挂起 1--1.5 小时，3 个被手动中断。
+\end{itemize}}
+
+\newcommand{\Analysis}{%
+\begin{itemize}
+  \item 共同结果：28 题三个模型都通过；\texttt{abc397\_d}、\texttt{arc195\_c} 三个模型都失败。只有 Kimi 通过：\texttt{arc196\_b}；只有 DS-V4-Pro 通过：\texttt{abc398\_f}。
+  \item Kimi 失败的 5 题：
+  \begin{itemize}
+    \item \texttt{abc397\_d}、\texttt{arc195\_c}：答案错误。
+    \item \texttt{abc398\_g}：运行错误（IndexError）；思考 11.9 万 token、31 分钟，正常结束。
+    \item \texttt{abc398\_f}：运行错误，原因是评测框架限制（见下）。
+    \item \texttt{abc399\_e}：返回与题目无关的拒答（内容是一部电影的营销手法），输入 610 token 正常，判为无代码；疑似服务端错误，未重跑。
+  \end{itemize}
+  \item DS-V4.1-Flash 失败：\texttt{abc399\_c}、\texttt{abc397\_d}、\texttt{arc195\_c} 答案错误；\texttt{abc398\_f}、\texttt{arc196\_b} 运行错误。DS-V4-Pro 失败：\texttt{abc397\_d}、\texttt{arc195\_c} 答案错误；\texttt{arc196\_b} 运行错误。
+  \item 评测框架限制：LCB 判题用 StringIO 捕获标准输出，不支持 \texttt{sys.stdout.buffer}。35 题中只有 \texttt{abc398\_f} 上的 DS-V4.1-Flash 和 Kimi 用了它，均报 AttributeError；DS-V4-Pro 用 \texttt{print}，通过。读入用 \texttt{sys.stdin.buffer} 不受影响。
+  \item 推理量：每题输出 token 中位数 DS-V4.1-Flash 12k、Kimi 14k、DS-V4-Pro 38k；困难题平均 22k / 31k / 61k。DS-V4-Pro 用 Flash 2.8 倍的困难题 token，多做对 1 道困难题。
+  \item 调用稳定性：DeepSeek 余额不足时立即返回 402，补跑即可，已答结果不丢。Kimi 非流式请求在余额耗尽后挂起 1--1.5 小时，既不返回也不报错；改为流式 + 5 分钟空闲超时后，最后 3 题单路完成（每题 20--31 分钟）。
+\end{itemize}}
