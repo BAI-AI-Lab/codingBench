@@ -95,8 +95,9 @@ def _run_single_safe(self, prompt, n=10):
 
 def _is_out_of_balance(e):
     text = repr(e).lower()
-    return getattr(e, "status_code", None) == 402 or any(
-        s in text for s in ("insufficient balance", "insufficient_balance", "exceeded_current_quota", "suspended"))
+    return getattr(e, "status_code", None) == 402 or any(s in text for s in (
+        "insufficient balance", "insufficient_balance", "exceeded_current_quota", "suspended",
+        "balance is running low"))  # Kimi: 429 "Your credit balance is running low ..., please recharge"
 
 
 _run_single_safe.__name__ = "_run_single"  # workers get the bound method pickled by name
