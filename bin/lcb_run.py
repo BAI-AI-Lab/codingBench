@@ -103,8 +103,12 @@ def _is_out_of_balance(e):
 _run_single_safe.__name__ = "_run_single"  # workers get the bound method pickled by name
 _oai.OpenAIRunner._run_single = _run_single_safe
 
-# LCB_USAGE_LOG=<file>: append one JSON line per API call (start/end time, usage, finish reason, or the error),
-# so tools/lcb_usage.py can report latency and tokens. Retries after an error are logged as separate calls.
+# The SDK's own retries (2 by default, e.g. after a timeout) would resend a request unseen by the log below;
+# LCB already retries in _run_single, so turn them off.
+_oai.OpenAIRunner.client = _oai.OpenAIRunner.client.with_options(max_retries=0)
+
+# LCB_USAGE_LOG=<file>: append one JSON line per API call (start/end time, usage, finish reason, the answer, or the
+# error), so tools/lcb_usage.py can report latency and tokens, and a later run can recover answers (see below).
 USAGE = os.environ.get("LCB_USAGE_LOG")
 _completions = _oai.OpenAIRunner.client.chat.completions
 _create = _completions.create
@@ -133,7 +137,8 @@ def _create_checked(*args, **kwargs):
     if USAGE:
         rec.update(end=time.time(), model=r.model, usage=r.usage.model_dump() if r.usage else None,
                    finish=[c.finish_reason for c in r.choices],
-                   chars=[len(c.message.content or "") for c in r.choices])
+                   chars=[len(c.message.content or "") for c in r.choices],
+                   content=[c.message.content or "" for c in r.choices])
         _log(rec)
     return r
 
@@ -142,6 +147,46 @@ _completions.create = _create_checked
 
 from lcb_runner.runner import main as lcb_main  # noqa: E402  (after registering)
 
+
+def _recover_from_usage_log():
+    """Put answers logged in $LCB_USAGE_LOG into LCB's output file, so --continue_existing skips those problems.
+
+    LCB writes its output file only after the last problem, so a run that is killed or crashes loses every answer;
+    the usage log has them. Only problems with no non-empty answer in the output file are filled in.
+    """
+    from lcb_runner.runner.parser import get_args
+    from lcb_runner.runner.scenario_router import build_prompt_benchmark, combine_results
+    from lcb_runner.utils.path_utils import get_output_path
+
+    answers = {}  # prompt text -> answers, last successful call wins
+    for line in open(USAGE):
+        rec = json.loads(line)
+        if rec.get("content") and any(rec["content"]):
+            answers["\n".join(m.get("content") or "" for m in rec["messages"])] = rec["content"]
+    if not answers:
+        return
+    args = get_args()
+    model = lm_styles.LanguageModelStore[args.model]
+    benchmark, _ = build_prompt_benchmark(args)
+    path = get_output_path(model.model_repr, args)
+    old = json.load(open(path)) if os.path.exists(path) else []
+    have = {r["question_id"] for r in old if any(r["output_list"])}
+    new = []
+    for p in benchmark:
+        if p.question_id in have:
+            continue
+        hit = [a for prompt, a in answers.items() if p.question_content.strip() in prompt]
+        if hit:
+            (outputs, codes), = combine_results(args.scenario, [hit[-1]], model, args.cot_code_execution)
+            new.append(p.insert_output(outputs, codes))
+    if new:
+        ids = {r["question_id"] for r in new}
+        json.dump([r for r in old if r["question_id"] not in ids] + new, open(path, "w"), indent=4)
+        print(f"recovered {len(new)} answers from {USAGE}")
+
+
 if __name__ == "__main__":  # the runner's worker processes are spawned and re-import this file
     sys.argv = ["lcb_runner.runner.main", "--model", name] + sys.argv[1:]
+    if USAGE and os.path.exists(USAGE):
+        _recover_from_usage_log()
     lcb_main.main()
