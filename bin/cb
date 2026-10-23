@@ -17,12 +17,14 @@
 #           LCB_TIMEOUT (seconds per request, default 1800; long-thinking models with a large MAX_TOKENS need more),
 #           LCB_OMIT (comma-separated request fields to leave out, for models that fix them, e.g. Kimi K3.1 Pro:
 #           temperature,top_p,n,presence_penalty,frequency_penalty),
+#           LCB_STREAM=1 (stream answers: LCB_TIMEOUT then limits the wait between tokens, and runs/<run>/usage.jsonl.live.<pid>
+#           shows each request's progress),
 #           CRUX_MAX_TOKENS (CRUXEval's own limit is 100 direct / 1000 CoT; reasoning models count their thinking
 #           in max_tokens, so set it, e.g. to $MAX_TOKENS).
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,CRUX_MAX_TOKENS
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,LCB_STREAM,CRUX_MAX_TOKENS
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -44,7 +46,7 @@ for m, b, p, n, s, d in rows:
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,21p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,23p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
 if [ "$1" = report ]; then
   [ -n "${2:-}" ] || { echo "usage: cb report <run dir>" >&2; exit 1; }

@@ -29,6 +29,7 @@ cb usage <模型名>/livecodebench-full    # 每次 API 调用的延迟和 token
 - `LCB_RELEASE`：默认 `release_v6`，题目到 2025 年 4 月。
 - `LCB_IDS=samples/lcb_newest100.txt`：只跑清单里的题（相对路径从安装目录算起）。`samples/lcb_newest100.txt` 是 release_v6 里最新的 100 题（2025-02-15 到 2025-04-06，简单 23、中等 30、困难 47）。`samples/lcb_newest35.txt` 是从这 100 题里按难度各取最新的：中等 10、困难 25（2025-03-15 到 2025-04-06，AtCoder 26、LeetCode 9），用来省钱。
 - `LCB_TIMEOUT`：每个请求最多等多少秒，默认 1800。推理模型把 `MAX_TOKENS` 调得很大时要跟着调大。
+- `LCB_STREAM=1`：LiveCodeBench 用流式请求。`LCB_TIMEOUT` 变成“多久收不到新 token 就算超时”，卡住的请求很快重试；运行目录里的 `usage.jsonl.live.<进程号>` 每 10 秒更新一次已收到的字符数（思考 / 回答），用来看进度。
 - `LCB_OMIT`：LiveCodeBench 请求里不发送的字段，逗号分隔。有的模型把这些参数固定了，发了会报错，比如 Kimi K3.1 Pro 要设 `LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty`（它固定 temperature 1.0、top_p 0.95）。
 - `CRUX_MAX_TOKENS`：CRUXEval 官方每次回答只给 100 个 token（带思维链的模式是 1000），那是给普通模型定的。推理模型的思考也算在 token 数里，会被截断成空答案，所以推理模型要设成和 `MAX_TOKENS` 一样。
 

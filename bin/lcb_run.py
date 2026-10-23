@@ -123,10 +123,68 @@ def _log(rec):
         os.close(fd)
 
 
+# LCB_STREAM=1: request a streamed answer and put it back together, so a stalled request fails after LCB_TIMEOUT
+# seconds without a token (instead of LCB_TIMEOUT for the whole answer), and progress is visible while it runs:
+# every 10 s each worker rewrites $LCB_USAGE_LOG.live.<pid> with the characters received so far.
+STREAM = os.environ.get("LCB_STREAM") == "1"
+
+
+def _dump(u):
+    return u.model_dump() if hasattr(u, "model_dump") else u
+
+
+def _create_streamed(*args, **kwargs):
+    import types
+
+    import httpx
+    import openai
+
+    kwargs = dict(kwargs, stream=True, stream_options={"include_usage": True})
+    live = f"{USAGE}.live.{os.getpid()}" if USAGE else None
+    prompt = (kwargs.get("messages") or [{}])[-1].get("content") or ""
+    start, first, last_write = time.time(), None, 0.0
+    model, usage, finish, content, reasoning = None, None, None, [], []
+    try:
+        for ch in _create(*args, **kwargs):
+            model = ch.model or model
+            usage = ch.usage or usage
+            for c in ch.choices:
+                d = c.delta
+                think = getattr(d, "reasoning_content", None) or (getattr(d, "model_extra", None) or {}).get(
+                    "reasoning_content")
+                if d.content or think:
+                    first = first or time.time()
+                if d.content:
+                    content.append(d.content)
+                if think:
+                    reasoning.append(think)
+                finish = c.finish_reason or finish
+                usage = (getattr(c, "model_extra", None) or {}).get("usage") or usage  # Kimi: usage on the choice
+            if live and time.time() - last_write > 10:
+                last_write = time.time()
+                with open(live + ".tmp", "w") as f:
+                    json.dump({"start": start, "updated": last_write, "first_token": first,
+                               "reasoning_chars": sum(map(len, reasoning)), "content_chars": sum(map(len, content)),
+                               "prompt": prompt[:2000]}, f, ensure_ascii=False)
+                os.replace(live + ".tmp", live)
+    except openai.OpenAIError:
+        raise
+    except httpx.TimeoutException as e:  # raised while reading the stream; LCB only retries openai errors
+        raise openai.APITimeoutError(request=e.request) from e
+    except httpx.HTTPError as e:
+        raise openai.APIConnectionError(request=getattr(e, "request", None) or httpx.Request("POST", "")) from e
+    finally:
+        if live and os.path.exists(live):
+            os.remove(live)
+    msg = types.SimpleNamespace(content="".join(content))
+    return types.SimpleNamespace(model=model, usage=usage, first_token=first, reasoning_chars=sum(map(len, reasoning)),
+                                 choices=[types.SimpleNamespace(finish_reason=finish, message=msg)])
+
+
 def _create_checked(*args, **kwargs):
     rec = {"start": time.time(), "messages": kwargs.get("messages")}
     try:
-        r = _create(*args, **kwargs)
+        r = (_create_streamed if STREAM else _create)(*args, **kwargs)
     except Exception as e:
         if _is_out_of_balance(e):
             _broke.append(1)
@@ -135,10 +193,12 @@ def _create_checked(*args, **kwargs):
             _log(rec)
         raise
     if USAGE:
-        rec.update(end=time.time(), model=r.model, usage=r.usage.model_dump() if r.usage else None,
+        rec.update(end=time.time(), model=r.model, usage=_dump(r.usage) if r.usage else None,
                    finish=[c.finish_reason for c in r.choices],
                    chars=[len(c.message.content or "") for c in r.choices],
                    content=[c.message.content or "" for c in r.choices])
+        if STREAM:
+            rec.update(first_token=r.first_token, reasoning_chars=r.reasoning_chars)
         _log(rec)
     return r
 
