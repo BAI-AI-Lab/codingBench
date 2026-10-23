@@ -8,17 +8,21 @@
 #   cb summary             # scores of every finished run
 #   cb report <run dir>    # Markdown report of a LiveCodeBench run (by difficulty / platform / month / failure);
 #                          # a relative <run dir> is taken from runs/, e.g. cb report <model>/livecodebench-full
+#   cb usage <run dir>     # latency and tokens of each API call in a LiveCodeBench run (add --price-in/--price-hit/--price-out
+#                          # per 1M tokens for the cost)
 #
 # Optional: MAX_TOKENS (default 16384; must fit the model's context; "none" = send no limit, LiveCodeBench only), WORKERS (parallel requests, default 16),
 #           LCB_RELEASE (default release_v6), LCB_START (only problems released on/after this date, e.g. 2025-01-01),
 #           LCB_IDS (file of question_ids: run exactly those LiveCodeBench problems, e.g. samples/lcb_newest100.txt),
 #           LCB_TIMEOUT (seconds per request, default 1800; long-thinking models with a large MAX_TOKENS need more),
+#           LCB_OMIT (comma-separated request fields to leave out, for models that fix them, e.g. Kimi K3.1 Pro:
+#           temperature,top_p,n,presence_penalty,frequency_penalty),
 #           CRUX_MAX_TOKENS (CRUXEval's own limit is 100 direct / 1000 CoT; reasoning models count their thinking
 #           in max_tokens, so set it, e.g. to $MAX_TOKENS).
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,CRUX_MAX_TOKENS
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,CRUX_MAX_TOKENS
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -40,11 +44,15 @@ for m, b, p, n, s, d in rows:
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,17p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,21p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
 if [ "$1" = report ]; then
   [ -n "${2:-}" ] || { echo "usage: cb report <run dir>" >&2; exit 1; }
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_report.py "$(readlink -f "$2")" "${@:3}"
+fi
+if [ "$1" = usage ]; then
+  [ -n "${2:-}" ] || { echo "usage: cb usage <run dir> [--price-in X --price-hit Y --price-out Z]" >&2; exit 1; }
+  exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_usage.py "$(readlink -f "$2")" "${@:3}"
 fi
 SMOKE=0; BENCHES=()
 for a in "$@"; do
@@ -96,6 +104,7 @@ run_livecodebench() {
   # an empty one (e.g. with a larger MAX_TOKENS) would keep its old grade. Re-grade every saved answer instead:
   # generation still resumes (no repeated API calls), grading is local and takes seconds to minutes.
   rm -f "$d"/output/*/Scenario.codegeneration_*_eval.json "$d"/output/*/Scenario.codegeneration_*_eval_all.json
+  export LCB_USAGE_LOG=$d/usage.jsonl   # per-call latency and tokens, read by tools/lcb_usage.py
   local extra=()
   [ -n "${LCB_START:-}" ] && extra+=(--start_date "$LCB_START")
   [ $SMOKE = 1 ] && extra=(--start_date 2025-04-01)   # a handful of the newest problems (release_v6 ends 2025-04-06)
