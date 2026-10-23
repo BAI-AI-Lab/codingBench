@@ -1,27 +1,36 @@
-\newcommand{\KeySummaryPass}{DS-V4-Pro 32/35（91.4\%）最高；Kimi K3.1 Pro、DS-V4.1-Flash 均 30/35（85.7\%）。相差 2 题，35 题样本内不显著。中等题 Kimi、DS-V4-Pro 10/10，DS-V4.1-Flash 9/10；困难题（25 题）DS-V4-Pro 22、DS-V4.1-Flash 21、Kimi 20。}
-\newcommand{\KeySummarySpeed}{每题延迟中位数 DS-V4.1-Flash 64 秒、Kimi 199 秒、DS-V4-Pro 285 秒；输出速度中位数 DS-V4.1-Flash 179、DS-V4-Pro 134、Kimi 65 token/秒。}
-\newcommand{\KeySummaryCost}{按 token 计：DS-V4.1-Flash \$0.39、DS-V4-Pro \$3.33、Kimi \$8.57；每道通过题 \$0.013 / \$0.104 / \$0.286。Kimi 实际扣费 \$17.59，其中 \$9.02 花在 7 个未返回结果的请求上。}
-\newcommand{\KeySummaryTakeaway}{选型：性价比 DS-V4.1-Flash（与 Kimi 同分，费用为 Kimi 的 1/22，速度最快）；最高正确率 DS-V4-Pro（每题输出 token 中位数为 Flash 的 3.2 倍）；Kimi K3.1 Pro 中等题全对，但最慢、单价最高，非流式长请求在余额不足时挂起 1 小时以上且照常扣费，须用流式 + 空闲超时调用。}
+\newcommand{\KeySummaryPass}{复核后 DS-V4.1-Flash 35/35、DS-V4-Pro 35/35、Kimi K3.1 Pro 34/35（只错 \texttt{abc398\_g}）。LCB 原始判分为 30 / 32 / 30，共 12 个失败由评测问题造成，不是模型错误（见 \ref{sec:issues}）。}
+\newcommand{\KeySummarySpeed}{每题延迟中位数：DS-V4.1-Flash 64 秒、Kimi 199 秒、DS-V4-Pro 285 秒。输出速度中位数：DS-V4.1-Flash 179、DS-V4-Pro 134、Kimi 65 token/秒。}
+\newcommand{\KeySummaryCost}{按 token 计：DS-V4.1-Flash \$0.39、DS-V4-Pro \$3.33、Kimi \$8.57。每道通过题：\$0.011 / \$0.095 / \$0.252。Kimi 实际扣费 \$17.59，其中 \$9.02 花在 7 个未返回结果的请求上。}
+\newcommand{\KeySummaryTakeaway}{选型：DS-V4.1-Flash 与 DS-V4-Pro 同为满分，但费用只有 Pro 的 12\%，每题输出 token 中位数约为 Pro 的 1/3，延迟为 Pro 的 1/4.5。Kimi K3.1 Pro 34/35，速度最慢、单价最高；非流式长请求在余额不足时会挂起 1 小时以上且照常扣费，必须用流式 + 空闲超时调用。}
+
+\newcommand{\IssuesTable}{%
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{4.3cm}>{\raggedright}p{3.3cm}>{\raggedright}p{2.1cm}>{\raggedright\arraybackslash}X@{}}
+\toprule
+问题 & 受影响答案 & LCB 判定 & 复核 \\
+\midrule
+测试数据错误：\texttt{abc397\_d} 第 41 个测试 $N=27$，标准答案为“3 0”；$y=0$ 不是正整数，27 不存在正整数解，正确输出为 $-1$ & 三个模型（均输出 $-1$） & 答案错误 & 校验器 43/43 \\
+多解题按单一答案比对：\texttt{arc195\_c} 允许任意合法构造 & 三个模型 & 答案错误 & 校验器 5/5 \\
+\texttt{sys.\allowbreak stdin.\allowbreak buffer.\allowbreak readline} 模拟错误：每次都返回输入的第一行 & Flash \texttt{abc399\_c}、\texttt{arc196\_b}；Pro \texttt{arc196\_b} & 答案错误 / 运行错误 & 真实输入全部通过 \\
+不支持 \texttt{sys.\allowbreak stdout.\allowbreak buffer}：标准输出被替换为 StringIO & Kimi、Flash \texttt{abc398\_f} & 运行错误 & 真实输出 43/43 \\
+API 返回与题目无关的拒答（内容是一部电影的营销手法） & Kimi \texttt{abc399\_e} & 无代码 & 用户另行运行，确认正确 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+{\footnotesize 复核方法：26 道 AtCoder 题 $\times$ 3 个模型 = 78 份答案，作为独立 Python 进程用真实 stdin/stdout 运行官方全部测试（每个测试 6 秒）。两道多解题用按题意编写的校验器；其余题逐 token 比对。LCB 判为通过的答案复核后全部仍通过。LeetCode 9 题为函数调用，不受上述问题影响，沿用 LCB 判分。上述问题均出自 LCB 官方判题代码与数据（本评测钉住的版本），未修改。Kimi \texttt{abc398\_g} 在 LCB 中报 IndexError，也是 readline 问题导致；换成真实输入后仍有 4/43 个测试答案错误，按失败计。}}
 
 \newcommand{\CostCheck}{%
 \begin{itemize}
-  \item DS-V4.1-Flash：账户余额 ¥11.32 → ¥9.37，实扣 ¥1.95；按美元价目折算 \$0.39（人民币账户按人民币价目扣费）。
-  \item DS-V4-Pro：按 token 计 \$3.33（全部在谷时）。运行中两次充值金额未记录，无法用余额核对。13 次调用因余额不足立即返回 402、不生成内容，充值后补跑。
-  \item Kimi K3.1 Pro：三次充值共 \$17.50，最终余额 $-$\$0.09，实扣 \$17.59。成功返回的 35 次调用按 token 计 \$8.57。差额 \$9.02（按余额变化推算）对应 7 个未返回结果的请求：4 个在余额耗尽后挂起 1--1.5 小时，3 个被手动中断。
+  \item DS-V4.1-Flash：账户余额 ¥11.32 → ¥9.37，实扣 ¥1.95；按美元价目折算为 \$0.39（人民币账户按人民币价目扣费）。
+  \item DS-V4-Pro：按 token 计 \$3.33（全部在谷时）。运行期间两次充值的金额未记录，无法用余额核对。13 次调用因余额不足立即返回 402，不生成内容，充值后补跑。
+  \item Kimi K3.1 Pro：三次充值共 \$17.50，最终余额 $-$\$0.09，实扣 \$17.59。成功返回的 35 次调用按 token 计 \$8.57。差额 \$9.02（由余额变化推算）对应 7 个未返回结果的请求：4 个在余额耗尽后挂起 1--1.5 小时，3 个被手动中断。
 \end{itemize}}
 
 \newcommand{\Analysis}{%
 \begin{itemize}
-  \item 共同结果：28 题三个模型都通过；\texttt{abc397\_d}、\texttt{arc195\_c} 三个模型都失败。只有 Kimi 通过：\texttt{arc196\_b}；只有 DS-V4-Pro 通过：\texttt{abc398\_f}。
-  \item Kimi 失败的 5 题：
-  \begin{itemize}
-    \item \texttt{abc397\_d}、\texttt{arc195\_c}：答案错误。
-    \item \texttt{abc398\_g}：运行错误（IndexError）；思考 11.9 万 token、31 分钟，正常结束。
-    \item \texttt{abc398\_f}：运行错误，原因是评测框架限制（见下）。
-    \item \texttt{abc399\_e}：返回与题目无关的拒答（内容是一部电影的营销手法），输入 610 token 正常，判为无代码；疑似服务端错误，未重跑。
-  \end{itemize}
-  \item DS-V4.1-Flash 失败：\texttt{abc399\_c}、\texttt{abc397\_d}、\texttt{arc195\_c} 答案错误；\texttt{abc398\_f}、\texttt{arc196\_b} 运行错误。DS-V4-Pro 失败：\texttt{abc397\_d}、\texttt{arc195\_c} 答案错误；\texttt{arc196\_b} 运行错误。
-  \item 评测框架限制：LCB 判题用 StringIO 捕获标准输出，不支持 \texttt{sys.stdout.buffer}。35 题中只有 \texttt{abc398\_f} 上的 DS-V4.1-Flash 和 Kimi 用了它，均报 AttributeError；DS-V4-Pro 用 \texttt{print}，通过。读入用 \texttt{sys.stdin.buffer} 不受影响。
-  \item 推理量：每题输出 token 中位数 DS-V4.1-Flash 12k、Kimi 14k、DS-V4-Pro 38k；困难题平均 22k / 31k / 61k。DS-V4-Pro 用 Flash 2.8 倍的困难题 token，多做对 1 道困难题。
+  \item 复核后唯一的真实错误：Kimi \texttt{abc398\_g}（博弈题），思考 11.9 万 token、耗时 31 分钟后，在 4/43 个测试上答案错误。这题 DS-V4.1-Flash 用 6.3 万 token、DS-V4-Pro 用 17.4 万 token 都做对了。
+  \item 推理量：每题输出 token 中位数 DS-V4.1-Flash 12k、Kimi 14k、DS-V4-Pro 38k；困难题平均分别为 22k、31k、61k。DS-V4-Pro 多用的 token 没有换来更多通过题。
   \item 调用稳定性：DeepSeek 余额不足时立即返回 402，补跑即可，已答结果不丢。Kimi 非流式请求在余额耗尽后挂起 1--1.5 小时，既不返回也不报错；改为流式 + 5 分钟空闲超时后，最后 3 题单路完成（每题 20--31 分钟）。
+  \item LCB 原始判分的误差：在这 35 题上，原始判分把 Flash 和 Pro 都低估了，Flash 少算 5 题、Pro 少算 3 题，而且两者的排序也被颠倒（原始 Pro 领先 2 题，复核后持平）。凡是用 LCB 判分做模型对比，都应复核失败题。
 \end{itemize}}

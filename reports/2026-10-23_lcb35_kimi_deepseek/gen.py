@@ -16,6 +16,17 @@ MODELS = [  # key, display name, short name, price per 1M tokens (USD): (miss, h
     ("deepseek-v4-pro", "DeepSeek-V4-Pro", "DS-Pro", {"peak": (1.32, 0.044, 3.96), "off": (0.66, 0.022, 1.98)}),
 ]
 ERR = {-2: "答案错误", -3: "超时", -4: "运行/编译错误", -1: "其他错误"}
+# Re-judge of every AtCoder answer with real stdin/stdout and checkers (rejudge.py on the server); LeetCode
+# answers keep LCB's verdict (function calls, untouched by the stdin/stdout problems).
+REJUDGE, KIND = {}, {}  # verdict, and the re-judged failure kind
+for line in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rejudge_atcoder.jsonl")):
+    r = json.loads(line)
+    if "model" in r:
+        n, t = map(int, (r.get("checker") or r.get("exact")).split("/"))
+        REJUDGE[(r["model"], r["q"])] = n == t
+        if n != t:
+            KIND[(r["model"], r["q"])] = {"WA": "答案错误", "RE": "运行错误", "TLE": "超时"}[r["failed_tests"][0][1]]
+USER_VERIFIED = {("kimi-k3.1-pro", "abc399_e")}  # the user re-ran it and it was correct
 problems = {p["question_id"]: p for p in json.load(open(os.path.join(HERE, "problems35.json")))}
 ORDER = sorted(problems, key=lambda q: ({"medium": 0, "hard": 1}[problems[q]["difficulty"]],
                                        problems[q]["platform"], problems[q]["contest_date"], q))
@@ -72,10 +83,21 @@ def load(key, prices):
          "wall": busy / 60, "finish": finish}
     m["lat"] = {q: cs[-1]["end"] - cs[-1]["start"] for q, cs in by_q.items()}
     m["out"] = {q: tokens(cs[-1].get("usage"))[2] for q, cs in by_q.items()}
-    m["passed"] = {q: bool(r["graded_list"][0]) for q, r in rows.items()}
+    m["lcb"] = {q: bool(r["graded_list"][0]) for q, r in rows.items()}
+    m["passed"], m["mark"] = {}, {}
+    for q in rows:
+        ok = REJUDGE.get((key, q), m["lcb"][q])
+        if (key, q) in USER_VERIFIED:
+            ok, m["mark"][q] = True, "$^{\\dagger}$"
+        elif ok and not m["lcb"][q]:
+            m["mark"][q] = "$^{*}$"
+        m["passed"][q] = ok
     m["why"] = {}
     for q, r in rows.items():
         if m["passed"][q]:
+            continue
+        if (key, q) in KIND:
+            m["why"][q] = KIND[(key, q)]
             continue
         if q not in by_q:
             m["why"][q] = "未作答"
@@ -130,7 +152,8 @@ def by(m, f):
 
 
 ms = [R[k] for k, *_ in MODELS]
-rows.append(["通过（总计 35）"] + cell([sum(m["passed"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
+rows.append(["通过：LCB 原始判分"] + cell([sum(m["lcb"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
+rows.append(["通过：复核后（总计 35）"] + cell([sum(m["passed"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
 rows.append([f"中等（{diff_n['medium']}）"] + cell([by(m, lambda p: p["difficulty"] == "medium") for m in ms], str))
 rows.append([f"困难（{diff_n['hard']}）"] + cell([by(m, lambda p: p["difficulty"] == "hard") for m in ms], str))
 rows.append([f"AtCoder（{plat_n['atcoder']}）"] + cell([by(m, lambda p: p["platform"] == "atcoder") for m in ms], str))
@@ -174,7 +197,7 @@ for q in ORDER:
     cells = []
     for m in ms:
         if m["passed"][q]:
-            s = "\\ok"
+            s = "\\ok" + m["mark"].get(q, "")
         else:
             s = "\\no{" + m["why"][q] + "}"
         if q in m["out"]:

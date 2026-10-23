@@ -1,26 +1,27 @@
-\newcommand{\KimiPass}{30}
-\newcommand{\KimiRate}{85.7}
+\newcommand{\KimiPass}{34}
+\newcommand{\KimiRate}{97.1}
 \newcommand{\KimiAnswered}{35}
 \newcommand{\KimiCost}{8.57}
 \newcommand{\KimiWall}{143}
 \newcommand{\KimiServed}{\texttt{kimi-k3.1-pro}}
-\newcommand{\DSFlashPass}{30}
-\newcommand{\DSFlashRate}{85.7}
+\newcommand{\DSFlashPass}{35}
+\newcommand{\DSFlashRate}{100.0}
 \newcommand{\DSFlashAnswered}{35}
 \newcommand{\DSFlashCost}{0.39}
 \newcommand{\DSFlashWall}{9}
 \newcommand{\DSFlashServed}{\texttt{?}}
-\newcommand{\DSProPass}{32}
-\newcommand{\DSProRate}{91.4}
+\newcommand{\DSProPass}{35}
+\newcommand{\DSProRate}{100.0}
 \newcommand{\DSProAnswered}{35}
 \newcommand{\DSProCost}{3.33}
 \newcommand{\DSProWall}{49}
 \newcommand{\DSProServed}{\texttt{deepseek-v4-pro}}
 \newcommand{\OverallRows}{%
-通过（总计 35） & 30（85.7\%） & 30（85.7\%） & \textbf{32（91.4\%）} \\
-中等（10） & \textbf{10} & 9 & \textbf{10} \\
-困难（25） & 20 & 21 & \textbf{22} \\
-AtCoder（26） & 21 & 21 & \textbf{23} \\
+通过：LCB 原始判分 & 30（85.7\%） & 30（85.7\%） & \textbf{32（91.4\%）} \\
+通过：复核后（总计 35） & 34（97.1\%） & \textbf{35（100.0\%）} & \textbf{35（100.0\%）} \\
+中等（10） & \textbf{10} & \textbf{10} & \textbf{10} \\
+困难（25） & 24 & \textbf{25} & \textbf{25} \\
+AtCoder（26） & 25 & \textbf{26} & \textbf{26} \\
 LeetCode（9） & \textbf{9} & \textbf{9} & \textbf{9} \\
 实际作答题数 & 35 & 35 & 35 \\
 有效运行时间（分钟） & 143 & \textbf{9} & 49 \\
@@ -33,45 +34,45 @@ LeetCode（9） & \textbf{9} & \textbf{9} & \textbf{9} \\
 每题输出 token 中位数 & 14k & \textbf{12k} & 38k \\
 输入 token 合计（缓存命中） & 24k（0k） & 22k（16k） & 24k（0k） \\
 费用（美元，按 token 计） & \$8.57 & \textbf{\$0.39} & \$3.33 \\
-每道通过题的费用（美元） & \$0.286 & \textbf{\$0.013} & \$0.104 \\
+每道通过题的费用（美元） & \$0.252 & \textbf{\$0.011} & \$0.095 \\
 API 出错次数 & 31 & 0 & 13 \\
 }
 \newcommand{\DiffRows}{%
 中等 & Kimi K3.1 Pro & 10/10 & 34 & 7k & 27k \\
-中等 & DeepSeek-V4.1-Flash & 9/10 & 8 & 10k & 49k \\
+中等 & DeepSeek-V4.1-Flash & 10/10 & 8 & 10k & 49k \\
 中等 & DeepSeek-V4-Pro & 10/10 & 28 & 16k & 64k \\
-困难 & Kimi K3.1 Pro & 20/25 & 280 & 31k & 119k \\
-困难 & DeepSeek-V4.1-Flash & 21/25 & 79 & 22k & 81k \\
-困难 & DeepSeek-V4-Pro & 22/25 & 388 & 61k & 174k \\
+困难 & Kimi K3.1 Pro & 24/25 & 280 & 31k & 119k \\
+困难 & DeepSeek-V4.1-Flash & 25/25 & 79 & 22k & 81k \\
+困难 & DeepSeek-V4-Pro & 25/25 & 388 & 61k & 174k \\
 }
 \newcommand{\ProblemRows}{%
 \texttt{abc398\_b} & Full House 3 & 中 & \ok & 0.9k & 15 & \ok & 0.3k & 3 & \ok & 1.0k & 7 \\
 \texttt{abc398\_c} & Uniqueness & 中 & \ok & 0.4k & 5 & \ok & 0.4k & 3 & \ok & 0.4k & 4 \\
 \texttt{arc195\_a} & Twice Subsequence & 中 & \ok & 2.2k & 34 & \ok & 2.9k & 16 & \ok & 18.4k & 144 \\
-\texttt{abc399\_c} & Make it Forest & 中 & \ok & 0.5k & 8 & \no{答案错误} & 0.5k & 3 & \ok & 0.4k & 4 \\
+\texttt{abc399\_c} & Make it Forest & 中 & \ok & 0.5k & 8 & \ok$^{*}$ & 0.5k & 3 & \ok & 0.4k & 4 \\
 \texttt{abc399\_d} & Switch Seats & 中 & \ok & 25.4k & 409 & \ok & 26.8k & 149 & \ok & 38.2k & 282 \\
 \texttt{abc400\_c} & 2\^{}a b\^{}2 & 中 & \ok & 2.3k & 35 & \ok & 1.3k & 7 & \ok & 3.4k & 25 \\
 \texttt{abc400\_d} & Takahashi the Wall Breaker & 中 & \ok & 26.7k & 416 & \ok & 49.0k & 290 & \ok & 63.9k & 544 \\
 \texttt{3809} & properties-graph & 中 & \ok & 0.6k & 10 & \ok & 0.4k & 3 & \ok & 1.1k & 8 \\
 \texttt{3805} & maximize-active-section-w… & 中 & \ok & 7.5k & 94 & \ok & 13.4k & 75 & \ok & 27.9k & 208 \\
 \texttt{3793} & longest-palindrome-after-… & 中 & \ok & 2.7k & 44 & \ok & 1.5k & 9 & \ok & 4.0k & 30 \\
-\texttt{abc397\_d} & Cubes & 难 & \no{答案错误} & 3.3k & 49 & \no{答案错误} & 5.0k & 25 & \no{答案错误} & 26.4k & 179 \\
+\texttt{abc397\_d} & Cubes & 难 & \ok$^{*}$ & 3.3k & 49 & \ok$^{*}$ & 5.0k & 25 & \ok$^{*}$ & 26.4k & 179 \\
 \texttt{abc397\_e} & Path Decomposition of a T… & 难 & \ok & 26.7k & 451 & \ok & 15.6k & 95 & \ok & 42.5k & 332 \\
 \texttt{abc397\_f} & Variety Split Hard & 难 & \ok & 64.0k & 944 & \ok & 21.4k & 107 & \ok & 55.9k & 403 \\
 \texttt{abc397\_g} & Maximize Distance & 难 & \ok & 33.1k & 423 & \ok & 14.5k & 76 & \ok & 55.8k & 423 \\
 \texttt{abc398\_d} & Bonfire & 难 & \ok & 4.4k & 74 & \ok & 2.8k & 16 & \ok & 10.8k & 80 \\
-\texttt{abc398\_f} & ABCBA & 难 & \no{运行/编译错误} & 6.4k & 97 & \no{运行/编译错误} & 1.7k & 9 & \ok & 38.2k & 285 \\
-\texttt{abc398\_g} & Not Only Tree Game & 难 & \no{运行/编译错误} & 118.7k & 1888 & \ok & 63.4k & 327 & \ok & 174.0k & 1378 \\
+\texttt{abc398\_f} & ABCBA & 难 & \ok$^{*}$ & 6.4k & 97 & \ok$^{*}$ & 1.7k & 9 & \ok & 38.2k & 285 \\
+\texttt{abc398\_g} & Not Only Tree Game & 难 & \no{答案错误} & 118.7k & 1888 & \ok & 63.4k & 327 & \ok & 174.0k & 1378 \\
 \texttt{arc195\_b} & Uniform Sum & 难 & \ok & 54.6k & 924 & \ok & 16.7k & 96 & \ok & 55.7k & 454 \\
-\texttt{arc195\_c} & Hamiltonian Pieces & 难 & \no{答案错误} & 20.9k & 322 & \no{答案错误} & 22.4k & 120 & \no{答案错误} & 64.1k & 453 \\
+\texttt{arc195\_c} & Hamiltonian Pieces & 难 & \ok$^{*}$ & 20.9k & 322 & \ok$^{*}$ & 22.4k & 120 & \ok$^{*}$ & 64.1k & 453 \\
 \texttt{arc195\_d} & Swap and Erase & 难 & \ok & 86.5k & 1089 & \ok & 81.0k & 475 & \ok & 110.3k & 815 \\
 \texttt{arc195\_e} & Random Tree Distance & 难 & \ok & 11.7k & 176 & \ok & 11.6k & 64 & \ok & 37.9k & 256 \\
-\texttt{abc399\_e} & Replace & 难 & \no{无代码} & 2.8k & 51 & \ok & 26.3k & 164 & \ok & 55.0k & 463 \\
+\texttt{abc399\_e} & Replace & 难 & \ok$^{\dagger}$ & 2.8k & 51 & \ok & 26.3k & 164 & \ok & 55.0k & 463 \\
 \texttt{abc399\_f} & Range Power Sum & 难 & \ok & 2.5k & 38 & \ok & 2.5k & 12 & \ok & 6.6k & 51 \\
 \texttt{abc400\_e} & Ringo's Favorite Numbers 3 & 难 & \ok & 3.1k & 47 & \ok & 3.1k & 16 & \ok & 10.2k & 79 \\
 \texttt{abc400\_g} & Patisserie ABC 3 & 难 & \ok & 43.4k & 735 & \ok & 55.0k & 334 & \ok & 112.7k & 941 \\
 \texttt{arc196\_a} & Adjacent Delete & 难 & \ok & 33.4k & 536 & \ok & 18.3k & 98 & \ok & 48.3k & 351 \\
-\texttt{arc196\_b} & Torus Loop & 难 & \ok & 16.9k & 280 & \no{运行/编译错误} & 22.7k & 121 & \no{运行/编译错误} & 67.9k & 496 \\
+\texttt{arc196\_b} & Torus Loop & 难 & \ok & 16.9k & 280 & \ok$^{*}$ & 22.7k & 121 & \ok$^{*}$ & 67.9k & 496 \\
 \texttt{arc196\_c} & Strongly Connected & 难 & \ok & 105.4k & 1730 & \ok & 76.8k & 439 & \ok & 164.2k & 1221 \\
 \texttt{arc196\_d} & Roadway & 难 & \ok & 68.1k & 1230 & \ok & 43.0k & 248 & \ok & 110.4k & 834 \\
 \texttt{3784} & longest-common-prefix-of-… & 难 & \ok & 20.5k & 296 & \ok & 8.9k & 50 & \ok & 49.4k & 368 \\
@@ -81,13 +82,13 @@ API 出错次数 & 31 & 0 & 13 \\
 \texttt{3717} & minimum-operations-to-mak… & 难 & \ok & 14.1k & 214 & \ok & 7.6k & 40 & \ok & 30.1k & 215 \\
 \texttt{3777} & maximum-product-of-subseq… & 难 & \ok & 15.2k & 199 & \ok & 13.9k & 79 & \ok & 50.8k & 388 \\
 }
-\newcommand{\AllSolved}{28}
-\newcommand{\NoneSolved}{2}
-\newcommand{\OnlySolved}{Kimi K3.1 Pro：\texttt{arc196\_b}；DeepSeek-V4.1-Flash：无；DeepSeek-V4-Pro：\texttt{abc398\_f}}
-\newcommand{\NoneSolvedList}{\texttt{abc397\_d}、\texttt{arc195\_c}}
-\newcommand{\KimiCoords}{(中等,100.0) (困难,80.0) (总计,85.7)}
-\newcommand{\DSFlashCoords}{(中等,90.0) (困难,84.0) (总计,85.7)}
-\newcommand{\DSProCoords}{(中等,100.0) (困难,88.0) (总计,91.4)}
+\newcommand{\AllSolved}{34}
+\newcommand{\NoneSolved}{0}
+\newcommand{\OnlySolved}{Kimi K3.1 Pro：无；DeepSeek-V4.1-Flash：无；DeepSeek-V4-Pro：无}
+\newcommand{\NoneSolvedList}{无}
+\newcommand{\KimiCoords}{(中等,100.0) (困难,96.0) (总计,97.1)}
+\newcommand{\DSFlashCoords}{(中等,100.0) (困难,100.0) (总计,100.0)}
+\newcommand{\DSProCoords}{(中等,100.0) (困难,100.0) (总计,100.0)}
 \newcommand{\ExampleAResult}{Kimi \ok，2.3k token，35 秒；DS-Flash \ok，1.3k token，7 秒；DS-Pro \ok，3.4k token，25 秒}
 \newcommand{\ExampleBResult}{Kimi \ok，86.5k token，1089 秒；DS-Flash \ok，81.0k token，475 秒；DS-Pro \ok，110.3k token，815 秒}
 \newcommand{\ExampleCResult}{Kimi \ok，6.4k token，99 秒；DS-Flash \ok，3.8k token，22 秒；DS-Pro \ok，66.3k token，474 秒}
