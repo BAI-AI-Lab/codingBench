@@ -13,7 +13,7 @@ set -euo pipefail
 SRC=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)
 CB=${CB:-/data/hx/code_bench}
 CHECK=0; [ "${1:-}" = --check ] && CHECK=1
-FILES="bin/cb:755 bin/lcb_run.py:644 bin/crux_run.py:644 tools/lcb_report.py:644 tools/lcb_usage.py:644 env.sh:644 install.sh:644
+FILES="bin/cb:755 bin/lcb_run.py:644 bin/crux_run.py:644 tools/lcb_report.py:644 tools/lcb_usage.py:644 tools/lcb_rejudge.py:644 env.sh:644 install.sh:644
        README.md:644 SURVEY.md:644 samples/lcb_newest100.txt:644 samples/lcb_newest35.txt:644"
 WORK="src venvs data runs python .cache .local"
 

@@ -20,7 +20,10 @@ cb livecodebench    # 也可以只跑一个
 cb summary          # 所有跑完的结果
 cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按难度、来源、月份、失败原因）
 cb usage <模型名>/livecodebench-full    # 每次 API 调用的延迟和 token（加 --price-in/--price-hit/--price-out 每百万 token 单价可算费用）
+cb rejudge <模型名>/livecodebench-full  # 复核判分：AtCoder 答案用真实标准输入输出重跑全部官方测试，多解题用校验器
 ```
+
+LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.readline` 每次都返回输入的第一行，也不支持 `sys.stdout.buffer`，`abc397_d` 的第 41 个测试标准答案错误，`arc195_c` 允许任意合法构造却按单一答案比对。`cb rejudge` 把每份 AtCoder 答案作为独立进程运行（每个测试 6 秒），这两题用校验器，LeetCode 题沿用 LCB 判分；结果写到运行目录的 `rejudge.jsonl`，并打印复核前后的 pass@1。对比模型时用复核后的结果。
 
 可选的环境变量：
 - `MAX_TOKENS`：每次回答的最大 token 数，默认 16384。不能超过模型的上下文长度。推理模型的思考也算在里面：思考用完了上限就交不出答案，判为失败。比如 DeepSeek-V4.1-Flash 做困难题时 65536 都不够，要设到 262144。LiveCodeBench 续跑时只重做空答案的题，所以可以先用小上限跑一遍，再调大上限重跑同一条命令。设成 `none` 就完全不传上限，模型可以一直写到上下文用满为止（目前只对 LiveCodeBench 有效）。

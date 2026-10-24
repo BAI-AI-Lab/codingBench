@@ -10,6 +10,8 @@
 #                          # a relative <run dir> is taken from runs/, e.g. cb report <model>/livecodebench-full
 #   cb usage <run dir>     # latency and tokens of each API call in a LiveCodeBench run (add --price-in/--price-hit/--price-out
 #                          # per 1M tokens for the cost)
+#   cb rejudge <run dir>   # re-judge a LiveCodeBench run: AtCoder answers with real stdin/stdout and checkers (LCB's judge
+#                          # mocks stdin wrongly); writes <run dir>/rejudge.jsonl
 #
 # Optional: MAX_TOKENS (default 16384; must fit the model's context; "none" = send no limit, LiveCodeBench only), WORKERS (parallel requests, default 16),
 #           LCB_RELEASE (default release_v6), LCB_START (only problems released on/after this date, e.g. 2025-01-01),
@@ -46,7 +48,7 @@ for m, b, p, n, s, d in rows:
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,23p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,25p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
 if [ "$1" = report ]; then
   [ -n "${2:-}" ] || { echo "usage: cb report <run dir>" >&2; exit 1; }
@@ -55,6 +57,10 @@ fi
 if [ "$1" = usage ]; then
   [ -n "${2:-}" ] || { echo "usage: cb usage <run dir> [--price-in X --price-hit Y --price-out Z]" >&2; exit 1; }
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_usage.py "$(readlink -f "$2")" "${@:3}"
+fi
+if [ "$1" = rejudge ]; then
+  [ -n "${2:-}" ] || { echo "usage: cb rejudge <run dir> [--workers N] [--timeout seconds per test]" >&2; exit 1; }
+  exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_rejudge.py "$(readlink -f "$2")" "${@:3}"
 fi
 SMOKE=0; BENCHES=()
 for a in "$@"; do

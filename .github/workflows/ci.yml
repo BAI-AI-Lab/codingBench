@@ -34,6 +34,8 @@ jobs:
           python-version: "3.11"
       - name: LiveCodeBench report
         run: python tests/test_lcb_report.py
+      - name: LiveCodeBench re-judge checkers
+        run: python tests/test_lcb_rejudge.py
 
   secrets:
     runs-on: ubuntu-latest
