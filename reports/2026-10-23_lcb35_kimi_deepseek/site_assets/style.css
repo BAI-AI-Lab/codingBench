@@ -195,6 +195,9 @@ th:last-child, td:last-child { padding-right: 0; }
 .note { font-size: 12px; line-height: 1.5; color: var(--text-2); margin: 8px 0 0; }
 td .sec { color: var(--text-2); font-size: 12px; }
 tr.grp td { border-bottom-color: var(--text-3); }
+tr.blk td { font-weight: 600; font-size: 12px; color: var(--text-2); padding-top: 18px; }
+th.grp-h { border-bottom: 1px solid var(--hairline); }
+h4.tcap { font-size: 17px; font-weight: 600; margin: 28px 0 8px; }
 
 .ok { color: var(--ok); }
 .bad { color: var(--bad); }

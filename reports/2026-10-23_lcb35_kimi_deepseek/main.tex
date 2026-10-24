@@ -33,6 +33,7 @@
 \input{data.tex}
 \input{summary.tex}
 \input{perf.tex}
+\input{quality.tex}
 
 \begin{document}
 
@@ -291,33 +292,46 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
   \item 全部可比题的最慢测试都在 1.5 秒以内，未接近 AtCoder 常见的 2 秒时限；但评测机器与 AtCoder 不同，不能据此判断能否在原平台通过。
 \end{itemize}
 
-\subsection{静态指标}
+\subsection{静态代码质量}\label{sec:static}
+按 Huang 等（arXiv:2610.19167，ICECCS 2026）的口径：Pylint 3.3.5（默认配置）、Radon 6.0.1（命令行）\ifnum\QualSonar=1、SonarQube 10.4 Community（本机部署，默认质量配置）\fi；每份答案原样分析，不补 import；不合成总分。Kimi 的 \texttt{abc399\_e} 没有代码，不计入；“全部答案”与“仅通过”只差 Kimi 的 \texttt{abc398\_g} 一份。
+
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\QualIssueTable
+\end{center}
+{\footnotesize 每份答案平均问题数。C 规范、R 重构、W 警告、E 错误；得分 0--10，越高越好\ifnum\QualSonar=1；SonarQube 为可维护性、可靠性、安全三类问题数\fi。粗体为合计行中最优。每份答案都有一条“缺少末尾换行”（C0304），来自答案提取，三个模型相同。Kimi 的 1 个 E 是 \texttt{arc196\_c} 导入 numpy（分析环境未安装 numpy）。}
+
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\QualRadonTable
+\end{center}
+{\footnotesize 每份答案平均。CC 为 \texttt{radon cc -j} 全部条目之和（类与它的方法各计一条）；MI 为可维护性指数，0--100，越高越好；Func 为条目数；LOC、LLOC、SLOC、CMT、BLN 分别为总行、逻辑行、有效行、注释行、空行。}
+
+\begin{center}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\QualDensityTable
+\end{center}
+{\footnotesize 仅通过的答案，每 100 有效行（SLOC）的数量：各题之和 $\div$ SLOC 之和 $\times$ 100。}
+
+\begin{itemize}
+\QualBullets
+\end{itemize}
+
+{\footnotesize 补充（不属于上述口径）：}
 \begin{center}
 \small
-\begin{tabular}{@{}lccccccc@{}}
+\begin{tabular}{@{}lccl@{}}
 \toprule
-模型 & \multicolumn{2}{c}{有效行} & 注释行 & 圈复杂度 & 可维护性 & 嵌套深度 & pyflakes \\
- & 合计 & 中位数 & 合计 & 中位数 & 中位数 & 中位数 & 警告 \\
+模型 & 嵌套深度中位数 & 嵌套深度最大 & AtCoder 读入方式（题数） \\
 \midrule
 \StaticRows
 \bottomrule
 \end{tabular}
-\par\medskip
-\begin{tabular}{@{}ll@{}}
-\toprule
-模型 & AtCoder 读入方式（题数） \\
-\midrule
-\StaticIoRows
-\bottomrule
-\end{tabular}
 \end{center}
-{\footnotesize 基于 \StaticCommon{} 道三个模型都通过的题。有效行不含空行和注释；圈复杂度为每份答案所有函数之和（radon）；可维护性指数 0--100，越高越好（radon）；pyflakes 警告全部为“局部变量赋值后未使用”。不评价可读性、命名等主观项。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。}
-
-\begin{itemize}
-  \item Kimi：可比题上整体最快（几何平均 1.29 倍），代码最短、注释最多、无 pyflakes 警告；读入几乎都用一次性 \texttt{sys.stdin.buffer.read()}。
-  \item DS-V4.1-Flash：没有一题严格最快（2 题与最快并列），5 题慢 2 倍以上；最差情况为 \texttt{arc195\_b} 的平方复杂度枚举。
-  \item DS-V4-Pro：两极分化，6 题最快，也有 6 题慢 2 倍以上（4 题 8 倍以上），倾向用更通用、更重的算法；代码最长、圈复杂度最高，4 个未使用变量。
-\end{itemize}
+{\footnotesize 基于 \StaticCommon{} 道三个模型都通过的题。嵌套深度为语法树中复合语句的最大嵌套层数。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。}
 
 \section{局限}
 \begin{itemize}

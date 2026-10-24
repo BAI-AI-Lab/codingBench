@@ -21,9 +21,16 @@ cb summary          # 所有跑完的结果
 cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按难度、来源、月份、失败原因）
 cb usage <模型名>/livecodebench-full    # 每次 API 调用的延迟和 token（加 --price-in/--price-hit/--price-out 每百万 token 单价可算费用）
 cb rejudge <模型名>/livecodebench-full  # 复核判分：AtCoder 答案用真实标准输入输出重跑全部官方测试，多解题用校验器
+cb quality <模型名>/livecodebench-full  # 静态代码质量（Pylint、Radon；加 --sonar 再跑 SonarQube），按 arXiv:2610.19167 的表格输出
 ```
 
 LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.readline` 每次都返回输入的第一行，也不支持 `sys.stdout.buffer`，`abc397_d` 的第 41 个测试标准答案错误，`arc195_c` 允许任意合法构造却按单一答案比对。`cb rejudge` 把每份 AtCoder 答案作为独立进程运行（每个测试 6 秒），这两题用校验器，LeetCode 题沿用 LCB 判分；结果写到运行目录的 `rejudge.jsonl`，并打印复核前后的 pass@1。对比模型时用复核后的结果。
+
+每次评测都要跑 `cb quality`，按 Huang 等人的 *Beyond Functional Correctness: Static Code Quality Profiling of LLM-Generated Code*（arXiv:2610.19167）的口径输出静态代码质量：
+- 工具与版本：Pylint 3.3.5（默认配置）、Radon 6.0.1（命令行）、SonarQube 10.4 Community（可选，`--sonar`），在单独的 Python 3.12 环境 `venvs/quality` 里运行。
+- 每份答案原样分析，不补 import；空答案跳过。Pylint 统计 C/R/W/E/F 各类问题数和 0–10 分；Radon 的圈复杂度是 `cc -j` 所有条目之和（类和它的方法各算一条，与论文一致），另有 MI、函数数、LOC、LLOC、SLOC、注释行、空行；SonarQube 统计可维护性、可靠性、安全三类问题数。
+- 输出 `quality.jsonl`（每份答案一行）和 `quality.md`（三张表：全部答案的每份平均、只算通过答案的每份平均，均按难度分；通过答案每 100 SLOC 的问题密度）。不合成总分。“通过”用 `rejudge.jsonl` 的复核结果，没有复核时用 LCB 判分。
+- SonarQube：先以 root 运行 `deploy/sonarqube.sh start`（本机 Docker 容器，只监听 127.0.0.1:9000，令牌写在 `/root/.config/code_bench/sonar.env`），再 `set -a; source /root/.config/code_bench/sonar.env; set +a; cb quality <运行目录> --sonar`，用完 `deploy/sonarqube.sh stop`。
 
 可选的环境变量：
 - `MAX_TOKENS`：每次回答的最大 token 数，默认 16384。不能超过模型的上下文长度。推理模型的思考也算在里面：思考用完了上限就交不出答案，判为失败。比如 DeepSeek-V4.1-Flash 做困难题时 65536 都不够，要设到 262144。LiveCodeBench 续跑时只重做空答案的题，所以可以先用小上限跑一遍，再调大上限重跑同一条命令。设成 `none` 就完全不传上限，模型可以一直写到上下文用满为止（目前只对 LiveCodeBench 有效）。
@@ -34,6 +41,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 - `LCB_TIMEOUT`：每个请求最多等多少秒，默认 1800。推理模型把 `MAX_TOKENS` 调得很大时要跟着调大。
 - `LCB_STREAM=1`：LiveCodeBench 用流式请求。`LCB_TIMEOUT` 变成“多久收不到新 token 就算超时”，卡住的请求很快重试；运行目录里的 `usage.jsonl.live.<进程号>` 每 10 秒更新一次已收到的字符数（思考 / 回答），用来看进度。
 - `LCB_OMIT`：LiveCodeBench 请求里不发送的字段，逗号分隔。有的模型把这些参数固定了，发了会报错，比如 Kimi K3.1 Pro 要设 `LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty`（它固定 temperature 1.0、top_p 0.95）。
+- `SONAR_URL`、`SONAR_TOKEN`、`SONAR_SCANNER`：`cb quality --sonar` 用的本机 SonarQube 地址、令牌和扫描器路径（`deploy/sonarqube.sh start` 生成）。
 - `CRUX_MAX_TOKENS`：CRUXEval 官方每次回答只给 100 个 token（带思维链的模式是 1000），那是给普通模型定的。推理模型的思考也算在 token 数里，会被截断成空答案，所以推理模型要设成和 `MAX_TOKENS` 一样。
 
 结果在 `runs/<模型名>/<benchmark>-full/result.json`，模型的原始回答也在同一个目录里。某题的请求重试次数用完、或账户余额不足时，这题记为空答案（判为失败），其余题照常保存和打分；余额不足后不再发新请求。中途断了直接重跑同一条命令：已经答过的题不会再请求一次（每次都会把已有的回答重新判一遍分，在本机跑，不花钱）。
@@ -49,6 +57,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 ## 目录
 
 - `bin/cb`：入口；`bin/lcb_run.py`、`bin/crux_run.py`：在官方代码外面套的一层（不改官方代码）
+- `tools/lcb_quality.py`：静态代码质量（`cb quality`）；`deploy/sonarqube.sh`：本机 SonarQube
 - `tools/lcb_report.py`：LiveCodeBench 报告；`tools/lcb_usage.py`：延迟和 token 报告（读 LiveCodeBench 运行目录里的 `usage.jsonl`）
 - `samples/`：固定的题目清单
 - `deploy/setup.sh`：安装和更新（只在仓库里）

@@ -13,7 +13,7 @@ for r in bigcode-project/bigcodebench@09dd993 LiveCodeBench/LiveCodeBench@28fef9
   git -C $d fetch -q --depth 1 origin $commit 2>/dev/null || true
   git -C $d checkout -q $commit && echo "$d $(git -C $d log -1 --format='%h %cs')"
 done
-t "python"; uv python install 3.10 3.11 2>&1 | tail -2
+t "python"; uv python install 3.10 3.11 3.12 2>&1 | tail -2
 t "bigcodebench venv"
 uv venv -q --allow-existing -p 3.10 venvs/bigcodebench
 VIRTUAL_ENV=$CB/venvs/bigcodebench uv pip install -q -e src/bigcodebench --no-deps
@@ -27,6 +27,9 @@ VIRTUAL_ENV=$CB/venvs/livecodebench uv pip install -q annotated-types anthropic=
 t "cruxeval venv"
 uv venv -q --allow-existing -p 3.10 venvs/cruxeval
 VIRTUAL_ENV=$CB/venvs/cruxeval uv pip install -q openai numpy tabulate
+t "quality venv (static code quality, the pinned versions of arXiv:2610.19167)"
+uv venv -q --allow-existing -p 3.12 venvs/quality
+VIRTUAL_ENV=$CB/venvs/quality uv pip install -q pylint==3.3.5 radon==6.0.1
 t "data: bigcodebench-hard"
 venvs/bigcodebench/bin/python -c "
 from datasets import load_dataset

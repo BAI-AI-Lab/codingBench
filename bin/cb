@@ -12,6 +12,8 @@
 #                          # per 1M tokens for the cost)
 #   cb rejudge <run dir>   # re-judge a LiveCodeBench run: AtCoder answers with real stdin/stdout and checkers (LCB's judge
 #                          # mocks stdin wrongly); writes <run dir>/rejudge.jsonl
+#   cb quality <run dir>   # static code quality of a LiveCodeBench run (Pylint, Radon; add --sonar for SonarQube) with the
+#                          # tables of arXiv:2610.19167; writes <run dir>/quality.jsonl and quality.md
 #
 # Optional: MAX_TOKENS (default 16384; must fit the model's context; "none" = send no limit, LiveCodeBench only), WORKERS (parallel requests, default 16),
 #           LCB_RELEASE (default release_v6), LCB_START (only problems released on/after this date, e.g. 2025-01-01),
@@ -26,7 +28,7 @@
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,LCB_STREAM,CRUX_MAX_TOKENS
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,LCB_STREAM,CRUX_MAX_TOKENS,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -48,7 +50,7 @@ for m, b, p, n, s, d in rows:
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,25p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,27p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
 if [ "$1" = report ]; then
   [ -n "${2:-}" ] || { echo "usage: cb report <run dir>" >&2; exit 1; }
@@ -61,6 +63,11 @@ fi
 if [ "$1" = rejudge ]; then
   [ -n "${2:-}" ] || { echo "usage: cb rejudge <run dir> [--workers N] [--timeout seconds per test]" >&2; exit 1; }
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_rejudge.py "$(readlink -f "$2")" "${@:3}"
+fi
+if [ "$1" = quality ]; then
+  [ -n "${2:-}" ] || { echo "usage: cb quality <run dir> [--sonar] [--workers N]" >&2; exit 1; }
+  export SONAR_USER_HOME=$CB/.cache/sonar   # the scanner's cache; bench can't write the install dir itself
+  exec $CB/venvs/quality/bin/python $CB/tools/lcb_quality.py "$(readlink -f "$2")" "${@:3}"
 fi
 SMOKE=0; BENCHES=()
 for a in "$@"; do

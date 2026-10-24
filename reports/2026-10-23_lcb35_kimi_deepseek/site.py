@@ -21,6 +21,7 @@ from pygments.lexers import PythonLexer
 
 import gen
 import perfgen
+import qualitygen as qg
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 OUT = os.path.abspath(sys.argv[1])
@@ -35,6 +36,7 @@ POOL_ORDER = sorted(POOL, key=lambda q: (POOL[q]["contest_date"], POOL[q]["quest
 SUMMARY = json.load(open(os.path.join(HERE, "problem_summaries.json")))
 assert set(P) <= set(POOL) and set(SUMMARY) == set(POOL)
 ST = {(r["model"], r["q"]): r for r in perfgen.static}
+QL = {(m, r["q"]): r for m, rs in qg.Q.items() for r in rs}  # cb quality, the protocol of arXiv:2610.19167
 esc = html.escape
 DIFF = {"easy": "简单", "medium": "中等", "hard": "困难"}
 REPORT = "report-2026-10-23.pdf"  # report.pdf of this directory (main.pdf when built here), linked from every page
@@ -55,6 +57,7 @@ REFS = [
     ("cao", "Jialun Cao, Yuk-Kit Chan, Zixuan Ling, et al. Code Benchmarks Should Prioritize Rigor, Reliability, and Reproducibility. arXiv:2501.10711, 2025（早期版本题为 How Should We Build A Benchmark? Revisiting 274 Code-Related Benchmarks For LLMs）.", "https://arxiv.org/abs/2501.10711"),
     ("evalperf", "Jiawei Liu, Songrun Xie, Junhao Wang, Yuxiang Wei, Yifeng Ding, Lingming Zhang. Evaluating Language Models for Efficient Code Generation. COLM 2024.", "https://arxiv.org/abs/2408.06450"),
     ("enamel", "Ruizhong Qiu, Weiliang Will Zeng, James Ezick, Christopher Lott, Hanghang Tong. How Efficient is LLM-Generated Code? A Rigorous & High-Standard Benchmark. ICLR 2025.", "https://arxiv.org/abs/2406.06647"),
+    ("huang", "Jue Huang, Tarek Mahmud, Meiru Che, Guowei Yang. Beyond Functional Correctness: Static Code Quality Profiling of LLM-Generated Code. ICECCS 2026.", "https://arxiv.org/abs/2610.19167"),
     ("mccabe", "T. J. McCabe. A Complexity Measure. IEEE Transactions on Software Engineering, SE-2(4):308–320, 1976.", "https://doi.org/10.1109/TSE.1976.233837"),
     ("oman", "P. Oman, J. Hagemeister. Metrics for Assessing a Software System's Maintainability. Proceedings of the Conference on Software Maintenance, 337–344, 1992.", "https://doi.org/10.1109/ICSM.1992.242525"),
     ("coleman", "D. Coleman, D. Ash, B. Lowther, P. Oman. Using Metrics to Evaluate Software System Maintainability. Computer, 27(8):44–49, 1994.", "https://doi.org/10.1109/2.303623"),
@@ -215,6 +218,31 @@ def table(head, rows, tid=None):
     return f'<div class="tw"><table{idattr}><thead><tr>{th}</tr></thead><tbody>{"".join(trs)}</tbody></table></div>'
 
 
+def qual_html(blocks, cols, nd, groups):
+    """qualitygen tables as HTML: optional group header row, one label row per block, bold best 合计 values."""
+    n = 3 + len(cols)
+    head = ""
+    if groups:
+        head = "<tr><th></th><th></th><th></th>" + "".join(f'<th class="c grp-h" colspan="{k}">{t}</th>' for t, k in groups) + "</tr>"
+    head += "<tr><th>模型</th><th>难度</th><th class=\"n\">份数</th>" + "".join(f'<th class="n">{h}</th>' for h, _ in cols) + "</tr>"
+    body = []
+    for label, t in blocks:
+        if label:
+            body.append(f'<tr class="blk"><td colspan="{n}">{label}</td></tr>')
+        bests = [qg.best(t, i, low=h not in qg.HIGHER_BETTER) for i, (h, _) in enumerate(cols)]
+        for name, dn, cnt, vals in t:
+            cells = []
+            for j, v in enumerate(vals):
+                txt = "—" if v is None else f"{v:.{nd}f}"
+                strong = (dn == "合计" and v is not None and bests[j] is not None and round(v, nd) == round(bests[j], nd)
+                          and cols[j][0] not in ("LOC", "LLOC", "SLOC", "CMT", "BLN", "Func"))
+                cells.append(f'<td class="n{" best" if strong else ""}">{txt}</td>')
+            cls = ' class="grp"' if dn == "合计" else ""
+            body.append(f"<tr{cls}><td class=\"nw\">{name if dn == '中等' else ''}</td><td class=\"nw\">{dn}</td>"
+                        f"<td class=\"n\">{cnt}</td>" + "".join(cells) + "</tr>")
+    return f'<div class="tw"><table class="qual"><thead>{head}</thead><tbody>{"".join(body)}</tbody></table></div>'
+
+
 def best_cells(vals, fmt, best):
     b = best(vals)
     return [(fmt(v), "n best" if v == b else "n") for v in vals]
@@ -337,14 +365,19 @@ def problem_page(i, q):
         for j, (k, name, short) in enumerate(MODELS):
             m, r = R[k], R[k]["rows"][q]
             c, t = verdict(k, q)
-            pf, st = perf(k, q), ST.get((k, q))
+            pf, st = perf(k, q), QL.get((k, q))
             cpu = (f"{pf[0]:.2f} 秒" + (f"（{pf[2]:.1f}×）" if pf[2] >= 2 else "（最快）" if pf[2] == 1 else "")) if pf else "—"
             items = [f'<li><span class="t">{judged(k, q)}</span><span>判题</span></li>']
             nums = [(f"{m['out'][q] / 1e3:.1f}k" if q in m["out"] else "—", "输出 token（含思考）"),
                     (f"{m['lat'][q]:.0f} 秒" if q in m["lat"] else "—", "延迟"), (cpu, "最慢测试的 CPU 时间"),
-                    (f"{pf[1]:.0f} MB" if pf else "—", "峰值内存"), (str(st["sloc"]) if st else "—", "有效行"),
-                    (str(st["cc_total"]) if st else "—", "圈复杂度"), (f"{st['mi']:.1f}" if st else "—", "可维护性指数"),
-                    (str(st["pyflakes"]) if st else "—", "pyflakes 警告")]
+                    (f"{pf[1]:.0f} MB" if pf else "—", "峰值内存"),
+                    (str(st["pylint"]["total"]) if st else "—", "Pylint 问题"),
+                    (f"{st['pylint']['score']:.2f}" if st and st["pylint"]["score"] is not None else "—", "Pylint 得分"),
+                    (str(st["radon"]["complexity"]) if st else "—", "圈复杂度"), (f"{st['radon']['mi']:.1f}" if st else "—", "可维护性指数"),
+                    (str(st["radon"]["sloc"]) if st else "—", "有效行")]
+            if qg.SONAR:
+                nums.append((str(sum(st["sonar"][x] for x in ("maintainability", "reliability", "security"))) if st else "—",
+                             "SonarQube 问题"))
             items += [f"<li><b>{v}</b><span>{lab}</span></li>" for v, lab in nums]
             status = "通过" if m["passed"][q] else f"未通过：{m['why'][q]}"
             cols.append(f"""<div class="model"><div>{dot(k)}<h3>{mname(name, short)}</h3></div>
@@ -362,13 +395,14 @@ def problem_page(i, q):
                       "failure": None if m["passed"][q] else m["why"][q], "judge": judged(k, q),
                       "output_tokens": m["out"].get(q), "latency_s": round(m["lat"][q], 1) if q in m["lat"] else None,
                       "cpu_s": round(pf[0], 4) if pf else None, "peak_mb": round(pf[1], 1) if pf else None,
-                      "static": {x: st[x] for x in ("sloc", "comments", "cc_total", "mi", "depth", "pyflakes", "io")} if st else None,
+                      "quality": {"pylint": {x: st["pylint"][x] for x in ("convention", "refactor", "warning", "error", "fatal", "total", "score")},
+                                  "radon": st["radon"], "sonar": st["sonar"]} if st else None,
                       "code": code}
         rec["results"] = res
         parts.append(f"""<section class="section alt"><div class="wrap">
 <h2>结果</h2>
 <div class="compare small" style="--rows:{3 + len(items)}">{''.join(cols)}</div>
-<p class="note">CPU 时间与内存只统计能区分性能的题（最慢答案扣除进程启动后仍 ≥ {perfgen.THRESH:.1f} 秒），括号内为相对最快者的倍数（≥ 2 时标出）。静态指标只统计通过的答案。判题方法见 <a href="../method.html#judge">原理 › 判题</a>。</p>
+<p class="note">CPU 时间与内存只统计能区分性能的题（最慢答案扣除进程启动后仍 ≥ {perfgen.THRESH:.1f} 秒），括号内为相对最快者的倍数（≥ 2 时标出）。静态质量按 arXiv:2610.19167 的口径（见 <a href="../method.html#static">原理</a>）。判题方法见 <a href="../method.html#judge">原理 › 判题</a>。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <div class="codehead"><h2>代码</h2><div class="seg" data-tabs="code">{''.join(tabs)}</div></div>
@@ -481,15 +515,13 @@ def results():
     srows = [[(f"{dot(k)} {name}", "nw"), (f"{agg[k][0]:.2f}", "n best" if agg[k][0] == gm_best else "n"), (str(agg[k][1]), "n"),
               (str(agg[k][2]), "n"), (f"{agg[k][3]:.1f}", "n"), (f"{agg[k][4]:.0f}", "n"), (f"{agg[k][5]:.0f}", "n")]
              for k, name, short in MODELS]
-    strows, iorows = [], []
+    sup = []  # nesting depth and input style: kept as a supplement, not part of the paper's protocol
     for k, name, short in MODELS:
         Rr = [r for r in perfgen.static if r["model"] == k and r["q"] in perfgen.st_common]
         io = collections.Counter(r["io"] for r in Rr if r["platform"] == "atcoder")
-        strows.append([(f"{dot(k)} {name}", "nw"), (str(sum(r["sloc"] for r in Rr)), "n"),
-                       (f"{statistics.median(r['sloc'] for r in Rr):.0f}", "n"), (str(sum(r["comments"] for r in Rr)), "n"),
-                       (f"{statistics.median(r['cc_total'] for r in Rr):.0f}", "n"), (f"{statistics.median(r['mi'] for r in Rr):.1f}", "n"),
-                       (f"{statistics.median(r['depth'] for r in Rr):.0f}", "n"), (str(sum(r["pyflakes"] for r in Rr)), "n")])
-        iorows.append([(f"{dot(k)} {name}", "nw"), ("、".join(f"<code>{x}</code> {v}" for x, v in io.most_common()), "")])
+        sup.append([(f"{dot(k)} {name}", "nw"), (f"{statistics.median(r['depth'] for r in Rr):.0f}", "n"),
+                    (str(max(r["depth"] for r in Rr)), "n"),
+                    ("、".join(f"<code>{x}</code> {v}" for x, v in io.most_common()), "")])
     setting = table([("项目", ""), ("本轮设置", "")], [
         [("题目", "nw"), (f"题库最新 100 题中，按难度各取最新的中等 {dn['medium']} 题、困难 {dn['hard']} 题，共 {N} 题；比赛日期 {dates35[0]} 至 {dates35[-1]}；AtCoder {pn['atcoder']} 题、LeetCode {pn['leetcode']} 题", "")],
         [("次数", "nw"), ("每题 1 次（pass@1）", "")],
@@ -535,15 +567,21 @@ def results():
 <li><a href="p/abc397_g.html"><code>abc397_g</code></a>：Pro 0.23 秒、Kimi 0.01 秒，倍数大但绝对值都很小。</li>
 <li>全部可比题的最慢测试都在 1.5 秒以内，未接近 AtCoder 常见的 2 秒时限；但评测机器与 AtCoder 不同，不能据此判断能否在原平台通过。</li>
 </ul>
-<h3 id="static">静态指标</h3>
-{table([("模型", ""), ("有效行合计", "n"), ("有效行中位数", "n"), ("注释行合计", "n"), ("圈复杂度中位数", "n"), ("可维护性中位数", "n"), ("嵌套深度中位数", "n"), ("pyflakes 警告", "n")], strows)}
-{table([("模型", ""), ("AtCoder 读入方式（题数）", "")], iorows)}
-<p class="note">基于 {len(perfgen.st_common)} 道三个模型都通过的题；指标定义见 <a href="method.html#static">原理 › 静态指标</a>。pyflakes 警告全部为“局部变量赋值后未使用”。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。</p>
-<ul class="list">
-<li>Kimi：可比题上整体最快（几何平均 {agg[KF][0]:.2f} 倍），代码最短、注释最多、无 pyflakes 警告；读入几乎都用一次性 <code>sys.stdin.buffer.read()</code>。</li>
-<li>DS-V4.1-Flash：没有一题严格最快（2 题与最快并列），{agg[FL][2]} 题慢 2 倍以上；最差情况为 <code>arc195_b</code> 的平方复杂度枚举。</li>
-<li>DS-V4-Pro：两极分化，{agg[PR][1]} 题最快，也有 {agg[PR][2]} 题慢 2 倍以上（4 题 8 倍以上），倾向用更通用、更重的算法；代码最长、圈复杂度最高，4 个未使用变量。</li>
-</ul>
+<h3 id="static">静态代码质量</h3>
+<p>按 Huang 等 {cite("huang", page="method.html")} 的口径（与 <code>cb quality</code> 相同）：Pylint 3.3.5、Radon 6.0.1{"、SonarQube 10.4" if qg.SONAR else ""}，每份答案原样分析，不合成总分。Kimi 的 <code>abc399_e</code> 没有代码，不计入；“全部答案”与“仅通过”只差 Kimi 的 <code>abc398_g</code> 一份。</p>
+<h4 class="tcap">问题数（每份答案平均）</h4>
+{qual_html([("全部答案", qg.T_ISSUES_ALL), ("仅通过的答案", qg.T_ISSUES_OK)], qg.ISSUE_COLS, 2, qg.ISSUE_GROUPS)}
+<p class="note">C 规范、R 重构、W 警告、E 错误；得分 0–10，越高越好{"；SonarQube 为可维护性、可靠性、安全三类问题数" if qg.SONAR else ""}。粗体为合计行中最优。每份答案都有一条“缺少末尾换行”（C0304），来自答案提取，三个模型相同。Kimi 的 1 个 E 是 <code>arc196_c</code> 导入 numpy（分析环境未安装 numpy）。</p>
+<h4 class="tcap">结构与规模（Radon，每份答案平均）</h4>
+{qual_html([("全部答案", qg.T_RADON_ALL), ("仅通过的答案", qg.T_RADON_OK)], qg.RADON, 1, None)}
+<p class="note">CC 为 <code>radon cc -j</code> 全部条目之和（类与它的方法各计一条）；MI 为可维护性指数，0–100，越高越好；Func 为条目数；LOC、LLOC、SLOC、CMT、BLN 分别为总行、逻辑行、有效行、注释行、空行。</p>
+<h4 class="tcap">每 100 有效行（仅通过的答案）</h4>
+{qual_html([(None, qg.T_DENSITY)], qg.DENSITY, 2, qg.DENSITY_GROUPS)}
+<p class="note">各题之和 ÷ SLOC 之和 × 100。</p>
+<ul class="list">{"".join(f"<li>{h}</li>" for _, h in qg.bullets())}</ul>
+<h4 class="tcap">补充（不属于上述口径）</h4>
+{table([("模型", ""), ("嵌套深度中位数", "n"), ("嵌套深度最大", "n"), ("AtCoder 读入方式（题数）", "")], sup)}
+<p class="note">基于 {len(perfgen.st_common)} 道三个模型都通过的题；嵌套深度为语法树中复合语句的最大嵌套层数。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <h2 id="analysis">分析</h2>
@@ -623,7 +661,7 @@ def method():
 <div class="card"><h4>题库</h4><p>LiveCodeBench release_v6 中发布日期最新的 100 题。</p></div>
 <div class="card"><h4>生成</h4><p>官方提示词，每题调用模型 API 1 次，提取回答中的最后一个代码块。</p></div>
 <div class="card"><h4>判题</h4><p>AtCoder 答案用真实标准输入输出在独立进程中运行全部官方测试，多解题用校验器；LeetCode 答案调用给定函数。</p></div>
-<div class="card"><h4>代码分析</h4><p>通过的答案绑核重跑，测 CPU 时间与峰值内存；用 radon、pyflakes 统计代码指标。</p></div>
+<div class="card"><h4>代码分析</h4><p>通过的答案绑核重跑，测 CPU 时间与峰值内存；用 Pylint、Radon、SonarQube 统计静态代码质量。</p></div>
 </div>
 <h3>评测设置</h3>
 {setting}
@@ -640,13 +678,14 @@ def method():
 <h2 id="perf">性能测量</h2>
 <p class="sub">与 EvalPerf {c('evalperf')}、ENAMEL {c('enamel')} 一样，只在答案正确的前提下比较效率；不同的是，这里以三个模型中最快的答案为基准，而不是专家写的参考解，所以“最快”不代表最优。</p>
 {perf_tbl}
-<h3 id="static">静态指标</h3>
+<h3 id="static">静态代码质量</h3>
+<p>按 Huang 等 {c('huang')} 的口径（与 <code>cb quality</code> 相同）：每份答案原样分析，不补 import，空答案跳过；不合成总分。</p>
 <ul class="list">
-<li>有效行：不含空行和注释的代码行（<a href="https://radon.readthedocs.io/">radon</a> raw）。注释行含文档字符串。</li>
-<li>圈复杂度 {c('mccabe')}：每份答案所有函数与方法的圈复杂度之和（radon cc）。</li>
-<li>可维护性指数 {c('oman', 'coleman')}：0–100，越高越好（radon mi，含多行字符串）。</li>
-<li>嵌套深度：语法树中复合语句（if、for、while、with、try、def、class、match）的最大嵌套层数。</li>
-<li>pyflakes 警告：未使用的变量、未定义的名字等（<a href="https://github.com/PyCQA/pyflakes">pyflakes</a>）。</li>
+<li><a href="https://pylint.readthedocs.io/">Pylint</a> 3.3.5，默认配置：按类型统计问题数，即规范（C）、重构（R）、警告（W）、错误（E），以及 0–10 的总评分。</li>
+<li><a href="https://radon.readthedocs.io/">Radon</a> 6.0.1 命令行：圈复杂度 {c('mccabe')}（<code>radon cc -j</code> 所有条目之和，类与它的方法各计一条）、可维护性指数 {c('oman', 'coleman')}（0–100，越高越好）、函数数、LOC、LLOC、SLOC、注释行、空行。</li>
+<li><a href="https://www.sonarsource.com/products/sonarqube/">SonarQube</a> 10.4 Community，本机部署，默认质量配置：按软件质量统计可维护性、可靠性、安全三类问题数。</li>
+<li>汇总：全部答案、仅通过答案各自的每份平均，按难度分；仅通过答案每 100 SLOC 的问题密度（问题数之和 ÷ SLOC 之和 × 100）。</li>
+<li>补充（不属于该口径）：嵌套深度，即语法树中复合语句（if、for、while、with、try、def、class、match）的最大嵌套层数；AtCoder 题的读入方式。</li>
 </ul>
 <p>这些指标只描述代码形态，不评价可读性、命名等主观项。多维度评价代码质量的做法见 RACE {c('race')}。</p>
 </div></section>
@@ -728,6 +767,7 @@ def custom():
         [("temperature", "nw"), ("0.2（LCB 官方）；用 <code>LCB_OMIT</code> 去掉后按平台默认", "")],
         [("思考档位", "nw"), ("不传，按平台默认", "")],
         [("判题", "nw"), ("<code>cb rejudge</code>：与本站相同", "")],
+        [("静态代码质量", "nw"), ("<code>cb quality</code>：Pylint 3.3.5、Radon 6.0.1，加 <code>--sonar</code> 再跑 SonarQube 10.4（需先由 root 运行 <code>deploy/sonarqube.sh start</code>）", "")],
     ])
     cost_rows = [[(f"{dot(k)} {name}", "nw"), (ktok(R[k]["tot"][0]), "n"), (ktok(R[k]["tot"][2]), "n"), (money(R[k]["cost"]), "n")]
                  for k, name, short in MODELS]
@@ -758,11 +798,12 @@ export MAX_TOKENS=262144 WORKERS=16
 # 平台固定采样参数、思考很长的模型，例如 Kimi K3.1 Pro
 export MAX_TOKENS=none LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty \\
        LCB_STREAM=1 LCB_TIMEOUT=300 WORKERS=4''')}
-<h3>5. 判分与费用</h3>
+<h3>5. 判分、代码质量与费用</h3>
 {cmd("c6", '''cb rejudge <模型名>/livecodebench-lcb_newest35-full   # 本站的判分方式，输出通过题数与逐题结果
+cb quality <模型名>/livecodebench-lcb_newest35-full   # 静态代码质量（Pylint、Radon），按本站的表格输出
 cb usage <模型名>/livecodebench-lcb_newest35-full --price-in 0.3 --price-hit 0.006 --price-out 1.2
                                                       # 延迟、token 与费用（单价：美元/百万 token，按平台价目填）''')}
-<p>运行目录在安装目录的 <code>runs/&lt;模型名&gt;/livecodebench-&lt;清单名&gt;-full/</code>，模型的原始回答、每次调用的记录（<code>usage.jsonl</code>）和判题结果（<code>rejudge.jsonl</code>）都在里面。<code>cb summary</code> 列出已完成的运行，其中的分数是 LCB 自带的判题，比较模型请用 <code>cb rejudge</code> 的结果。</p>
+<p>运行目录在安装目录的 <code>runs/&lt;模型名&gt;/livecodebench-&lt;清单名&gt;-full/</code>，模型的原始回答、每次调用的记录（<code>usage.jsonl</code>）、判题结果（<code>rejudge.jsonl</code>）和静态质量（<code>quality.jsonl</code>、<code>quality.md</code>）都在里面。<code>cb summary</code> 列出已完成的运行，其中的分数是 LCB 自带的判题，比较模型请用 <code>cb rejudge</code> 的结果。</p>
 <h3>6. 中断与续跑</h3>
 <p>直接重跑同一条命令：已经答过的题不会再请求；空答案（超时、余额不足、思考用完上限）会重新请求。每次续跑都会在本机重新判分，不花钱。</p>
 </div></section>

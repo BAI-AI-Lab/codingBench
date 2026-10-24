@@ -121,10 +121,7 @@ for m, short in MODELS:
     R = [r for r in static if r["model"] == m and r["q"] in st_common]
     io = collections.Counter(r["io"] for r in R if r["platform"] == "atcoder")
     io_txt = "、".join(f"{k} {v}" for k, v in io.most_common())
-    L.append(f"{short} & {sum(r['sloc'] for r in R)} & {statistics.median(r['sloc'] for r in R):.0f} & "
-             f"{sum(r['comments'] for r in R)} & {statistics.median(r['cc_total'] for r in R):.0f} & "
-             f"{statistics.median(r['mi'] for r in R):.1f} & {statistics.median(r['depth'] for r in R):.0f} & "
-             f"{sum(r['pyflakes'] for r in R)} \\\\")
+    L.append(f"{short} & {statistics.median(r['depth'] for r in R):.0f} & {max(r['depth'] for r in R)} & {io_txt} \\\\")
     io_rows.append(f"{short} & {io_txt} \\\\")
 L.append("}")
 L += ["\\newcommand{\\StaticIoRows}{%"] + io_rows + ["}"]
