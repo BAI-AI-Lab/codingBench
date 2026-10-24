@@ -137,8 +137,8 @@ def render(s, model, judged):
         L.append(f"- 没有成功调用记录的题（请求都失败了、余额不足没发请求，或续跑时沿用了旧回答）：{', '.join(s['missing'])}")
     if "cost" in s:
         pr = s["prices"]
-        L.append(f"- 费用：约 {s['cost']:.2f}；每道通过题 {s['cost_per_pass']:.3f}" if s["cost_per_pass"] is not None else
-                 f"- 费用：约 {s['cost']:.2f}")
+        money = lambda v: f"{v:.2f}" if v >= 0.1 else f"{v:.4f}"  # noqa: E731  (a smoke run costs a fraction of a cent)
+        L.append(f"- 费用：约 {money(s['cost'])}" + (f"；每道通过题 {money(s['cost_per_pass'])}" if s["cost_per_pass"] is not None else ""))
         unit = f"输入 {pr['in']} / 缓存命中 {pr['hit']} / 输出 {pr['out']}"
         if "off" in pr:
             o = pr["off"]
