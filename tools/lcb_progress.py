@@ -57,8 +57,8 @@ def report(run_dir, text):
         q = qid(c)
         if "error" in c:
             errors.append((q, c))
-        elif any((x or "").strip() for x in c.get("content") or []):
-            answered[q] = c
+        elif any((x or "").strip() for x in c["content"]) if "content" in c else any(c.get("chars") or []):
+            answered[q] = c  # calls logged before answers were kept have only their lengths
     live = []
     for f in glob.glob(os.path.join(run_dir, "usage.jsonl.live.*")):
         try:
