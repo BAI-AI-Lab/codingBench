@@ -16,7 +16,7 @@ MODELS = [  # key, display name, short name, price per 1M tokens (USD): (miss, h
     ("deepseek-v4-pro", "DeepSeek-V4-Pro", "DS-Pro", {"peak": (1.32, 0.044, 3.96), "off": (0.66, 0.022, 1.98)}),
 ]
 ERR = {-2: "答案错误", -3: "超时", -4: "运行/编译错误", -1: "其他错误"}
-# Re-judge of every AtCoder answer with real stdin/stdout and checkers (rejudge.py on the server); LeetCode
+# Re-judge of every AtCoder answer with real stdin/stdout and checkers (rejudge2.py on the server); LeetCode
 # answers keep LCB's verdict (function calls, untouched by the stdin/stdout problems).
 REJUDGE, KIND = {}, {}  # verdict, and the re-judged failure kind
 for line in open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "rejudge_atcoder.jsonl")):

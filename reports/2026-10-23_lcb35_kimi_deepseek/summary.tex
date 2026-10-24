@@ -1,7 +1,8 @@
 \newcommand{\KeySummaryPass}{复核后 DS-V4.1-Flash 35/35、DS-V4-Pro 35/35、Kimi K3.1 Pro 34/35（只错 \texttt{abc398\_g}）。LCB 原始判分为 30 / 32 / 30，共 12 个失败由评测问题造成，不是模型错误（见 \ref{sec:issues}）。}
 \newcommand{\KeySummarySpeed}{每题延迟中位数：DS-V4.1-Flash 64 秒、Kimi 199 秒、DS-V4-Pro 285 秒。输出速度中位数：DS-V4.1-Flash 179、DS-V4-Pro 134、Kimi 65 token/秒。}
 \newcommand{\KeySummaryCost}{按 token 计：DS-V4.1-Flash \$0.39、DS-V4-Pro \$3.33、Kimi \$8.57。每道通过题：\$0.011 / \$0.095 / \$0.252。Kimi 实际扣费 \$17.59，其中 \$9.02 花在 7 个未返回结果的请求上。}
-\newcommand{\KeySummaryTakeaway}{选型：DS-V4.1-Flash 与 DS-V4-Pro 同为满分，但费用只有 Pro 的 12\%，每题输出 token 中位数约为 Pro 的 1/3，延迟为 Pro 的 1/4.5。Kimi K3.1 Pro 34/35，速度最慢、单价最高；非流式长请求在余额不足时会挂起 1 小时以上且照常扣费，必须用流式 + 空闲超时调用。}
+\newcommand{\KeySummaryCode}{在 13 道能区分性能的题上，Kimi 最快（相对最快倍数几何平均 1.29），DS-V4.1-Flash 2.00，DS-V4-Pro 2.74；DS-V4-Pro 6 题最快但另有 6 题慢 2 倍以上。Kimi 代码最短、注释最多、无 pyflakes 警告（见 \ref{sec:perf}）。}
+\newcommand{\KeySummaryTakeaway}{选型：只看通过率和成本，DS-V4.1-Flash 最优（满分，费用为 Pro 的 12\%、Kimi 的 5\%，延迟最低）；看代码运行效率，Kimi K3.1 Pro 最好，但它最慢、最贵，非流式长请求在余额不足时会挂起且照常扣费，须流式 + 空闲超时调用；DS-V4-Pro 满分，但 token 最多、代码效率波动最大}
 
 \newcommand{\IssuesTable}{%
 \begin{center}

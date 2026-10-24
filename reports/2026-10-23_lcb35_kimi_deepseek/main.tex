@@ -32,6 +32,7 @@
 
 \input{data.tex}
 \input{summary.tex}
+\input{perf.tex}
 
 \begin{document}
 
@@ -46,6 +47,7 @@
   \item 正确率：\KeySummaryPass
   \item 速度：\KeySummarySpeed
   \item 费用：\KeySummaryCost
+  \item 代码：\KeySummaryCode
   \item \KeySummaryTakeaway
 \end{itemize}
 
@@ -236,6 +238,92 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \endlastfoot
 \ProblemRows
 \end{longtable}}
+
+\section{代码性能与静态指标}\label{sec:perf}
+
+\subsection{测量方法}
+\begin{center}
+\small
+\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{2.4cm}X@{}}
+\toprule
+项目 & 设置 \\
+\midrule
+对象 & 复核后通过的答案（Kimi 33 份，不含 \texttt{abc398\_g}、\texttt{abc399\_e}；DeepSeek 各 35 份） \\
+运行 & 每次运行都是一个全新的 Python 3.11 进程（LCB 环境），绑定到单个 CPU 核；共 \PerfRuns{} 次，输出全部正确 \\
+计时 & AtCoder：进程 CPU 时间（rusage）扣除启动基线 \PerfBaseline{} ms；LeetCode：只计 \texttt{Solution} 方法调用的 CPU 时间 \\
+内存 & 进程峰值常驻内存（ru\_maxrss）；空程序为 \PerfBaseRss{} MB \\
+重复 & 每个测试 3 次、三个模型轮流先跑，取中位数；同一测试 3 次的离散度中位数 \PerfNoiseMedian\%，P90 \PerfNoiseHigh\% \\
+可比题 & 最慢答案扣除启动后仍 $\ge$ \PerfThresh{} 秒的题，共 \PerfMeasurable{} 题；其余 \PerfSmallN{} 题官方测试太小，耗时主要是启动开销，不比较 \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{逐题性能}
+\begin{center}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lccr rr rr rr@{}}
+\toprule
+题号 & 难度 & 类型 & 最大输入 KB & \multicolumn{2}{c}{Kimi K3.1 Pro} & \multicolumn{2}{c}{DS-V4.1-Flash} & \multicolumn{2}{c}{DS-V4-Pro} \\
+\cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(l){9-10}
+ & & & & CPU 秒 & MB & CPU 秒 & MB & CPU 秒 & MB \\
+\midrule
+\PerfRows
+\bottomrule
+\end{tabular}
+\end{center}
+{\footnotesize CPU 秒为最慢一个测试的 CPU 时间（3 次取中位数，扣除启动）；粗体为该题最快；括号内为相对最快者的倍数（$\ge 2$ 时标出）。MB 为该题各测试中的最大峰值内存。AC = AtCoder，LC = LeetCode。}
+
+\subsection{汇总}
+\begin{center}
+\small
+\begin{tabular}{@{}lcccccc@{}}
+\toprule
+模型 & 相对最快倍数 & 最快 & 慢 $\ge 2$ 倍 & CPU 合计 & \multicolumn{2}{c}{峰值内存（MB）} \\
+ & （几何平均） & （题） & （题） & （秒） & 中位数 & 最大 \\
+\midrule
+\PerfSummaryRows
+\bottomrule
+\end{tabular}
+\end{center}
+{\footnotesize 基于 \PerfCommon{} 道可比题（三个模型都通过）。CPU 合计为这些题所有测试的 CPU 时间之和。“最快”按严格最小值计；有 3 题第二名与最快相差不到 5\%（噪声范围内）：\texttt{3765}、\texttt{3801} 上 Flash 比 Kimi 慢 3\% 和 2\%，\texttt{abc399\_c} 上 Kimi 比 Pro 慢 3\%。按并列计，Flash 的最快题数为 2。}
+
+\begin{itemize}
+  \item \texttt{arc195\_b}（Flash 慢 8.5 倍，内存 91 MB）：Flash 枚举 A、B 所有不同取值的两两组合，复杂度 $O(U\cdot V)$，并把重复的和逐个展开存入列表；Kimi 先按通配数量选出必须参与配对的候选值，再用二分查找限定候选和，0.15 秒。
+  \item \texttt{abc400\_g}（Pro 慢 9.3 倍）：Pro 为每组数据建图跑最小费用流；Kimi 用“取最大值后只修正奇偶”的贪心，每类只保留前两个候选，$O(N\log N)$。
+  \item \texttt{3765}（Pro 慢 9.1 倍）：Pro 按子数组个数分层、每层做凸包优化，$O(n^2\log n)$；Kimi 直接用 $O(n^2)$ 的后缀 DP。
+  \item \texttt{3801}（Pro 慢 8.3 倍）：Pro 对每个可能的数位和 $S$ 单独建 [剩余位数][和][积 mod $S$] 计数表；Kimi 用以（位置，和，积）为状态的记忆化数位 DP。
+  \item \texttt{abc397\_g}：Pro 0.23 秒、Kimi 0.01 秒，倍数大但绝对值都很小。
+  \item 全部可比题的最慢测试都在 1.5 秒以内，未接近 AtCoder 常见的 2 秒时限；但评测机器与 AtCoder 不同，不能据此判断能否在原平台通过。
+\end{itemize}
+
+\subsection{静态指标}
+\begin{center}
+\small
+\begin{tabular}{@{}lccccccc@{}}
+\toprule
+模型 & \multicolumn{2}{c}{有效行} & 注释行 & 圈复杂度 & 可维护性 & 嵌套深度 & pyflakes \\
+ & 合计 & 中位数 & 合计 & 中位数 & 中位数 & 中位数 & 警告 \\
+\midrule
+\StaticRows
+\bottomrule
+\end{tabular}
+\par\medskip
+\begin{tabular}{@{}ll@{}}
+\toprule
+模型 & AtCoder 读入方式（题数） \\
+\midrule
+\StaticIoRows
+\bottomrule
+\end{tabular}
+\end{center}
+{\footnotesize 基于 \StaticCommon{} 道三个模型都通过的题。有效行不含空行和注释；圈复杂度为每份答案所有函数之和（radon）；可维护性指数 0--100，越高越好（radon）；pyflakes 警告全部为“局部变量赋值后未使用”。不评价可读性、命名等主观项。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。}
+
+\begin{itemize}
+  \item Kimi：可比题上整体最快（几何平均 1.29 倍），代码最短、注释最多、无 pyflakes 警告；读入几乎都用一次性 \texttt{sys.stdin.buffer.read()}。
+  \item DS-V4.1-Flash：没有一题严格最快（2 题与最快并列），5 题慢 2 倍以上；最差情况为 \texttt{arc195\_b} 的平方复杂度枚举。
+  \item DS-V4-Pro：两极分化，6 题最快，也有 6 题慢 2 倍以上（4 题 8 倍以上），倾向用更通用、更重的算法；代码最长、圈复杂度最高，4 个未使用变量。
+\end{itemize}
 
 \section{局限}
 \begin{itemize}

@@ -1,0 +1,51 @@
+\newcommand{\PerfBaseline}{25.7}
+\newcommand{\PerfBaselineRange}{23.7--28.8}
+\newcommand{\PerfBaseRss}{12.1}
+\newcommand{\PerfNoiseMedian}{2.0}
+\newcommand{\PerfNoiseHigh}{6.4}
+\newcommand{\PerfRuns}{11{,}124}
+\newcommand{\PerfMeasurable}{13}
+\newcommand{\PerfCommon}{13}
+\newcommand{\PerfThresh}{0.1}
+\newcommand{\PerfSmallList}{\texttt{3777}、\texttt{3793}、\texttt{3805}、\texttt{3809}、\texttt{abc397\_e}、\texttt{abc397\_f}、\texttt{abc398\_b}、\texttt{abc398\_c}、\texttt{abc398\_d}、\texttt{abc398\_f}、\texttt{abc398\_g}、\texttt{abc399\_e}、\texttt{abc399\_f}、\texttt{abc400\_c}、\texttt{abc400\_d}、\texttt{arc195\_a}、\texttt{arc195\_c}、\texttt{arc195\_d}、\texttt{arc195\_e}、\texttt{arc196\_a}、\texttt{arc196\_b}、\texttt{arc196\_c}}
+\newcommand{\PerfSmallN}{22}
+\newcommand{\PerfRows}{%
+\texttt{abc399\_c} & 中 & AC & 2517 & 0.23 & 50 & 0.26 & 22 & \textbf{0.22} & 44 \\
+\texttt{abc399\_d} & 中 & AC & 1758 & 0.15 & 38 & 0.28\,(2.3$\times$) & 48 & \textbf{0.12} & 48 \\
+\texttt{3717} & 难 & LC & 830 & \textbf{1.00} & 37 & 1.40 & 41 & 1.21 & 37 \\
+\texttt{3744} & 难 & LC & 2137 & 0.27\,(5.0$\times$) & 32 & 0.67\,(12.5$\times$) & 32 & \textbf{0.05} & 32 \\
+\texttt{3765} & 难 & LC & 9 & \textbf{0.14} & 16 & 0.14 & 16 & 1.24\,(9.1$\times$) & 16 \\
+\texttt{3784} & 难 & LC & 391 & 0.11\,(2.2$\times$) & 22 & 0.06 & 28 & \textbf{0.05} & 22 \\
+\texttt{3801} & 难 & LC & 0 & \textbf{0.11} & 26 & 0.11 & 26 & 0.93\,(8.3$\times$) & 18 \\
+\texttt{abc397\_d} & 难 & AC & 0 & 0.14 & 12 & 0.14 & 12 & \textbf{0.11} & 12 \\
+\texttt{abc397\_g} & 难 & AC & 0 & \textbf{0.01} & 14 & 0.02\,(2.5$\times$) & 14 & 0.23\,(36.1$\times$) & 14 \\
+\texttt{abc400\_e} & 难 & AC & 0 & 0.43 & 36 & 0.39 & 32 & \textbf{0.26} & 24 \\
+\texttt{abc400\_g} & 难 & AC & 2773 & \textbf{0.16} & 32 & 0.27 & 40 & 1.45\,(9.3$\times$) & 40 \\
+\texttt{arc195\_b} & 难 & AC & 37 & \textbf{0.15} & 14 & 1.30\,(8.5$\times$) & 91 & 0.96\,(6.3$\times$) & 119 \\
+\texttt{arc196\_d} & 难 & AC & 80 & \textbf{0.06} & 16 & 0.13\,(2.1$\times$) & 16 & 0.15\,(2.5$\times$) & 18 \\
+}
+\newcommand{\PerfSummaryRows}{%
+Kimi & \textbf{1.29} & 7 & 2 & 16.7 & 26 & 50 \\
+DS-Flash & 2.00 & 0 & 5 & 29.7 & 28 & 91 \\
+DS-Pro & 2.74 & 6 & 6 & 52.8 & 24 & 119 \\
+}
+\newcommand{\KimiGM}{1.29}
+\newcommand{\KimiWins}{7}
+\newcommand{\KimiSlowTwo}{2}
+\newcommand{\DSFlashGM}{2.00}
+\newcommand{\DSFlashWins}{0}
+\newcommand{\DSFlashSlowTwo}{5}
+\newcommand{\DSProGM}{2.74}
+\newcommand{\DSProWins}{6}
+\newcommand{\DSProSlowTwo}{6}
+\newcommand{\StaticCommon}{33}
+\newcommand{\StaticRows}{%
+Kimi & 1667 & 37 & 147 & 11 & 59.2 & 5 & 0 \\
+DS-Flash & 1960 & 33 & 92 & 12 & 52.8 & 5 & 1 \\
+DS-Pro & 2121 & 49 & 117 & 17 & 56.5 & 4 & 4 \\
+}
+\newcommand{\StaticIoRows}{%
+Kimi & buffer.read 20、read 3、buffer.readline 1 \\
+DS-Flash & buffer.read 17、readline 4、buffer.readline 2、read 1 \\
+DS-Pro & buffer.read 14、read 6、readline 3、buffer.readline 1 \\
+}
