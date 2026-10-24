@@ -15,6 +15,9 @@
 #                          # off-peak rates with --price-off-* or PRICE_OFF_*)
 #   cb rejudge <run dir>   # re-judge a LiveCodeBench run: AtCoder answers with real stdin/stdout and checkers (LCB's judge
 #                          # mocks stdin wrongly); writes <run dir>/rejudge.jsonl
+#   cb perf <run dir>...   # CPU time and peak memory of the passing answers on the official tests (fresh process per run,
+#                          # pinned cores); writes perf.md/perf.json in each run dir; several run dirs are measured together
+#                          # and compared (ratio to the fastest answer)
 #   cb quality <run dir>   # static code quality of a LiveCodeBench run (Pylint, Radon; add --sonar for SonarQube) with the
 #                          # tables of arXiv:2610.19167; writes <run dir>/quality.jsonl and quality.md
 #
@@ -54,7 +57,7 @@ for m, b, p, n, s, d in rows:
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,31p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,34p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
 if [ "$1" = progress ]; then
   [ -n "${2:-}" ] || { echo "usage: cb progress <run dir> [--watch seconds] [--text]" >&2; exit 1; }
@@ -71,6 +74,11 @@ fi
 if [ "$1" = rejudge ]; then
   [ -n "${2:-}" ] || { echo "usage: cb rejudge <run dir> [--workers N] [--timeout seconds per test]" >&2; exit 1; }
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_rejudge.py "$(readlink -f "$2")" "${@:3}"
+fi
+if [ "$1" = perf ]; then
+  [ -n "${2:-}" ] || { echo "usage: cb perf <run dir> [<run dir> ...] [--reps 3] [--workers 6] [--out compare.md]" >&2; exit 1; }
+  args=(); for x in "${@:2}"; do if [ -d "$x" ]; then args+=("$(readlink -f "$x")"); else args+=("$x"); fi; done
+  exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_perf.py "${args[@]}"
 fi
 if [ "$1" = quality ]; then
   [ -n "${2:-}" ] || { echo "usage: cb quality <run dir> [--sonar] [--workers N]" >&2; exit 1; }

@@ -38,6 +38,8 @@ jobs:
         run: python tests/test_lcb_rejudge.py
       - name: Static quality parsers
         run: python tests/test_lcb_quality.py
+      - name: Code performance tables
+        run: python tests/test_lcb_perf.py
       - name: Latency, token and cost report
         run: python tests/test_lcb_usage.py
       - name: Streamed requests (fake streams)
