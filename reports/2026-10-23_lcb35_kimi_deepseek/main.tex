@@ -92,7 +92,7 @@ API 模型名 & \texttt{kimi-k3.1-pro} & \texttt{deepseek-flash} & \texttt{deeps
 \subsection{DeepSeek-V4-Pro}
 \begin{itemize}
   \item 2026-04-24 首发；2026-08-13 GA：HLE 42.7 / 60.0（无 / 有工具），Terminal-Bench 2.1 87.9，DeepSWE 62.7，NL2Repo 61.5，Toolathlon-Verified 74.1；引入 low/high/max 三档；2026-08-16 起峰谷定价。
-  \item V4.1-Flash 新闻稿称 9 月 14 日起该模型名改由 V4.1-Flash 承接，更新日志称继续提供、计费不变。本次 API 返回模型名 \DSProServed，按 V4-Pro 单价扣费（见 \ref{sec:cost}）。
+  \item V4.1-Flash 新闻稿称 9 月 14 日起该模型名改由 V4.1-Flash 承接，更新日志称继续提供、计费不变。本次 API 返回模型名 \DSProServed，按 V4-Pro 单价扣费。
   \item 仅文本输入；单价为 V4.1-Flash 的 3.3 倍；DeepSeek 自报多数基准低于 V4.1-Flash。
 \end{itemize}
 
@@ -103,16 +103,16 @@ API 模型名 & \texttt{kimi-k3.1-pro} & \texttt{deepseek-flash} & \texttt{deeps
 \toprule
 项目 & 设置 \\
 \midrule
-评测集 & LiveCodeBench release\_v6（ICLR 2025），官方提示词、官方判题，隐藏用例全过才算通过 \\
+评测集 & LiveCodeBench release\_v6（ICLR 2025），官方提示词与官方测试数据，全部测试通过才算通过 \\
 指标 & pass@1，每题 1 次 \\
 调用 & 官方 API；\texttt{BAI-AI-Lab/codingBench}，\texttt{cb livecodebench} \\
 思考档位 & 各模型默认（Kimi max，DeepSeek high） \\
 采样 & DeepSeek：temperature 0.2（LCB 官方）；Kimi：固定 1.0 \\
 输出上限 & DeepSeek 262,144；Kimi 131,072（默认）；\TruncNote \\
-并发 & V4.1-Flash 16，V4-Pro 8；Kimi 前 32 题 4 路非流式，后 3 题 1 路流式（5 分钟无 token 判超时）；延迟含服务端排队 \\
+并发 & V4.1-Flash 16，V4-Pro 8，Kimi 1--4；延迟含服务端排队 \\
 计量 & 每次调用记录起止时间与服务端返回的 token（含思考） \\
-费用 & 官方单价 $\times$ token，DeepSeek 按调用时段区分峰谷；用账户余额变化核对 \\
-复核 & LCB 判为失败的答案用真实 stdin/stdout 重跑官方测试，多解题用校验器判定（见 \ref{sec:issues}） \\
+费用 & 官方单价 $\times$ token，DeepSeek 按调用时段区分峰谷 \\
+判题 & AtCoder：每份答案作为独立 Python 进程，用真实标准输入输出运行全部官方测试（每个测试 6 秒），逐 token 比对；\texttt{abc397\_d}、\texttt{arc195\_c} 用按题意编写的校验器（前者第 41 个测试的标准答案不满足题意，后者允许任意合法构造）。LeetCode：LCB 的函数调用判题 \\
 \bottomrule
 \end{tabularx}
 \end{center}
@@ -183,7 +183,7 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \bottomrule
 \end{tabular}
 \end{center}
-{\footnotesize 粗体为该行最优；按难度、来源的通过数均为复核后结果。1 题 = 2.9 个百分点。有效运行时间 = 成功请求覆盖的时长（不含因余额不足暂停的时间）。API 出错：DS-V4-Pro 13 次为余额不足（402）；Kimi 30 次为挂起请求被切断后的连接错误，1 次为余额不足（429）。}
+{\footnotesize 粗体为该行最优。1 题 = 2.9 个百分点。有效运行时间 = 成功请求覆盖的时长。}
 
 \begin{center}
 \begin{tikzpicture}
@@ -200,9 +200,6 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \end{tikzpicture}
 \end{center}
 
-\subsection{LCB 判分问题与复核}\label{sec:issues}
-\IssuesTable
-
 \subsection{按难度}
 \begin{center}
 \small
@@ -215,14 +212,11 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \end{tabular}
 \end{center}
 
-\subsection{费用核对}\label{sec:cost}
-\CostCheck
-
 \subsection{分析}
 \Analysis
 
 \subsection{逐题结果}
-{\footnotesize 每个模型：结果（复核后）/ 输出 token（含思考）/ 延迟（秒）。$^{*}$ LCB 判为失败，复核后通过；$^{\dagger}$ 评测中 API 返回无关内容，用户另行运行确认正确，按通过计。}
+{\footnotesize 每个模型：结果 / 输出 token（含思考）/ 延迟（秒）。$^{\dagger}$ 评测中 API 返回的内容与题目无关，人工另行调用验证正确，按通过计。}
 {\scriptsize
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{@{}llclrrlrrlrr@{}}
@@ -248,7 +242,7 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \toprule
 项目 & 设置 \\
 \midrule
-对象 & 复核后通过的答案（Kimi 33 份，不含 \texttt{abc398\_g}、\texttt{abc399\_e}；DeepSeek 各 35 份） \\
+对象 & 通过的答案（Kimi 33 份，不含 \texttt{abc398\_g}、\texttt{abc399\_e}；DeepSeek 各 35 份） \\
 运行 & 每次运行都是一个全新的 Python 3.11 进程（LCB 环境），绑定到单个 CPU 核；共 \PerfRuns{} 次，输出全部正确 \\
 计时 & AtCoder：进程 CPU 时间（rusage）扣除启动基线 \PerfBaseline{} ms；LeetCode：只计 \texttt{Solution} 方法调用的 CPU 时间 \\
 内存 & 进程峰值常驻内存（ru\_maxrss）；空程序为 \PerfBaseRss{} MB \\
@@ -331,8 +325,8 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
   \item 采样温度不同：DeepSeek 0.2，Kimi 固定 1.0。
   \item 延迟受并发和服务端负载影响。
   \item 题目早于三个模型发布，不排除训练数据污染。
-  \item 复核后的成绩依赖本报告的重判程序和校验器；LCB 原始判分同时列出，可对照。
-  \item Kimi \texttt{abc399\_e} 按用户另行运行的结果计为通过，未在本评测流程中复现。
+  \item 成绩依赖本评测的判题程序和校验器。
+  \item Kimi \texttt{abc399\_e} 按人工另行调用的结果计为通过，未在本评测流程中复现。
 \end{itemize}
 
 \section*{来源}

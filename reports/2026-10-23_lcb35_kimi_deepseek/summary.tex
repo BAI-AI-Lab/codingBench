@@ -1,37 +1,11 @@
-\newcommand{\KeySummaryPass}{复核后 DS-V4.1-Flash 35/35、DS-V4-Pro 35/35、Kimi K3.1 Pro 34/35（只错 \texttt{abc398\_g}）。LCB 原始判分为 30 / 32 / 30，共 12 个失败由评测问题造成，不是模型错误（见 \ref{sec:issues}）。}
+\newcommand{\KeySummaryPass}{DS-V4.1-Flash 35/35、DS-V4-Pro 35/35、Kimi K3.1 Pro 34/35（只错 \texttt{abc398\_g}）。}
 \newcommand{\KeySummarySpeed}{每题延迟中位数：DS-V4.1-Flash 64 秒、Kimi 199 秒、DS-V4-Pro 285 秒。输出速度中位数：DS-V4.1-Flash 179、DS-V4-Pro 134、Kimi 65 token/秒。}
-\newcommand{\KeySummaryCost}{按 token 计：DS-V4.1-Flash \$0.39、DS-V4-Pro \$3.33、Kimi \$8.57。每道通过题：\$0.011 / \$0.095 / \$0.252。Kimi 实际扣费 \$17.59，其中 \$9.02 花在 7 个未返回结果的请求上。}
+\newcommand{\KeySummaryCost}{按 token 计：DS-V4.1-Flash \$0.39、DS-V4-Pro \$3.33、Kimi \$8.57。每道通过题：\$0.011 / \$0.095 / \$0.252。}
 \newcommand{\KeySummaryCode}{在 13 道能区分性能的题上，Kimi 最快（相对最快倍数几何平均 1.29），DS-V4.1-Flash 2.00，DS-V4-Pro 2.74；DS-V4-Pro 6 题最快但另有 6 题慢 2 倍以上。Kimi 代码最短、注释最多、无 pyflakes 警告（见 \ref{sec:perf}）。}
-\newcommand{\KeySummaryTakeaway}{选型：只看通过率和成本，DS-V4.1-Flash 最优（满分，费用为 Pro 的 12\%、Kimi 的 5\%，延迟最低）；看代码运行效率，Kimi K3.1 Pro 最好，但它最慢、最贵，非流式长请求在余额不足时会挂起且照常扣费，须流式 + 空闲超时调用；DS-V4-Pro 满分，但 token 最多、代码效率波动最大}
-
-\newcommand{\IssuesTable}{%
-\begin{center}
-\small
-\begin{tabularx}{\linewidth}{@{}>{\raggedright}p{4.3cm}>{\raggedright}p{3.3cm}>{\raggedright}p{2.1cm}>{\raggedright\arraybackslash}X@{}}
-\toprule
-问题 & 受影响答案 & LCB 判定 & 复核 \\
-\midrule
-测试数据错误：\texttt{abc397\_d} 第 41 个测试 $N=27$，标准答案为“3 0”；$y=0$ 不是正整数，27 不存在正整数解，正确输出为 $-1$ & 三个模型（均输出 $-1$） & 答案错误 & 校验器 43/43 \\
-多解题按单一答案比对：\texttt{arc195\_c} 允许任意合法构造 & 三个模型 & 答案错误 & 校验器 5/5 \\
-\texttt{sys.\allowbreak stdin.\allowbreak buffer.\allowbreak readline} 模拟错误：每次都返回输入的第一行 & Flash \texttt{abc399\_c}、\texttt{arc196\_b}；Pro \texttt{arc196\_b} & 答案错误 / 运行错误 & 真实输入全部通过 \\
-不支持 \texttt{sys.\allowbreak stdout.\allowbreak buffer}：标准输出被替换为 StringIO & Kimi、Flash \texttt{abc398\_f} & 运行错误 & 真实输出 43/43 \\
-API 返回与题目无关的拒答（内容是一部电影的营销手法） & Kimi \texttt{abc399\_e} & 无代码 & 用户另行运行，确认正确 \\
-\bottomrule
-\end{tabularx}
-\end{center}
-{\footnotesize 复核方法：26 道 AtCoder 题 $\times$ 3 个模型 = 78 份答案，作为独立 Python 进程用真实 stdin/stdout 运行官方全部测试（每个测试 6 秒）。两道多解题用按题意编写的校验器；其余题逐 token 比对。LCB 判为通过的答案复核后全部仍通过。LeetCode 9 题为函数调用，不受上述问题影响，沿用 LCB 判分。上述问题均出自 LCB 官方判题代码与数据（本评测钉住的版本），未修改。Kimi \texttt{abc398\_g} 在 LCB 中报 IndexError，也是 readline 问题导致；换成真实输入后仍有 4/43 个测试答案错误，按失败计。}}
-
-\newcommand{\CostCheck}{%
-\begin{itemize}
-  \item DS-V4.1-Flash：账户余额 ¥11.32 → ¥9.37，实扣 ¥1.95；按美元价目折算为 \$0.39（人民币账户按人民币价目扣费）。
-  \item DS-V4-Pro：按 token 计 \$3.33（全部在谷时）。运行期间两次充值的金额未记录，无法用余额核对。13 次调用因余额不足立即返回 402，不生成内容，充值后补跑。
-  \item Kimi K3.1 Pro：三次充值共 \$17.50，最终余额 $-$\$0.09，实扣 \$17.59。成功返回的 35 次调用按 token 计 \$8.57。差额 \$9.02（由余额变化推算）对应 7 个未返回结果的请求：4 个在余额耗尽后挂起 1--1.5 小时，3 个被手动中断。
-\end{itemize}}
+\newcommand{\KeySummaryTakeaway}{选型：只看通过率和成本，DS-V4.1-Flash 最优（满分，费用为 Pro 的 12\%、Kimi 的 5\%，延迟最低）；看代码运行效率，Kimi K3.1 Pro 最好，但输出最慢、费用最高；DS-V4-Pro 满分，但 token 最多、代码效率波动最大。}
 
 \newcommand{\Analysis}{%
 \begin{itemize}
-  \item 复核后唯一的真实错误：Kimi \texttt{abc398\_g}（博弈题），思考 11.9 万 token、耗时 31 分钟后，在 4/43 个测试上答案错误。这题 DS-V4.1-Flash 用 6.3 万 token、DS-V4-Pro 用 17.4 万 token 都做对了。
+  \item 唯一的错误：Kimi \texttt{abc398\_g}（博弈题），思考 11.9 万 token、耗时 31 分钟后，在 4/43 个测试上答案错误。这题 DS-V4.1-Flash 用 6.3 万 token、DS-V4-Pro 用 17.4 万 token 都做对了。
   \item 推理量：每题输出 token 中位数 DS-V4.1-Flash 12k、Kimi 14k、DS-V4-Pro 38k；困难题平均分别为 22k、31k、61k。DS-V4-Pro 多用的 token 没有换来更多通过题。
-  \item 调用稳定性：DeepSeek 余额不足时立即返回 402，补跑即可，已答结果不丢。Kimi 非流式请求在余额耗尽后挂起 1--1.5 小时，既不返回也不报错；改为流式 + 5 分钟空闲超时后，最后 3 题单路完成（每题 20--31 分钟）。
-  \item LCB 原始判分的误差：在这 35 题上，原始判分把 Flash 和 Pro 都低估了，Flash 少算 5 题、Pro 少算 3 题，而且两者的排序也被颠倒（原始 Pro 领先 2 题，复核后持平）。凡是用 LCB 判分做模型对比，都应复核失败题。
 \end{itemize}}

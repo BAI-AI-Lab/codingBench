@@ -37,6 +37,7 @@ assert set(P) <= set(POOL) and set(SUMMARY) == set(POOL)
 ST = {(r["model"], r["q"]): r for r in perfgen.static}
 esc = html.escape
 DIFF = {"easy": "简单", "medium": "中等", "hard": "困难"}
+REPORT = "report-2026-10-23.pdf"  # report.pdf of this directory (main.pdf when built here), linked from every page
 
 # The three examples of report.pdf, with the points it states.
 EXAMPLE = {
@@ -164,7 +165,7 @@ dates100 = sorted(POOL[q]["contest_date"][:10] for q in POOL)
 
 # ---------------------------------------------------------------- page frame
 NAV = [("index.html", "概览"), ("problems.html", "题目"), ("method.html", "原理"), ("results.html", "结果"),
-       ("custom.html", "自定义评测")]
+       ("custom.html", "自定义评测"), (REPORT, "报告")]
 
 
 def page(path, title_, body, desc, extra_css=""):
@@ -246,8 +247,8 @@ def index():
     body = f"""<section class="hero"><div class="wrap">
 <p class="eyebrow">LiveCodeBench · {DATE}</p>
 <h1>代码能力评测</h1>
-<p class="lead"><span class="nw">Kimi K3.1 Pro</span>、<span class="nw">DeepSeek-V4.1-Flash</span>、<span class="nw">DeepSeek-V4-Pro</span>：正确率、速度、费用与代码性能。</p>
-<div class="ctas"><a class="btn" href="results.html">查看结果</a><a class="more" href="method.html">评测原理</a><a class="more" href="custom.html">自定义评测</a></div>
+<p class="lead"><span class="nw">Kimi K3.1 Pro</span>、<span class="nw">DeepSeek-V4.1-Flash</span>、<span class="nw">DeepSeek-V4-Pro</span>：<span class="nw">正确率、速度、费用与代码性能。</span></p>
+<div class="ctas"><a class="btn" href="results.html">查看结果</a><a class="more" href="{REPORT}">下载报告（PDF）</a><a class="more" href="custom.html">自定义评测</a></div>
 </div></section>
 <section class="section alt"><div class="wrap">
 <h2>三个模型</h2>
@@ -263,12 +264,12 @@ def index():
 <p>DS-V4.1-Flash 与 DS-V4-Pro 全部通过；Kimi 唯一的错误是 <code>abc398_g</code>（博弈题），思考 11.9 万 token 后在 4/43 个测试上答案错误。</p></a>
 <a class="card" href="results.html#overall"><p class="k">速度</p><p class="v">{S[FL]['lat']:.0f} 秒</p>
 <p>DS-V4.1-Flash 每题延迟中位数；Kimi {S[KF]['lat']:.0f} 秒，DS-V4-Pro {S[PR]['lat']:.0f} 秒。输出速度中位数：Flash {S[FL]['speed']:.0f}、Pro {S[PR]['speed']:.0f}、Kimi {S[KF]['speed']:.0f} token/秒。</p></a>
-<a class="card" href="results.html#cost"><p class="k">费用</p><p class="v">{money(S[FL]['per'], 3)}</p>
+<a class="card" href="results.html#overall"><p class="k">费用</p><p class="v">{money(S[FL]['per'], 3)}</p>
 <p>DS-V4.1-Flash 每道通过题的费用；DS-V4-Pro {money(S[PR]['per'], 3)}，Kimi {money(S[KF]['per'], 3)}。总费用 {money(S[FL]['cost'])} / {money(S[PR]['cost'])} / {money(S[KF]['cost'])}。</p></a>
 <a class="card" href="results.html#perf"><p class="k">代码性能</p><p class="v">{S[KF]['gm']:.2f}×</p>
 <p>在 {nperf} 道能区分性能的题上，Kimi 代码的运行时间相对最快者的几何平均倍数；DS-V4.1-Flash {S[FL]['gm']:.2f}×，DS-V4-Pro {S[PR]['gm']:.2f}×。</p></a>
 <div class="card wide"><p class="k">选型</p>
-<p>只看通过率和成本，DS-V4.1-Flash 最优：满分，费用为 DS-V4-Pro 的 {100 * S[FL]['cost'] / S[PR]['cost']:.0f}%、Kimi 的 {100 * S[FL]['cost'] / S[KF]['cost']:.0f}%，延迟最低。看代码运行效率，Kimi K3.1 Pro 最好，但输出最慢、费用最高，且非流式长请求在余额不足时会挂起并照常扣费，须用流式加空闲超时调用。DS-V4-Pro 满分，但输出 token 最多、代码效率波动最大。</p></div>
+<p>只看通过率和成本，DS-V4.1-Flash 最优：满分，费用为 DS-V4-Pro 的 {100 * S[FL]['cost'] / S[PR]['cost']:.0f}%、Kimi 的 {100 * S[FL]['cost'] / S[KF]['cost']:.0f}%，延迟最低。看代码运行效率，Kimi K3.1 Pro 最好，但输出最慢、费用最高。DS-V4-Pro 满分，但输出 token 最多、代码效率波动最大。</p></div>
 </div>
 </div></section>"""
     page("index.html", "代码能力评测 · BAI AI Lab", body,
@@ -433,7 +434,6 @@ def results():
         [("输入 token 合计（缓存命中）", "")] + [(f"{ktok(m['tot'][0])}（{ktok(m['tot'][1])}）", "n") for m in ms],
         [("费用（美元，按 token 计）", "")] + best_cells([m["cost"] for m in ms], money, min),
         [("每道通过题的费用（美元）", "")] + best_cells([S[k]["per"] for k, *_ in MODELS], lambda v: money(v, 3), min),
-        [("API 出错次数", "")] + [(str(len(m["errors"])), "n") for m in ms],
     ]
     mhead = [(f"{dot(k)} {mname(name, short)}", "n") for k, name, short in MODELS]
     drows = []
@@ -496,7 +496,7 @@ def results():
         [("思考档位", "nw"), ("各模型默认（Kimi max，DeepSeek high）", "")],
         [("采样", "nw"), ("DeepSeek：temperature 0.2（LCB 官方）；Kimi：固定 1.0（平台不允许传入）", "")],
         [("输出上限", "nw"), ("DeepSeek 262,144；Kimi 不传上限（平台默认 131,072）；全部回答正常结束（finish_reason=stop），无截断", "")],
-        [("并发", "nw"), ("V4.1-Flash 16，V4-Pro 8；Kimi 前 32 题 4 路非流式，后 3 题 1 路流式（5 分钟无 token 判超时）；延迟含服务端排队", "")],
+        [("并发", "nw"), ("V4.1-Flash 16，V4-Pro 8，Kimi 1–4；延迟含服务端排队", "")],
     ])
     nruns = sum(1 for r in perfgen.rows if r["model"] != "baseline")
     body = f"""<section class="section tight"><div class="wrap">
@@ -508,10 +508,10 @@ def results():
 </div>
 <h3>本轮设置</h3>
 {setting}
-<p class="note">其余设置（提示词、判题、计量）见 <a href="method.html">原理</a>；复现命令见 <a href="custom.html">自定义评测</a>。</p>
+<p class="note">其余设置（提示词、判题、计量）见 <a href="method.html">原理</a>；复现命令见 <a href="custom.html">自定义评测</a>；完整报告见 <a href="{REPORT}">PDF</a>。</p>
 <h3>总表</h3>
 {table([("指标", "")] + mhead, rows)}
-<p class="note">有效运行时间 = 成功请求覆盖的时长（不含因余额不足暂停的时间）。API 出错：DS-V4-Pro 13 次为余额不足（402）；Kimi 30 次为挂起请求被切断后的连接错误，1 次为余额不足（429）。</p>
+<p class="note">有效运行时间 = 成功请求覆盖的时长。</p>
 <h3>按难度</h3>
 {table([("难度", ""), ("模型", ""), ("通过", "n"), ("延迟中位数（秒）", "n"), ("平均输出 token", "n"), ("最多输出 token", "n")], drows)}
 <h3 id="matrix">逐题结果</h3>
@@ -546,18 +546,10 @@ def results():
 </ul>
 </div></section>
 <section class="section"><div class="wrap">
-<h2 id="cost">费用核对</h2>
-<p class="sub">按官方单价 × token 计算，再用账户余额变化核对。</p>
-<ul class="list">
-<li>DS-V4.1-Flash：账户余额 ¥11.32 → ¥9.37，实扣 ¥1.95；按美元价目折算为 {money(R[FL]['cost'])}（人民币账户按人民币价目扣费）。</li>
-<li>DS-V4-Pro：按 token 计 {money(R[PR]['cost'])}（全部在谷时）。运行期间两次充值的金额未记录，无法用余额核对。13 次调用因余额不足立即返回 402，不生成内容，充值后补跑。</li>
-<li>Kimi K3.1 Pro：三次充值共 $17.50，最终余额 −$0.09，实扣 $17.59。成功返回的 35 次调用按 token 计 {money(R[KF]['cost'])}。差额 $9.02（由余额变化推算）对应 7 个未返回结果的请求：4 个在余额耗尽后挂起 1–1.5 小时，3 个被手动中断。</li>
-</ul>
-<h3>分析</h3>
+<h2 id="analysis">分析</h2>
 <ul class="list">
 <li>唯一的错误：Kimi <a href="p/abc398_g.html"><code>abc398_g</code></a>（博弈题），思考 11.9 万 token、耗时 31 分钟后，在 4/43 个测试上答案错误。这题 DS-V4.1-Flash 用 6.3 万 token、DS-V4-Pro 用 17.4 万 token 都做对了。</li>
 <li>推理量：每题输出 token 中位数 DS-V4.1-Flash 12k、Kimi 14k、DS-V4-Pro 38k；困难题平均分别为 22k、31k、61k。DS-V4-Pro 多用的 token 没有换来更多通过题。</li>
-<li>调用稳定性：DeepSeek 余额不足时立即返回 402，补跑即可，已答结果不丢。Kimi 非流式请求在余额耗尽后挂起 1–1.5 小时，既不返回也不报错；改为流式 + 5 分钟空闲超时后，最后 3 题单路完成（每题 20–31 分钟）。</li>
 </ul>
 <h3>局限</h3>
 <ul class="list">
@@ -585,16 +577,13 @@ def method():
         [("输出上限", "nw"), ("按模型设置；推理模型的思考计入输出 token，用完上限交不出答案即判失败", "")],
         [("判题", "nw"), ("见下文“判题”；与 <code>cb rejudge</code> 相同", "")],
         [("计量", "nw"), ("每次调用记录起止时间与服务端返回的 token 数（含思考）", "")],
-        [("费用", "nw"), ("官方单价 × token，分峰谷的平台按调用时段计；用账户余额变化核对", "")],
+        [("费用", "nw"), ("官方单价 × token，分峰谷的平台按调用时段计", "")],
     ])
-    judge_tbl = table([("问题", ""), ("处理", "")], [
-        [("LCB 用模拟对象替换标准输入，<code>sys.stdin.buffer.readline</code> 每次都返回输入的第一行", ""),
-         ("AtCoder 答案改为独立 Python 进程，用真实的标准输入输出运行", "")],
-        [("不支持 <code>sys.stdout.buffer</code>：标准输出被替换为 StringIO", ""), ("同上", "")],
-        [("测试数据错误：<code>abc397_d</code> 第 41 个测试 N=27，标准答案为“3 0”；y=0 不是正整数，27 不存在正整数解，正确输出为 -1", ""),
-         ("校验器：输出的 x、y 须为正整数且 x³ − y³ = N；输出 -1 时须确实无解", "")],
-        [("多解题按单一答案比对：<code>arc195_c</code> 允许任意合法构造", ""),
-         ("校验器：逐条检查摆法合法；Yes/No 须与标准答案一致", "")],
+    judge_tbl = table([("适用", ""), ("判定", "")], [
+        [("AtCoder（完整程序）", "nw"), ("每份答案作为独立 Python 进程，用真实的标准输入输出运行全部官方测试，每个测试限时 6 秒，逐 token 比对输出", "")],
+        [("LeetCode（补全函数）", "nw"), ("LCB 的函数调用判题，全部官方测试通过", "")],
+        [("<code>abc397_d</code>", "nw"), ("校验器：输出的 x、y 须为正整数且 x³ − y³ = N；输出 -1 时须确实无解（官方第 41 个测试的标准答案“3 0”不满足题意）", "")],
+        [("<code>arc195_c</code>", "nw"), ("校验器：允许任意合法摆法，逐条检查；Yes/No 须与标准答案一致", "")],
     ])
     perf_tbl = table([("项目", ""), ("设置", "")], [
         [("对象", "nw"), ("判为通过的答案；每次运行的输出都须正确才计入", "")],
@@ -643,9 +632,9 @@ def method():
 </div></section>
 <section class="section alt"><div class="wrap">
 <h2 id="judge">判题</h2>
-<p class="sub">测试不充分或有误会让通过率失真 {c('evalplus', 'cao')}。LCB 自带的判题程序在标准输入输出上有缺陷，个别测试数据有误，因此不用它判 AtCoder 题。</p>
+<p class="sub">测试不充分或有误会让通过率失真 {c('evalplus', 'cao')}。本评测的判题规则如下，与 <code>cb rejudge</code> 相同。</p>
 {judge_tbl}
-<p class="note">每个测试限时 6 秒；校验器之外的题逐 token 比对输出。LeetCode 答案是函数调用，不受上述问题影响，沿用 LCB 的判题程序。LCB 的题目与测试数据为本评测固定的版本，未修改。同样的判题可在服务器上用 <code>cb rejudge</code> 完成（见 <a href="custom.html">自定义评测</a>）。</p>
+<p class="note">LCB 的题目与测试数据为本评测固定的版本，未修改。命令见 <a href="custom.html">自定义评测</a>。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <h2 id="perf">性能测量</h2>
@@ -726,7 +715,7 @@ def custom():
         [("<code>LCB_RELEASE</code>", "nw"), ("<code>release_v6</code>", "nw"), ("LiveCodeBench 数据版本", ""), ("保持默认，与本站可比", "")],
         [("<code>MAX_TOKENS</code>", "nw"), ("16384", "nw"), ("每次回答的最大 token 数，含思考；<code>none</code> 表示不传上限，由平台决定", ""),
          ("非推理模型用默认；推理模型设成平台允许的最大输出（本站 DeepSeek 262144），或 <code>none</code>。上限太小时困难题会思考到上限、交不出答案而判失败；可以先小后大，续跑只重做空答案", "")],
-        [("<code>WORKERS</code>", "nw"), ("16", "nw"), ("同时发出的请求数", ""), ("按平台限流调；遇到 429 就调小。余额不多时调小，避免同时挂起多个昂贵请求（本站 Flash 16、Pro 8、Kimi 4）", "")],
+        [("<code>WORKERS</code>", "nw"), ("16", "nw"), ("同时发出的请求数", ""), ("按平台限流调；遇到 429 就调小（本站 Flash 16、Pro 8、Kimi 1–4）", "")],
         [("<code>LCB_TIMEOUT</code>", "nw"), ("1800 秒", "nw"), ("单个请求的超时；开流式时为两次收到 token 之间的最长间隔", ""),
          ("非流式：不小于最长思考时间（本站困难题最长约 31 分钟）；流式：300", "")],
         [("<code>LCB_STREAM</code>", "nw"), ("关", "nw"), ("<code>1</code> = 流式请求；运行目录里的 <code>usage.jsonl.live.&lt;进程号&gt;</code> 每 10 秒更新已收到的字符数", ""),
@@ -791,7 +780,8 @@ cb usage <模型名>/livecodebench-lcb_newest35-full --price-in 0.3 --price-hit 
 <li>报 400 参数错误：平台不接受某些请求字段，用 <code>LCB_OMIT</code> 去掉。</li>
 <li>很多空答案：通常是 <code>MAX_TOKENS</code> 太小，思考用完了上限；调大后重跑同一条命令，只重做空答案。</li>
 <li>429 限流：调小 <code>WORKERS</code>。</li>
-<li>余额不足：DeepSeek 立即返回 402，这题记为空答案，之后不再发新请求，充值后重跑补齐。本站观察到 Kimi 的非流式请求在余额耗尽后挂起 1–1.5 小时且照常扣费，所以要开 <code>LCB_STREAM=1</code>。</li>
+<li>余额不足：这题记为空答案，之后不再发新请求；充值后重跑同一条命令补齐。</li>
+<li>请求长时间没有返回：开 <code>LCB_STREAM=1</code>，配合 <code>LCB_TIMEOUT=300</code>，超过 5 分钟收不到新 token 就按超时处理并重试。</li>
 <li>其他 benchmark：<code>cb bigcodebench</code>（BigCodeBench-Hard）、<code>cb cruxeval</code>（CRUXEval）、<code>cb all</code>（三个都跑）；本站只用 LiveCodeBench。</li>
 </ul>
 </div></section>"""
@@ -837,6 +827,8 @@ def main():
         "problems": probs,
     }
     json.dump(data, open(os.path.join(OUT, "data", "lcb.json"), "w"), ensure_ascii=False, indent=1)
+    shutil.copy(os.path.join(HERE, "main.pdf" if os.path.exists(os.path.join(HERE, "main.pdf")) else "report.pdf"),
+                os.path.join(OUT, REPORT))
     open(os.path.join(OUT, ".nojekyll"), "w").close()
     print("pages:", 5 + len(probs), "->", OUT)
 

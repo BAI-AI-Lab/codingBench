@@ -89,8 +89,6 @@ def load(key, prices):
         ok = REJUDGE.get((key, q), m["lcb"][q])
         if (key, q) in USER_VERIFIED:
             ok, m["mark"][q] = True, "$^{\\dagger}$"
-        elif ok and not m["lcb"][q]:
-            m["mark"][q] = "$^{*}$"
         m["passed"][q] = ok
     m["why"] = {}
     for q, r in rows.items():
@@ -152,13 +150,11 @@ def by(m, f):
 
 
 ms = [R[k] for k, *_ in MODELS]
-rows.append(["通过：LCB 原始判分"] + cell([sum(m["lcb"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
-rows.append(["通过：复核后（总计 35）"] + cell([sum(m["passed"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
+rows.append(["通过（总计 35）"] + cell([sum(m["passed"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
 rows.append([f"中等（{diff_n['medium']}）"] + cell([by(m, lambda p: p["difficulty"] == "medium") for m in ms], str))
 rows.append([f"困难（{diff_n['hard']}）"] + cell([by(m, lambda p: p["difficulty"] == "hard") for m in ms], str))
 rows.append([f"AtCoder（{plat_n['atcoder']}）"] + cell([by(m, lambda p: p["platform"] == "atcoder") for m in ms], str))
 rows.append([f"LeetCode（{plat_n['leetcode']}）"] + cell([by(m, lambda p: p["platform"] == "leetcode") for m in ms], str))
-rows.append(["实际作答题数"] + [str(len(m["by_q"])) for m in ms])
 rows.append(["有效运行时间（分钟）"] + cell([m["wall"] for m in ms], lambda v: f"{v:.0f}", min))
 rows.append(["每题延迟中位数（秒）"] + cell([statistics.median(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min))
 rows.append(["每题延迟 P90（秒）"] + cell([pct(list(m["lat"].values()), 90) for m in ms], lambda v: f"{v:.0f}", min))
@@ -172,7 +168,6 @@ rows.append(["输入 token 合计（缓存命中）"] + [f"{ktok(m['tot'][0])}�
 rows.append(["费用（美元，按 token 计）"] + cell([m["cost"] for m in ms], lambda v: f"\\${v:.2f}", min))
 rows.append(["每道通过题的费用（美元）"] + cell([m["cost"] / max(1, sum(m["passed"].values())) for m in ms],
                                        lambda v: f"\\${v:.3f}", min))
-rows.append(["API 出错次数"] + [str(len(m["errors"])) for m in ms])
 L.append("\\newcommand{\\OverallRows}{%")
 L += [" & ".join(r) + " \\\\" for r in rows]
 L.append("}")
