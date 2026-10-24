@@ -247,7 +247,8 @@ mac("ExampleBResult", example("arc195_d"))
 mac("ExampleCResult", example("3801"))
 trunc = sum(n for m in ms for f, n in m["finish"].items() if f != "stop")
 mac("TruncNote", "全部回答正常结束（finish\\_reason=stop），无截断" if trunc == 0 else f"{trunc} 个回答未正常结束")
-open(os.path.join(HERE, "data.tex"), "w").write("\n".join(L) + "\n")
-for (k, name, *_), m in zip(MODELS, ms):
-    print(name, sum(m["passed"].values()), "answered", len(m["by_q"]), "cost", round(m["cost"], 2),
-          "wall", round(m["wall"]), "served", dict(m["served"]), "errors", len(m["errors"]), file=sys.stderr)
+if __name__ == "__main__":  # site.py imports this module for R and the helpers
+    open(os.path.join(HERE, "data.tex"), "w").write("\n".join(L) + "\n")
+    for (k, name, *_), m in zip(MODELS, ms):
+        print(name, sum(m["passed"].values()), "answered", len(m["by_q"]), "cost", round(m["cost"], 2),
+              "wall", round(m["wall"]), "served", dict(m["served"]), "errors", len(m["errors"]), file=sys.stderr)

@@ -128,8 +128,9 @@ for m, short in MODELS:
     io_rows.append(f"{short} & {io_txt} \\\\")
 L.append("}")
 L += ["\\newcommand{\\StaticIoRows}{%"] + io_rows + ["}"]
-open(os.path.join(HERE, "perf.tex"), "w").write("\n".join(L) + "\n")
-print("baseline %.1f ms; measurable %d (common %d); noise median %.1f%%" % (1000 * B, len(measurable), len(common),
-                                                                        100 * statistics.median(spread)))
-for m, short in MODELS:
-    print(short, "geo-mean ratio %.2f wins %d >=2x %d total %.1fs rss med %.0fMB" % (agg[m][:5]))
+if __name__ == "__main__":  # site.py imports this module for the per-problem tables
+    open(os.path.join(HERE, "perf.tex"), "w").write("\n".join(L) + "\n")
+    print("baseline %.1f ms; measurable %d (common %d); noise median %.1f%%" % (1000 * B, len(measurable), len(common),
+                                                                            100 * statistics.median(spread)))
+    for m, short in MODELS:
+        print(short, "geo-mean ratio %.2f wins %d >=2x %d total %.1fs rss med %.0fMB" % (agg[m][:5]))

@@ -50,6 +50,7 @@ cb usage <模型名>/livecodebench-full    # 每次 API 调用的延迟和 token
 - `samples/`：固定的题目清单
 - `deploy/setup.sh`：安装和更新（只在仓库里）
 - `reports/`：跑过的评测报告（例如 `2026-10-19_lcb_newest100.md`：DeepSeek-V4.1-Flash 对比 Qwen2.5-3B）
+- 结果网站：https://bai-ai-lab.github.io/coding-eval/（公开仓库 `BAI-AI-Lab/coding-eval`）。由 `reports/2026-10-23_lcb35_kimi_deepseek/site.py` 生成：在放好 `runs/` 的报告目录里运行 `python site.py <coding-eval 的检出目录>`（需要 pygments），然后在该目录提交并推送
 - `SURVEY.md`：选这几个 benchmark 时调研过的约 45 个代码 benchmark（会议、获奖级别、怎么跑、国内能不能下）
 - `src/`：三个官方仓库（`install.sh` 拉取，钉在测过的 commit 上）
 - `venvs/`：每个 benchmark 一个独立的 Python 环境
