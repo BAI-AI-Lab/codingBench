@@ -168,7 +168,7 @@ run_livecodebench() {
     --continue_existing_with_eval "${extra[@]}" || return 1
   local f; f=$(ls "$d"/output/*/Scenario.codegeneration_1_0.2_eval.json | head -1)
   local p1 n; read -r p1 n < <(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); r=r[0] if isinstance(r,list) else r; print(r["pass@1"]*100 if r["pass@1"]<=1 else r["pass@1"], len(json.load(open(sys.argv[1].replace("_eval.json","_eval_all.json")))))' "$f")
-  result "livecodebench-${LCB_RELEASE:-release_v6}${LCB_START:+-from-$LCB_START}${LCB_IDS:+-$(basename "$LCB_IDS" .txt)}" "$MODEL" "$p1" "$n" $([ $SMOKE = 1 ] && echo 0 || echo 1) "$d"
+  result "livecodebench-${LCB_RELEASE:-release_v6}${LCB_START:+-from-$LCB_START}${LCB_IDS:+-$(basename "$LCB_IDS" .txt)}" "$MODEL" "$p1" "$n" $([ $SMOKE = 1 ] && echo 0 || echo 1) "$d" || return 1
   [ "${CB_POST:-1}" = 0 ] || post "$d"
 }
 
