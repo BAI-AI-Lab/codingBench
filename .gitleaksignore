@@ -1,0 +1,2 @@
+# SonarQube default first-login credentials (admin:admin) in deploy/sonarqube.sh as first committed; changed on first start
+1a3aa7b7f99a57ef8273dd74cece6acbca4874aa:deploy/sonarqube.sh:curl-auth-user:31

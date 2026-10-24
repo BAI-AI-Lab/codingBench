@@ -173,7 +173,8 @@ NAV = [("index.html", "概览"), ("problems.html", "题目"), ("method.html", "�
 
 def page(path, title_, body, desc, extra_css=""):
     up = "../" * path.count("/")
-    links = "".join(f'<li><a href="{up}{h}"{" aria-current=\"page\"" if h == path else ""}>{t}</a></li>' for h, t in NAV)
+    cur = ' aria-current="page"'
+    links = "".join(f'<li><a href="{up}{h}"{cur if h == path else ""}>{t}</a></li>' for h, t in NAV)
     css = f'<link rel="stylesheet" href="{up}assets/style.css">' + (
         f'<link rel="stylesheet" href="{up}assets/{extra_css}">' if extra_css else "")
     doc = f"""<!doctype html>
@@ -771,6 +772,12 @@ def custom():
     ])
     cost_rows = [[(f"{dot(k)} {name}", "nw"), (ktok(R[k]["tot"][0]), "n"), (ktok(R[k]["tot"][2]), "n"), (money(R[k]["cost"]), "n")]
                  for k, name, short in MODELS]
+    presets = cmd("c5", """# 推理模型（思考计入输出 token），例如 DeepSeek-V4.1-Flash / V4-Pro
+export MAX_TOKENS=262144 WORKERS=16
+
+# 平台固定采样参数、思考很长的模型，例如 Kimi K3.1 Pro
+export MAX_TOKENS=none LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty \\
+       LCB_STREAM=1 LCB_TIMEOUT=300 WORKERS=4""")  # outside the f-string: Python 3.11 allows no backslash in one
     body = f"""<section class="section tight"><div class="wrap">
 <h2>自定义评测</h2>
 <p class="sub">在实验室服务器上用 codingBench 评测任意 OpenAI 兼容接口的模型，判题方式与本站相同。模型写的代码会在服务器上执行，所有评测都以无特权用户 <code>bench</code> 运行。</p>
@@ -792,12 +799,7 @@ read -rsp "API key: " OPENAI_API_KEY && export OPENAI_API_KEY && echo   # 粘贴
 nohup cb livecodebench > ~/lcb.log 2>&1 &   # 断开 SSH 也继续跑
 tail -f ~/lcb.log''')}
 <p>推理模型和平台限制较多的模型，在第 4 步前按下面的参数手册加上对应设置，例如：</p>
-{cmd("c5", '''# 推理模型（思考计入输出 token），例如 DeepSeek-V4.1-Flash / V4-Pro
-export MAX_TOKENS=262144 WORKERS=16
-
-# 平台固定采样参数、思考很长的模型，例如 Kimi K3.1 Pro
-export MAX_TOKENS=none LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty \\
-       LCB_STREAM=1 LCB_TIMEOUT=300 WORKERS=4''')}
+{presets}
 <h3>5. 判分、代码质量与费用</h3>
 {cmd("c6", '''cb rejudge <模型名>/livecodebench-lcb_newest35-full   # 本站的判分方式，输出通过题数与逐题结果
 cb quality <模型名>/livecodebench-lcb_newest35-full   # 静态代码质量（Pylint、Radon），按本站的表格输出

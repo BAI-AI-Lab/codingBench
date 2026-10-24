@@ -11,7 +11,7 @@ List without importing it gets Pylint's undefined-variable error there too. Empt
           rule: a class and each of its methods are separate entries), `mi -s -j`, `raw -s -j` (loc, lloc, sloc,
           comments, blank)
   SonarQube (--sonar, needs SONAR_URL and SONAR_TOKEN; the paper used SonarQube 10.4 / SonarCloud): open issues per
-          software quality (maintainability, reliability, security), plus type and severity counts
+          software quality (maintainability, reliability, security), plus type, severity and rule counts
 The report has the paper's three tables: per-answer means over all answers and over correct ones, by difficulty, and
 correct-only densities per 100 SLOC (sum of counts / sum of SLOC x 100); no composite score. Correct means the
 re-judged verdict from <run dir>/rejudge.jsonl (cb rejudge) when it exists, else LCB's own.
@@ -106,7 +106,7 @@ def sonar(rows, project, url, token, scanner):
             page += 1
     finally:
         shutil.rmtree(d, ignore_errors=True)
-    out = {r["question_id"]: {**{q: 0 for q in SONAR_QUALITIES}, "types": {}, "severities": {}} for r in rows}
+    out = {r["question_id"]: {**{q: 0 for q in SONAR_QUALITIES}, "types": {}, "severities": {}, "rules": {}} for r in rows}
     for i in issues:
         q = i["component"].split(":", 1)[1].rsplit("/", 1)[-1].removesuffix(".py")
         if q not in out:
@@ -115,6 +115,7 @@ def sonar(rows, project, url, token, scanner):
             out[q][imp["softwareQuality"].lower()] += 1
         out[q]["types"][i.get("type", "?")] = out[q]["types"].get(i.get("type", "?"), 0) + 1
         out[q]["severities"][i.get("severity", "?")] = out[q]["severities"].get(i.get("severity", "?"), 0) + 1
+        out[q]["rules"][i["rule"]] = out[q]["rules"].get(i["rule"], 0) + 1
     return out
 
 

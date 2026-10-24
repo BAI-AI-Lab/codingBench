@@ -148,7 +148,14 @@ def bullets():
     ]
     if SONAR:
         si = len(ISSUES)
-        out.append(f"SonarQube（每份）：可维护性 {three(T_ISSUES_OK, si)}，可靠性 {three(T_ISSUES_OK, si + 1)}，安全 {three(T_ISSUES_OK, si + 2)}。")
+        rule = lambda m, k: sum(r["sonar"]["rules"].get(k, 0) for r in ok[m])
+        rr = lambda k: " / ".join(str(rule(m, k)) for m in (K, F, P))
+        rel = sum(v(T_ISSUES_OK, si + 1, m) + v(T_ISSUES_OK, si + 2, m) for m in (K, F, P))
+        out.append(f"SonarQube（每份）：可维护性问题 {three(T_ISSUES_OK, si)}"
+                   + ("，三个模型的可靠性和安全问题都是 0" if rel == 0 else
+                      f"，可靠性 {three(T_ISSUES_OK, si + 1)}，安全 {three(T_ISSUES_OK, si + 2)}")
+                   + f"。主要是函数认知复杂度过高（S3776，共 {rr('python:S3776')} 条）和局部变量命名不合规（S117，{rr('python:S117')} 条）；"
+                   f"函数命名（S100，{rr('python:S100')} 条）来自 LeetCode 规定的驼峰式方法名。")
     return [(t.replace("_", "\\_"), t) for t in out]
 
 

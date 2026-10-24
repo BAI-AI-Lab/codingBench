@@ -23,12 +23,13 @@ start)
   if [ ! -x "$DIR"/sonar-scanner/bin/sonar-scanner ]; then
     [ -s "$DIR"/scanner.zip ] || curl -sSL -o "$DIR"/scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/$SCANNER.zip
     rm -rf "$DIR"/sonar-scanner "$DIR"/sonar-scanner-5.0.1.3006-linux
-    unzip -q "$DIR"/scanner.zip -d "$DIR" && mv "$DIR"/sonar-scanner-5.0.1.3006-linux "$DIR"/sonar-scanner
-    chmod -R a+rX "$DIR"/sonar-scanner
+    python3 -m zipfile -e "$DIR"/scanner.zip "$DIR" && mv "$DIR"/sonar-scanner-5.0.1.3006-linux "$DIR"/sonar-scanner
+    chmod -R a+rX "$DIR"/sonar-scanner && chmod a+x "$DIR"/sonar-scanner/bin/* "$DIR"/sonar-scanner/jre/bin/*   # zipfile drops modes
   fi
   if [ ! -s $ENV ]; then   # first start: replace the default admin password, make a token for cb
     pass="Cb-$(openssl rand -hex 12)-Aa1!"
-    curl -sf -u admin:admin -X POST $URL/api/users/change_password -d login=admin -d previousPassword=admin \
+    first=admin   # SonarQube's documented first-login password, replaced right here
+    curl -sf -u "admin:$first" -X POST $URL/api/users/change_password -d login=admin -d "previousPassword=$first" \
       --data-urlencode "password=$pass"
     token=$(curl -sf -u "admin:$pass" -X POST $URL/api/user_tokens/generate -d name=codingbench |
             python3 -c 'import json, sys; print(json.load(sys.stdin)["token"])')
