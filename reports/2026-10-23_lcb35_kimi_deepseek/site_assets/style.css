@@ -248,6 +248,16 @@ tr.grp td { border-bottom-color: var(--text-3); }
 [data-panel][hidden] { display: none; }
 .pager { display: flex; justify-content: space-between; gap: 16px; font-size: 14px; padding: 0 0 56px; }
 
+/* citations, references, command blocks */
+.cite { font-size: 0.8em; color: var(--text-2); white-space: nowrap; }
+.refs { margin: 0; padding-left: 1.6em; font-size: 14px; line-height: 1.5; }
+.refs li { margin: 0 0 10px; overflow-wrap: anywhere; }
+.refs li:target { background: var(--fill); border-radius: 6px; }
+.cmd { position: relative; margin: 0 0 16px; }
+.cmd .copy { position: absolute; top: 12px; right: 16px; font-size: 13px; }
+.cmd pre.code { margin: 0; padding-right: 64px; }
+.cmd code { font-size: inherit; }
+
 /* footer */
 footer { background: var(--bg-alt); color: var(--text-2); font-size: 12px; line-height: 1.5; }
 footer .wrap { padding-top: 18px; padding-bottom: 28px; border-top: 1px solid var(--hairline); }
@@ -261,7 +271,7 @@ footer a { color: var(--text); }
 
 @media (max-width: 734px) {
   .wrap, .nav-in { padding-left: 16px; padding-right: 16px; }
-  .nav ul { gap: 18px; }
+  .nav ul { gap: 14px; }
   .section { padding: 56px 0; }
   .hero { padding: 56px 0 48px; }
   .hero h1 { font-size: 36px; line-height: 1.1; }

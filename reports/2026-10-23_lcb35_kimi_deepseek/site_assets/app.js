@@ -36,9 +36,10 @@
     btn.addEventListener("click", function () {
       var src = document.getElementById(btn.dataset.src);
       if (!src || !navigator.clipboard) return;
+      var label = btn.dataset.label || (btn.dataset.label = btn.textContent);
       navigator.clipboard.writeText(src.innerText).then(function () {
         btn.textContent = "已复制";
-        setTimeout(function () { btn.textContent = "复制代码"; }, 1500);
+        setTimeout(function () { btn.textContent = label; }, 1500);
       });
     });
   });

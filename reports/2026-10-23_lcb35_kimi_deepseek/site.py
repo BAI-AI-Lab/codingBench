@@ -1,10 +1,13 @@
 """Build the public results site (GitHub Pages) for this report: python site.py <out dir>.
 
-Every number comes from gen.py and perfgen.py (imported, so the site matches report.pdf). The output is plain
-HTML with relative links (Pages serves it under /<repo>/), Pygments-highlighted code, inline SVG charts and no
-external resources, since CDNs are unreliable from China. Problem statements are not reproduced: each problem
-gets a one-line summary and a link to the original page. Needs pygments (the scratch lint venv has it).
+Every result comes from gen.py and perfgen.py (imported, so the site matches report.pdf). The problem pages cover
+the whole newest-100 pool (problems100.json, metadata only; problem_summaries.json, one line each written from the
+statements, which are not published); results exist for the 35 evaluated problems. Verdicts are the re-judged ones
+(rejudge_atcoder.jsonl, same as `cb rejudge`); LCB's own verdicts are not shown. Output is plain HTML with relative
+links (Pages serves it under /<repo>/), Pygments-highlighted code, inline SVG and no external resources, since CDNs
+are unreliable from China. Needs pygments (the scratch lint venv has it).
 """
+import collections
 import html
 import json
 import os
@@ -24,50 +27,17 @@ OUT = os.path.abspath(sys.argv[1])
 DATE = "2026-10-23"
 MODELS = [(k, name, short) for k, name, short, _ in gen.MODELS]
 CLS = {"kimi-k3.1-pro": "kimi", "deepseek-flash": "flash", "deepseek-v4-pro": "pro"}
-P, R, N = gen.problems, gen.R, len(gen.problems)
+KF, FL, PR = "kimi-k3.1-pro", "deepseek-flash", "deepseek-v4-pro"
+P, R, N = gen.problems, gen.R, len(gen.problems)  # the 35 evaluated problems
 ORDER = gen.ORDER
+POOL = {p["question_id"]: p for p in json.load(open(os.path.join(HERE, "problems100.json")))}
+POOL_ORDER = sorted(POOL, key=lambda q: (POOL[q]["contest_date"], POOL[q]["question_id"]), reverse=True)
+SUMMARY = json.load(open(os.path.join(HERE, "problem_summaries.json")))
+assert set(P) <= set(POOL) and set(SUMMARY) == set(POOL)
 ST = {(r["model"], r["q"]): r for r in perfgen.static}
-MARK = {"$^{*}$": "*", "$^{\\dagger}$": "†"}
 esc = html.escape
+DIFF = {"easy": "简单", "medium": "中等", "hard": "困难"}
 
-# One-line summaries written from the statements (which are not published here).
-SUMMARY = {
-    "3717": "每次可把一个元素加 1 或减 1；求最少操作次数，使数组中出现至少 k 个互不重叠、长度恰为 x 且元素全部相等的子数组。",
-    "3744": "每个查询 [l, r] 对应数组 l, l+1, …, r；每次操作选两个数，各自替换为除以 4 向下取整的结果；求每个查询把所有数变为 0 的最少操作数，输出总和。",
-    "3765": "把数组划分为若干子数组，第 i 段的代价为（到该段末尾的前缀和 + k·i）×（该段 cost 之和）；求最小总代价。",
-    "3777": "找一个交错和等于 k 的非空子序列，使其元素乘积在不超过 limit 的前提下最大；不存在时返回 -1。",
-    "3784": "对每个下标 i，删去第 i 个字符串后，从剩余字符串中任选 k 个，求它们最长公共前缀的最大长度。",
-    "3793": "从 s 取一个子串、从 t 取一个子串，按顺序拼接（均可为空）；求能得到的最长回文串长度。",
-    "3801": "各位数字之积能被各位数字之和整除的正整数称为美丽数；求 [l, r] 内美丽数的个数。",
-    "3805": "对 01 串至多做一次交易：先把一段两侧都是 0 的连续 1 全变成 0，再把一段两侧都是 1 的连续 0 全变成 1；求最终 1 的最大个数。",
-    "3809": "两行属性中共同出现的不同整数个数不少于 k 时连一条边；求所得无向图的连通分量数。",
-    "abc397_d": "给定正整数 N，判断是否存在正整数 x、y 使 x³ − y³ = N；存在则输出一组。",
-    "abc397_e": "判断一棵 NK 个顶点的树能否划分为 N 条路径，每条恰含 K 个顶点。",
-    "abc397_f": "把序列切成三段非空的连续子数组，使三段各自不同元素个数之和最大。",
-    "abc397_g": "有向图中恰选 K 条边把权值设为 1，其余为 0；求顶点 1 到 N 最短距离的最大可能值。",
-    "abc398_b": "七张牌中能否选出五张组成葫芦（三张相同加另外两张相同）。",
-    "abc398_c": "在“所持整数与其他人都不同”的人中，找出整数最大者的编号；没有这样的人时按要求报告。",
-    "abc398_d": "烟雾按给定的风向序列逐步整体平移，原点无烟时重新生成；对每个时刻判断指定格子上是否有烟。",
-    "abc398_f": "输出一个以 S 为前缀的最短回文串。",
-    "abc398_g": "在不含奇环的图上，两人轮流加一条新边且加边后不能出现奇环，无法操作者输；判断双方最优时谁获胜。",
-    "abc399_c": "求最少删除多少条边，使无向图变成森林。",
-    "abc399_d": "2N 个座位坐着 N 对情侣；统计有多少组两对情侣（两对原本都不相邻），只在这四人之间交换座位就能让两对都相邻。",
-    "abc399_e": "每次操作把 S 中某个字母全部替换成另一个字母；判断能否把 S 变成 T，能则求最少操作次数。",
-    "abc399_f": "求所有子数组元素和的 K 次方之和，模 998244353。",
-    "abc400_c": "能写成 2ᵃ·b²（a、b 为正整数）的数称为好数；求 1 到 N 内好数的个数，N ≤ 10¹⁸。",
-    "abc400_d": "网格中可以走到相邻道路格，也可以向一个方向前踢，打通前方至多两格内的墙；求从起点到终点的最少前踢次数。",
-    "abc400_e": "恰有两个不同质因数、且每个质因数的指数都是偶数的数称为 400 数；对每个查询 A，求不超过 A 的最大 400 数。",
-    "abc400_g": "N 个蛋糕各有三项属性，从中组成 K 对，每对的价格是两者三项属性分别相加后的最大值；求 K 对总价格的最大值。",
-    "arc195_a": "判断序列 B 是否至少以两种不同的位置组合作为 A 的子序列出现。",
-    "arc195_b": "A、B 中的 -1 可替换为任意非负整数，A 可任意重排；判断能否使所有 Aᵢ + Bᵢ 相等。",
-    "arc195_c": "R 个红子（横竖走一步）和 B 个蓝子（斜走一步）摆上棋盘，使每个棋子一步能走到下一个、最后一个能走回第一个；判断能否做到并给出一种摆法。",
-    "arc195_d": "可以交换相邻元素，或删除开头一段全部相等的前缀；求删空序列的最少操作数。",
-    "arc195_e": "顶点 i 的父节点在 1…i−1 中任选，共 (N−1)! 棵带权树；对每个查询求 u、v 两点距离在所有树上的总和，模 998244353。",
-    "arc196_a": "反复删除两个相邻的数并得到二者之差的绝对值，直到长度不超过 1；求总得分最大值。",
-    "arc196_b": "每格瓷砖画有一段拐角线或直线，可以旋转；把网格看作环面，求线段处处没有断头的摆法数，模 998244353。",
-    "arc196_c": "2N 个点依次连有向边，每个白点与一个黑点配对并从白点连边到黑点；求使整张图强连通的配对方案数，模 998244353。",
-    "arc196_d": "一排 N 个城镇之间的道路可设任意整数权值，每人从 Sᵢ 走到 Tᵢ，要求出发和到达时体力恰为 0、途中始终为正；对每个查询区间判断能否同时满足这些人的要求。",
-}
 # The three examples of report.pdf, with the points it states.
 EXAMPLE = {
     "abc400_c": "好数恰为 2m² 或 4m² 两类且互不重叠，答案为 ⌊√(N/2)⌋ + ⌊√(N/4)⌋；须用整数开方，浮点 sqrt 在 10¹⁸ 附近出错。",
@@ -76,11 +46,43 @@ EXAMPLE = {
 }
 SMALL = {"to", "of", "with", "an", "a", "into", "the", "and", "in"}
 
+# Numbered in order of first citation on the method page; cite() links to #ref-<n> there.
+REFS = [
+    ("lcb", "Naman Jain, King Han, Alex Gu, et al. LiveCodeBench: Holistic and Contamination Free Evaluation of Large Language Models for Code. ICLR 2025.", "https://arxiv.org/abs/2403.07974"),
+    ("codex", "Mark Chen, Jerry Tworek, Heewoo Jun, et al. Evaluating Large Language Models Trained on Code. arXiv:2107.03374, 2021.", "https://arxiv.org/abs/2107.03374"),
+    ("evalplus", "Jiawei Liu, Chunqiu Steven Xia, Yuyao Wang, Lingming Zhang. Is Your Code Generated by ChatGPT Really Correct? Rigorous Evaluation of Large Language Models for Code Generation. NeurIPS 2023.", "https://arxiv.org/abs/2305.01210"),
+    ("cao", "Jialun Cao, Yuk-Kit Chan, Zixuan Ling, et al. Code Benchmarks Should Prioritize Rigor, Reliability, and Reproducibility. arXiv:2501.10711, 2025（早期版本题为 How Should We Build A Benchmark? Revisiting 274 Code-Related Benchmarks For LLMs）.", "https://arxiv.org/abs/2501.10711"),
+    ("evalperf", "Jiawei Liu, Songrun Xie, Junhao Wang, Yuxiang Wei, Yifeng Ding, Lingming Zhang. Evaluating Language Models for Efficient Code Generation. COLM 2024.", "https://arxiv.org/abs/2408.06450"),
+    ("enamel", "Ruizhong Qiu, Weiliang Will Zeng, James Ezick, Christopher Lott, Hanghang Tong. How Efficient is LLM-Generated Code? A Rigorous & High-Standard Benchmark. ICLR 2025.", "https://arxiv.org/abs/2406.06647"),
+    ("mccabe", "T. J. McCabe. A Complexity Measure. IEEE Transactions on Software Engineering, SE-2(4):308–320, 1976.", "https://doi.org/10.1109/TSE.1976.233837"),
+    ("oman", "P. Oman, J. Hagemeister. Metrics for Assessing a Software System's Maintainability. Proceedings of the Conference on Software Maintenance, 337–344, 1992.", "https://doi.org/10.1109/ICSM.1992.242525"),
+    ("coleman", "D. Coleman, D. Ash, B. Lowther, P. Oman. Using Metrics to Evaluate Software System Maintainability. Computer, 27(8):44–49, 1994.", "https://doi.org/10.1109/2.303623"),
+    ("race", "Jiasheng Zheng, Boxi Cao, Zhengzhao Ma, et al. Beyond Correctness: Benchmarking Multi-dimensional Code Generation for Large Language Models. arXiv:2407.11470, 2024.", "https://arxiv.org/abs/2407.11470"),
+    ("swebench", "Carlos E. Jimenez, John Yang, Alexander Wettig, Shunyu Yao, Kexin Pei, Ofir Press, Karthik Narasimhan. SWE-bench: Can Language Models Resolve Real-World GitHub Issues? ICLR 2024.", "https://arxiv.org/abs/2310.06770"),
+    ("sweagent", "John Yang, Carlos E. Jimenez, Alexander Wettig, Kilian Lieret, Shunyu Yao, Karthik Narasimhan, Ofir Press. SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering. NeurIPS 2024.", "https://arxiv.org/abs/2405.15793"),
+    ("verified", "OpenAI. Introducing SWE-bench Verified. 2024-08-13.", "https://openai.com/index/introducing-swe-bench-verified/"),
+    ("tbench", "Mike A. Merrill, et al. Terminal-Bench: Benchmarking Agents on Hard, Realistic Tasks in Command Line Interfaces. arXiv:2601.11868, 2026.", "https://arxiv.org/abs/2601.11868"),
+    ("impossible", "Ziqian Zhong, Aditi Raghunathan, Nicholas Carlini. ImpossibleBench: Measuring LLMs' Propensity of Exploiting Test Cases. ICLR 2026.", "https://arxiv.org/abs/2510.20270"),
+    ("utboost", "Boxi Yu, Yuxuan Zhu, Pinjia He, Daniel Kang. UTBoost: Rigorous Evaluation of Coding Agents on SWE-Bench. ACL 2025.", "https://arxiv.org/abs/2506.09289"),
+    ("wang", "You Wang, Michael Pradel, Zhongxin Liu. Are \"Solved Issues\" in SWE-bench Really Solved Correctly? An Empirical Study. ICSE 2026.", "https://arxiv.org/abs/2503.15223"),
+    ("illusion", "Shanchao Liang, Spandan Garg, Roshanak Zilouchian Moghaddam. The SWE-Bench Illusion: When State-of-the-Art LLMs Remember Instead of Reason. ICSE 2026 (SEIP).", "https://arxiv.org/abs/2506.12286"),
+    ("matter", "Sayash Kapoor, Benedikt Stroebl, Zachary S. Siegel, Nitya Nadgir, Arvind Narayanan. AI Agents That Matter. TMLR 2025.", "https://arxiv.org/abs/2407.01502"),
+    ("hal", "Sayash Kapoor, Benedikt Stroebl, Peter Kirgis, et al. Holistic Agent Leaderboard: The Missing Infrastructure for AI Agent Evaluation. arXiv:2510.11977, 2025.", "https://arxiv.org/abs/2510.11977"),
+    ("effi", "Zhiyu Fan, Kirill Vasilevski, Dayi Lin, et al. SWE-Effi: Re-Evaluating Software AI Agent System Effectiveness Under Resource Constraints. arXiv:2509.09853, 2025.", "https://arxiv.org/abs/2509.09853"),
+]
+REFNO = {k: i + 1 for i, (k, _, _) in enumerate(REFS)}
+
+
+def cite(*keys, page=""):
+    """[n] links to the reference list on the method page (page='method.html' from other pages)."""
+    return '<span class="cite">[' + ", ".join(f'<a href="{page}#ref-{REFNO[k]}">{REFNO[k]}</a>' for k in keys) + "]</span>"
+
+
 REJ = {}
 for line in open(os.path.join(HERE, "rejudge_atcoder.jsonl")):
     r = json.loads(line)
     if "model" in r:
-        REJ[(r["model"], r["q"])] = ("校验器 " + r["checker"]) if "checker" in r else ("逐 token 比对 " + r["exact"])
+        REJ[(r["model"], r["q"])] = (r.get("checker") or r.get("exact"), "checker" in r)
 
 
 def title(p):
@@ -104,25 +106,23 @@ def url(p):
     return f"https://leetcode.com/problems/{p['question_title']}/"
 
 
-def diff(p):
-    return "中等" if p["difficulty"] == "medium" else "困难"
-
-
-def lcb_reason(r):
-    if not r["code_list"][0].strip():
-        return "无代码"
-    try:
-        return gen.ERR.get(json.loads(r["metadata"][0]).get("error_code"), "其他错误")
-    except (ValueError, IndexError, TypeError):
-        return "其他错误"
-
-
 def verdict(k, q):
-    """(css class, short mark) for the corrected verdict."""
-    m = R[k]
-    if m["passed"][q]:
-        return "ok", "✓" + MARK.get(m["mark"].get(q), "")
+    """(css class, mark): ✓, ✓† (verified by hand, see the note), ✗."""
+    if R[k]["passed"][q]:
+        return "ok", "✓" + ("†" if (k, q) in gen.USER_VERIFIED else "")
     return "bad", "✗"
+
+
+def judged(k, q):
+    """How the verdict was reached, in words."""
+    if (k, q) in gen.USER_VERIFIED:
+        return "API 返回与题目无关的内容；人工另行调用验证正确，按通过计"
+    if P[q]["platform"] == "leetcode":
+        return "函数调用，官方测试" + ("全部通过" if R[k]["passed"][q] else "未全部通过")
+    if not R[k]["rows"][q]["code_list"][0].strip():
+        return "没有代码"
+    t, checker = REJ[(k, q)]
+    return f"官方测试 {t}" + ("（校验器）" if checker else "")
 
 
 def perf(k, q):
@@ -142,42 +142,33 @@ def mname(name, short):
     return f'<span class="long">{name}</span><span class="short">{short}</span>'
 
 
-def ktok(n):
-    return gen.ktok(n)
-
-
 def money(v, nd=2):
     return f"${v:.{nd}f}"
 
 
-# ---------------------------------------------------------------- aggregates used across pages
+ktok = gen.ktok
+
+# ---------------------------------------------------------------- aggregates
 S = {}
 for k, name, short in MODELS:
     m = R[k]
-    S[k] = {
-        "pass": sum(m["passed"].values()),
-        "lcb": sum(m["lcb"].values()),
-        "lat": statistics.median(m["lat"].values()),
-        "speed": statistics.median(m["out"][q] / m["lat"][q] for q in m["lat"] if m["lat"][q] > 0),
-        "cost": m["cost"],
-        "gm": perfgen.agg[k][0],
-    }
+    S[k] = {"pass": sum(m["passed"].values()), "lat": statistics.median(m["lat"].values()),
+            "speed": statistics.median(m["out"][q] / m["lat"][q] for q in m["lat"] if m["lat"][q] > 0),
+            "cost": m["cost"], "gm": perfgen.agg[k][0]}
     S[k]["per"] = S[k]["cost"] / max(1, S[k]["pass"])
-judge_fix = sum(R[k]["passed"][q] and not R[k]["lcb"][q] and (k, q) not in gen.USER_VERIFIED for k, *_ in MODELS for q in P)
-api_fix = sum((k, q) in gen.USER_VERIFIED and not R[k]["lcb"][q] for k, *_ in MODELS for q in P)
-real_fail = sum(not R[k]["passed"][q] for k, *_ in MODELS for q in P)
-raw_fail = sum(not R[k]["lcb"][q] for k, *_ in MODELS for q in P)
-assert raw_fail == judge_fix + api_fix + real_fail
-KF, FL, PR = "kimi-k3.1-pro", "deepseek-flash", "deepseek-v4-pro"
+real_fail = [(k, q) for k, *_ in MODELS for q in P if not R[k]["passed"][q]]
+assert real_fail == [(KF, "abc398_g")], real_fail
+dates35 = sorted(P[q]["contest_date"][:10] for q in P)
+dates100 = sorted(POOL[q]["contest_date"][:10] for q in POOL)
 
 
 # ---------------------------------------------------------------- page frame
-NAV = [("index.html", "概览"), ("problems.html", "题目"), ("method.html", "原理"), ("results.html", "结果")]
+NAV = [("index.html", "概览"), ("problems.html", "题目"), ("method.html", "原理"), ("results.html", "结果"),
+       ("custom.html", "自定义评测")]
 
 
 def page(path, title_, body, desc, extra_css=""):
-    depth = path.count("/")
-    up = "../" * depth
+    up = "../" * path.count("/")
     links = "".join(f'<li><a href="{up}{h}"{" aria-current=\"page\"" if h == path else ""}>{t}</a></li>' for h, t in NAV)
     css = f'<link rel="stylesheet" href="{up}assets/style.css">' + (
         f'<link rel="stylesheet" href="{up}assets/{extra_css}">' if extra_css else "")
@@ -192,14 +183,14 @@ def page(path, title_, body, desc, extra_css=""):
 {css}
 </head>
 <body>
-<nav class="nav"><div class="nav-in"><a class="brand" href="{up}index.html">BAI AI Lab 代码评测</a><ul>{links}</ul></div></nav>
+<nav class="nav"><div class="nav-in"><a class="brand" href="{up}index.html"><span class="hide-sm">BAI AI Lab </span>代码评测</a><ul>{links}</ul></div></nav>
 <main>
 {body}
 </main>
 <footer><div class="wrap">
 <p>BAI AI Lab 代码能力评测 · 数据截至 {DATE}（UTC）</p>
-<p>评测框架 LiveCodeBench release_v6（ICLR 2025），运行与复核用 codingBench。题面版权归 AtCoder 与 LeetCode，本站只给出概述与原题链接。</p>
-<p>全部数据：<a href="{up}data/lcb35.json">data/lcb35.json</a></p>
+<p>评测框架 LiveCodeBench release_v6 <a href="{up}method.html#ref-1">[1]</a>，运行与判分用 codingBench。题面版权归 AtCoder 与 LeetCode，本站只给出概述与原题链接。</p>
+<p>全部数据：<a href="{up}data/lcb.json">data/lcb.json</a></p>
 </div></footer>
 <script src="{up}assets/app.js"></script>
 </body>
@@ -210,17 +201,16 @@ def page(path, title_, body, desc, extra_css=""):
     open(dst, "w").write(doc)
 
 
-def table(head, rows, cls=None):
-    """head: [(text, css)], rows: list of lists of (html, css)."""
+def table(head, rows, tid=None):
+    """head: [(html, css)]; rows: lists of (html, css), or (tr attributes, list)."""
     th = "".join(f'<th class="{c}">{t}</th>' if c else f"<th>{t}</th>" for t, c in head)
     trs = []
     for row in rows:
         attrs = ""
         if isinstance(row, tuple):
             attrs, row = row
-        tds = "".join(f'<td class="{c}">{t}</td>' if c else f"<td>{t}</td>" for t, c in row)
-        trs.append(f"<tr{attrs}>{tds}</tr>")
-    idattr = f' id="{cls}"' if cls else ""
+        trs.append(f"<tr{attrs}>" + "".join(f'<td class="{c}">{t}</td>' if c else f"<td>{t}</td>" for t, c in row) + "</tr>")
+    idattr = f' id="{tid}"' if tid else ""
     return f'<div class="tw"><table{idattr}><thead><tr>{th}</tr></thead><tbody>{"".join(trs)}</tbody></table></div>'
 
 
@@ -229,41 +219,48 @@ def best_cells(vals, fmt, best):
     return [(fmt(v), "n best" if v == b else "n") for v in vals]
 
 
-MHEAD = [(f"{dot(k)} {mname(name, short)}", "n") for k, name, short in MODELS]
-
-
-# ---------------------------------------------------------------- index (概览)
 def specs(items):
     return '<ul class="specs">' + "".join(f"<li><b>{v}</b><span>{lab}</span></li>" for v, lab in items) + "</ul>"
 
 
+def dist_table(qs, pool):
+    dn = [d for d in ("easy", "medium", "hard") if any(pool[q]["difficulty"] == d for q in qs)]
+    rows = [[(DIFF[d], "")] + [(str(sum(1 for q in qs if pool[q]["difficulty"] == d and pool[q]["platform"] == pk)), "n")
+                               for pk in ("atcoder", "leetcode")] + [(str(sum(1 for q in qs if pool[q]["difficulty"] == d)), "n")]
+            for d in dn]
+    rows.append([("合计", "")] + [(str(sum(1 for q in qs if pool[q]["platform"] == pk)), "n") for pk in ("atcoder", "leetcode")]
+                + [(str(len(qs)), "n")])
+    return table([("难度", ""), ("AtCoder", "n"), ("LeetCode", "n"), ("合计", "n")], rows)
+
+
+# ---------------------------------------------------------------- 概览
 def index():
     cols = []
     for k, name, short in MODELS:
         s = S[k]
         cols.append(f"""<div class="model"><div>{dot(k)}<h3>{mname(name, short)}</h3><div class="id">{k}</div></div>
-<div class="big">{s['pass']}/{N}</div><div class="cap">复核后通过</div>
-{specs([(f"{s['lcb']}/{N}", "LCB 原始判分"), (f"{s['lat']:.0f} 秒", "延迟"), (f"{s['speed']:.0f}", "输出 token/秒"),
-        (money(s['cost']), "费用"), (money(s['per'], 3), "每道通过题费用"), (f"{s['gm']:.2f}×", "代码耗时 / 最快者")])}</div>""")
+<div class="big">{s['pass']}/{N}</div><div class="cap">通过</div>
+{specs([(f"{s['lat']:.0f} 秒", "延迟"), (f"{s['speed']:.0f}", "输出 token/秒"), (money(s['cost']), "费用"),
+        (money(s['per'], 3), "每道通过题费用"), (f"{s['gm']:.2f}×", "代码耗时 / 最快者")])}</div>""")
     nperf = len(perfgen.common)
     body = f"""<section class="hero"><div class="wrap">
-<p class="eyebrow">LiveCodeBench · 最新 35 题 · {DATE}</p>
+<p class="eyebrow">LiveCodeBench · {DATE}</p>
 <h1>代码能力评测</h1>
 <p class="lead"><span class="nw">Kimi K3.1 Pro</span>、<span class="nw">DeepSeek-V4.1-Flash</span>、<span class="nw">DeepSeek-V4-Pro</span>：正确率、速度、费用与代码性能。</p>
-<div class="ctas"><a class="btn" href="results.html">查看结果</a><a class="more" href="method.html">评测原理</a><a class="more" href="problems.html">全部题目</a></div>
+<div class="ctas"><a class="btn" href="results.html">查看结果</a><a class="more" href="method.html">评测原理</a><a class="more" href="custom.html">自定义评测</a></div>
 </div></section>
 <section class="section alt"><div class="wrap">
 <h2>三个模型</h2>
-<p class="sub">LiveCodeBench release_v6 中最新的 35 道竞赛题（中等 10、困难 25），每题调用 1 次，判分经过复核。</p>
-<div class="compare" style="--rows:9">{''.join(cols)}</div>
-<p class="note">延迟、输出速度为每题中位数；费用按 token 计；代码耗时为 {len(perfgen.common)} 道可比题上相对最快者的几何平均倍数。</p>
+<p class="sub">LiveCodeBench 竞赛题，每题调用 1 次。题目范围与设置见“结果”。</p>
+<div class="compare" style="--rows:8">{''.join(cols)}</div>
+<p class="note">延迟、输出速度为每题中位数；费用按 token 计；代码耗时为 {nperf} 道可比题上相对最快者的几何平均倍数。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <h2>要点</h2>
 <p class="sub">数字均来自本次评测记录，计算方法见“原理”。</p>
 <div class="tiles">
-<a class="card" href="method.html#rejudge"><p class="k">判分</p><p class="v">{raw_fail} → {real_fail}</p>
-<p>LCB 原始判分共 {raw_fail} 个失败：{judge_fix} 个由判题程序或测试数据的问题造成，{api_fix} 个是 API 返回了与题目无关的内容（人工复核正确），真正答错的只有 {real_fail} 个（Kimi <code>abc398_g</code>）。</p><p class="more">复核方法</p></a>
+<a class="card" href="results.html#matrix"><p class="k">正确率</p><p class="v">只错 1 题</p>
+<p>DS-V4.1-Flash 与 DS-V4-Pro 全部通过；Kimi 唯一的错误是 <code>abc398_g</code>（博弈题），思考 11.9 万 token 后在 4/43 个测试上答案错误。</p></a>
 <a class="card" href="results.html#overall"><p class="k">速度</p><p class="v">{S[FL]['lat']:.0f} 秒</p>
 <p>DS-V4.1-Flash 每题延迟中位数；Kimi {S[KF]['lat']:.0f} 秒，DS-V4-Pro {S[PR]['lat']:.0f} 秒。输出速度中位数：Flash {S[FL]['speed']:.0f}、Pro {S[PR]['speed']:.0f}、Kimi {S[KF]['speed']:.0f} token/秒。</p></a>
 <a class="card" href="results.html#cost"><p class="k">费用</p><p class="v">{money(S[FL]['per'], 3)}</p>
@@ -275,170 +272,144 @@ def index():
 </div>
 </div></section>"""
     page("index.html", "代码能力评测 · BAI AI Lab", body,
-         "Kimi K3.1 Pro、DeepSeek-V4.1-Flash、DeepSeek-V4-Pro 在 LiveCodeBench 最新 35 题上的评测结果")
+         "Kimi K3.1 Pro、DeepSeek-V4.1-Flash、DeepSeek-V4-Pro 在 LiveCodeBench 上的评测结果")
 
 
-# ---------------------------------------------------------------- problems (题目)
+# ---------------------------------------------------------------- 题目
 def problems():
-    import collections
-    dn = collections.Counter(P[q]["difficulty"] for q in P)
-    grid = [[(d, "")] + [(str(sum(1 for q in P if P[q]["difficulty"] == dk and P[q]["platform"] == pk)), "n")
-                         for pk in ("atcoder", "leetcode")] + [(str(dn[dk]), "n")]
-            for d, dk in (("中等", "medium"), ("困难", "hard"))]
-    grid.append([("合计", "")] + [(str(sum(1 for q in P if P[q]["platform"] == pk)), "n") for pk in ("atcoder", "leetcode")]
-                + [(str(N), "n")])
     src = collections.Counter()
-    for q in P:
-        c = P[q]["contest_id"]
-        src["AtCoder ABC" if c.startswith("abc") else "AtCoder ARC" if c.startswith("arc") else "LeetCode"] += 1
-    abc = sorted({int(P[q]["contest_id"][3:]) for q in P if P[q]["contest_id"].startswith("abc")})
-    arc = sorted({int(P[q]["contest_id"][3:]) for q in P if P[q]["contest_id"].startswith("arc")})
-    dates = sorted(P[q]["contest_date"][:10] for q in P)
-    srows = [[(f"AtCoder ABC {abc[0]}–{abc[-1]}", ""), (str(src["AtCoder ABC"]), "n"), ("完整程序，标准输入输出", "")],
-             [(f"AtCoder ARC {arc[0]}–{arc[-1]}", ""), (str(src["AtCoder ARC"]), "n"), ("完整程序，标准输入输出", "")],
-             [("LeetCode 周赛 / 双周赛", ""), (str(src["LeetCode"]), "n"), ("补全给定的 Python 函数", "")]]
-    ex = []
-    for q in ("abc400_c", "arc195_d", "3801"):
-        p = P[q]
-        res = "；".join(f"{short} <span class=\"{verdict(k, q)[0]}\">{verdict(k, q)[1]}</span> {R[k]['out'][q] / 1e3:.1f}k token"
-                       for k, name, short in MODELS)
-        ex.append(f"""<a class="card" href="p/{q}.html"><p class="k">{contest(p)} · {diff(p)}</p><h4>{esc(title(p))}</h4>
-<p>{SUMMARY[q]}</p><p class="cap">{res}</p></a>""")
+    for q in POOL:
+        c = POOL[q]["contest_id"]
+        src["abc" if c.startswith("abc") else "arc" if c.startswith("arc") else "lc"] += 1
+    nums = {k: sorted({int(POOL[q]["contest_id"][3:]) for q in POOL if POOL[q]["contest_id"].startswith(k)}) for k in ("abc", "arc")}
+    srows = [[(f"AtCoder ABC {nums['abc'][0]}–{nums['abc'][-1]}", ""), (str(src["abc"]), "n"), ("完整程序，标准输入输出", "")],
+             [(f"AtCoder ARC {nums['arc'][0]}–{nums['arc'][-1]}", ""), (str(src["arc"]), "n"), ("完整程序，标准输入输出", "")],
+             [("LeetCode 周赛 / 双周赛", ""), (str(src["lc"]), "n"), ("补全给定的 Python 函数", "")]]
+    ex = "".join(f"""<a class="card" href="p/{q}.html"><p class="k">{contest(POOL[q])} · {DIFF[POOL[q]['difficulty']]}</p>
+<h4>{esc(title(POOL[q]))}</h4><p>{SUMMARY[q]}</p></a>""" for q in ("abc400_c", "arc195_d", "3801"))
     rows = []
-    for q in ORDER:
-        p = P[q]
-        cells = [(f'<a class="mono" href="p/{q}.html">{q}</a>', "nw"), (esc(title(p)), ""), (diff(p), "nw"),
-                 (contest(p), "nw hide-sm"), (p["contest_date"][:10], "nw hide-sm")]
-        for k, *_ in MODELS:
-            c, t = verdict(k, q)
-            cells.append((f'<span class="{c}">{t}</span>', "c"))
-        rows.append((f' data-difficulty="{p["difficulty"]}" data-platform="{p["platform"]}" data-href="p/{q}.html"', cells))
-    head = [("题号", ""), ("题目", ""), ("难度", ""), ("来源", "hide-sm"), ("日期", "hide-sm")] + \
-           [(f'{dot(k)}<span class="hide-sm"> {short}</span>', "c") for k, name, short in MODELS]
+    for q in POOL_ORDER:
+        p = POOL[q]
+        rows.append((f' data-difficulty="{p["difficulty"]}" data-platform="{p["platform"]}" data-href="p/{q}.html"',
+                     [(f'<a class="mono" href="p/{q}.html">{q}</a>', "nw"), (esc(title(p)), ""), (DIFF[p["difficulty"]], "nw"),
+                      (contest(p), "nw hide-sm"), (p["contest_date"][:10], "nw hide-sm")]))
+
+    def seg(name, opts):
+        return (f'<div class="seg" data-filter="{name}">' + "".join(
+            f'<button aria-pressed="{str(i == 0).lower()}" data-value="{v}">{t}</button>' for i, (v, t) in enumerate(opts)) + "</div>")
+
     body = f"""<section class="section tight"><div class="wrap">
 <h2>题目</h2>
-<p class="sub">LiveCodeBench release_v6 最新 100 题中，按难度各取最新：中等 10、困难 25；比赛日期 {dates[0]} 至 {dates[-1]}。</p>
+<p class="sub">LiveCodeBench release_v6 {cite("lcb", page="method.html")} 中发布日期最新的 {len(POOL)} 题，比赛日期 {dates100[0]} 至 {dates100[-1]}。LiveCodeBench 持续从 AtCoder、LeetCode 等平台收集比赛题，并按比赛日期标注。</p>
 <div class="tiles">
-<div>{table([("难度", ""), ("AtCoder", "n"), ("LeetCode", "n"), ("合计", "n")], grid)}</div>
+<div>{dist_table(list(POOL), POOL)}</div>
 <div>{table([("来源", ""), ("题数", "n"), ("形式", "")], srows)}</div>
 </div>
 <h3>示例</h3>
-<div class="tiles">{''.join(ex)}</div>
-<h3 id="all">全部 {N} 题</h3>
+<div class="tiles">{ex}</div>
+<h3 id="all">全部 {len(POOL)} 题</h3>
 <div class="filters">
-<div class="seg" data-filter="difficulty"><button aria-pressed="true" data-value="all">全部难度</button><button aria-pressed="false" data-value="medium">中等</button><button aria-pressed="false" data-value="hard">困难</button></div>
-<div class="seg" data-filter="platform"><button aria-pressed="true" data-value="all">全部来源</button><button aria-pressed="false" data-value="atcoder">AtCoder</button><button aria-pressed="false" data-value="leetcode">LeetCode</button></div>
+{seg("difficulty", [("all", "全部难度"), ("easy", "简单"), ("medium", "中等"), ("hard", "困难")])}
+{seg("platform", [("all", "全部来源"), ("atcoder", "AtCoder"), ("leetcode", "LeetCode")])}
 </div>
-{table(head, rows, "plist")}
-<p class="note">✓ 复核后通过；✓* LCB 判为失败、复核后通过；✓† API 返回与题目无关的内容，人工另行调用验证正确，按通过计；✗ 未通过。点击一行查看该题三个模型的结果与代码。</p>
+{table([("题号", ""), ("题目", ""), ("难度", ""), ("来源", "hide-sm"), ("日期", "hide-sm")], rows, "plist")}
+<p class="note">点击一行查看题意概述与原题链接；评测过的题还有三个模型的结果与代码。</p>
 </div></section>"""
-    page("problems.html", "题目 · 代码能力评测", body, "LiveCodeBench 最新 35 题：分布、示例与逐题结果")
+    page("problems.html", "题目 · 代码能力评测", body, f"LiveCodeBench release_v6 最新 {len(POOL)} 题：分布、示例与题意概述")
 
 
 def problem_page(i, q):
-    p = P[q]
-    cols, tabs, panels, data = [], [], [], {}
-    for j, (k, name, short) in enumerate(MODELS):
-        m, r = R[k], R[k]["rows"][q]
-        c, t = verdict(k, q)
-        if (k, q) in gen.USER_VERIFIED:
-            rej = "API 返回与题目无关的内容；人工另行调用验证正确，按通过计"
-        elif p["platform"] == "leetcode":
-            rej = "函数调用题，沿用 LCB 判分"
-        else:
-            rej = REJ.get((k, q), "—")
-        lcb = "通过" if m["lcb"][q] else f"失败（{lcb_reason(r)}）"
-        status = "通过" if m["passed"][q] else f"未通过：{m['why'][q]}"
-        pf, st = perf(k, q), ST.get((k, q))
-        if pf:
-            cpu = f"{pf[0]:.2f} 秒" + (f"（{pf[2]:.1f}×）" if pf[2] >= 2 else "（最快）" if pf[2] == 1 else "")
-            mem = f"{pf[1]:.0f} MB"
-        else:
-            cpu = mem = "—"
-        items = [f'<li><span class="t">{lcb}</span><span>LCB 原始判分</span></li>',
-                 f'<li><span class="t">{rej}</span><span>复核</span></li>']
-        nums = [(f"{m['out'][q] / 1e3:.1f}k" if q in m["out"] else "—", "输出 token（含思考）"),
-                (f"{m['lat'][q]:.0f} 秒" if q in m["lat"] else "—", "延迟"),
-                (cpu, "最慢测试的 CPU 时间"), (mem, "峰值内存"),
-                (str(st["sloc"]) if st else "—", "有效行"), (str(st["cc_total"]) if st else "—", "圈复杂度"),
-                (f"{st['mi']:.1f}" if st else "—", "可维护性指数"), (str(st["pyflakes"]) if st else "—", "pyflakes 警告")]
-        items += [f"<li><b>{v}</b><span>{lab}</span></li>" for v, lab in nums]
-        cols.append(f"""<div class="model"><div>{dot(k)}<h3>{mname(name, short)}</h3></div>
-<p class="verdict {c}">{t}</p><p class="cap">{status}</p><ul class="specs">{''.join(items)}</ul></div>""")
-        code = r["code_list"][0]
-        tabs.append(f'<button aria-pressed="{str(j == 0).lower()}" data-value="{CLS[k]}">{short}</button>')
-        if code.strip():
-            inner = (f'<div class="codehead"><span class="cap">{dot(k)} {name} · {len(code.splitlines())} 行</span>'
-                     f'<button class="copy" data-src="code-{CLS[k]}">复制代码</button></div>'
-                     f'<div id="code-{CLS[k]}">{highlight(code, PythonLexer(), HtmlFormatter(cssclass="code"))}</div>')
-        else:
-            inner = '<div class="empty">没有代码：API 返回的内容与题目无关。</div>'
-        panels.append(f'<div data-panel-group="code" data-panel="{CLS[k]}"{"" if j == 0 else " hidden"}>{inner}</div>')
-        data[k] = {"passed": m["passed"][q], "lcb_passed": m["lcb"][q], "mark": MARK.get(m["mark"].get(q), ""),
-                   "failure": None if m["passed"][q] else m["why"][q], "lcb_failure": None if m["lcb"][q] else lcb_reason(r),
-                   "rejudge": rej, "output_tokens": tokens_or_none(m, q), "latency_s": round(m["lat"][q], 1) if q in m["lat"] else None,
-                   "cpu_s": round(pf[0], 4) if pf else None, "peak_mb": round(pf[1], 1) if pf else None,
-                   "static": {x: st[x] for x in ("sloc", "comments", "cc_total", "mi", "depth", "pyflakes", "io")} if st else None,
-                   "code": code}
+    p = POOL[q]
+    rec = {"id": q, "title": title(p), "platform": p["platform"], "difficulty": p["difficulty"], "contest": contest(p),
+           "date": p["contest_date"][:10], "url": url(p), "summary": SUMMARY[q], "evaluated": q in P}
     ex = f'<p><b>要点</b>：{EXAMPLE[q]}</p>' if q in EXAMPLE else ""
-    prev_q, next_q = ORDER[i - 1] if i else None, ORDER[i + 1] if i + 1 < len(ORDER) else None
-    pager = (f'<a href="{prev_q}.html">‹ {prev_q}</a>' if prev_q else "<span></span>") + \
-            (f'<a href="{next_q}.html">{next_q} ›</a>' if next_q else "<span></span>")
-    body = f"""<section class="section tight"><div class="wrap">
+    parts = [f"""<section class="section tight"><div class="wrap">
 <p class="crumb"><a href="../problems.html">题目</a> › <span class="mono">{q}</span></p>
 <h1 class="ptitle">{esc(title(p))}</h1>
-<p class="meta">{contest(p)} · {p['contest_date'][:10]} · <span class="pill">{diff(p)}</span></p>
+<p class="meta">{contest(p)} · {p['contest_date'][:10]} · <span class="pill">{DIFF[p['difficulty']]}</span></p>
 <p class="summary">{SUMMARY[q]}</p>
 {ex}
 <p><a class="btn" href="{url(p)}" target="_blank" rel="noopener">查看原题</a></p>
-</div></section>
-<section class="section alt"><div class="wrap">
+</div></section>"""]
+    if q in P:
+        cols, tabs, panels, res = [], [], [], {}
+        for j, (k, name, short) in enumerate(MODELS):
+            m, r = R[k], R[k]["rows"][q]
+            c, t = verdict(k, q)
+            pf, st = perf(k, q), ST.get((k, q))
+            cpu = (f"{pf[0]:.2f} 秒" + (f"（{pf[2]:.1f}×）" if pf[2] >= 2 else "（最快）" if pf[2] == 1 else "")) if pf else "—"
+            items = [f'<li><span class="t">{judged(k, q)}</span><span>判题</span></li>']
+            nums = [(f"{m['out'][q] / 1e3:.1f}k" if q in m["out"] else "—", "输出 token（含思考）"),
+                    (f"{m['lat'][q]:.0f} 秒" if q in m["lat"] else "—", "延迟"), (cpu, "最慢测试的 CPU 时间"),
+                    (f"{pf[1]:.0f} MB" if pf else "—", "峰值内存"), (str(st["sloc"]) if st else "—", "有效行"),
+                    (str(st["cc_total"]) if st else "—", "圈复杂度"), (f"{st['mi']:.1f}" if st else "—", "可维护性指数"),
+                    (str(st["pyflakes"]) if st else "—", "pyflakes 警告")]
+            items += [f"<li><b>{v}</b><span>{lab}</span></li>" for v, lab in nums]
+            status = "通过" if m["passed"][q] else f"未通过：{m['why'][q]}"
+            cols.append(f"""<div class="model"><div>{dot(k)}<h3>{mname(name, short)}</h3></div>
+<p class="verdict {c}">{t}</p><p class="cap">{status}</p><ul class="specs">{''.join(items)}</ul></div>""")
+            code = r["code_list"][0]
+            tabs.append(f'<button aria-pressed="{str(j == 0).lower()}" data-value="{CLS[k]}">{short}</button>')
+            if code.strip():
+                inner = (f'<div class="codehead"><span class="cap">{dot(k)} {name} · {len(code.splitlines())} 行</span>'
+                         f'<button class="copy" data-src="code-{CLS[k]}">复制代码</button></div>'
+                         f'<div id="code-{CLS[k]}">{highlight(code, PythonLexer(), HtmlFormatter(cssclass="code"))}</div>')
+            else:
+                inner = '<div class="empty">没有代码：API 返回的内容与题目无关。</div>'
+            panels.append(f'<div data-panel-group="code" data-panel="{CLS[k]}"{"" if j == 0 else " hidden"}>{inner}</div>')
+            res[k] = {"passed": m["passed"][q], "verified_by_hand": (k, q) in gen.USER_VERIFIED,
+                      "failure": None if m["passed"][q] else m["why"][q], "judge": judged(k, q),
+                      "output_tokens": m["out"].get(q), "latency_s": round(m["lat"][q], 1) if q in m["lat"] else None,
+                      "cpu_s": round(pf[0], 4) if pf else None, "peak_mb": round(pf[1], 1) if pf else None,
+                      "static": {x: st[x] for x in ("sloc", "comments", "cc_total", "mi", "depth", "pyflakes", "io")} if st else None,
+                      "code": code}
+        rec["results"] = res
+        parts.append(f"""<section class="section alt"><div class="wrap">
 <h2>结果</h2>
 <div class="compare small" style="--rows:{3 + len(items)}">{''.join(cols)}</div>
-<p class="note">CPU 时间与内存只统计能区分性能的题（最慢答案扣除进程启动后仍 ≥ {perfgen.THRESH:.1f} 秒），括号内为相对最快者的倍数（≥ 2 时标出）。静态指标只统计复核后通过的答案。</p>
+<p class="note">CPU 时间与内存只统计能区分性能的题（最慢答案扣除进程启动后仍 ≥ {perfgen.THRESH:.1f} 秒），括号内为相对最快者的倍数（≥ 2 时标出）。静态指标只统计通过的答案。判题方法见 <a href="../method.html#judge">原理 › 判题</a>。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <div class="codehead"><h2>代码</h2><div class="seg" data-tabs="code">{''.join(tabs)}</div></div>
 {''.join(panels)}
-</div></section>
-<div class="wrap"><nav class="pager">{pager}</nav></div>"""
-    page(f"p/{q}.html", f"{q} {title(p)} · 代码能力评测", body, f"{q} {title(p)}：三个模型的结果与代码", "code.css")
-    return {"id": q, "title": title(p), "platform": p["platform"], "difficulty": p["difficulty"], "contest": contest(p),
-            "date": p["contest_date"][:10], "url": url(p), "summary": SUMMARY[q], "results": data}
+</div></section>""")
+    prev_q, next_q = (POOL_ORDER[i - 1] if i else None), (POOL_ORDER[i + 1] if i + 1 < len(POOL_ORDER) else None)
+    pager = (f'<a href="{prev_q}.html">‹ {prev_q}</a>' if prev_q else "<span></span>") + \
+            (f'<a href="{next_q}.html">{next_q} ›</a>' if next_q else "<span></span>")
+    parts.append(f'<div class="wrap"><nav class="pager">{pager}</nav></div>')
+    page(f"p/{q}.html", f"{q} {title(p)} · 代码能力评测", "\n".join(parts), f"{q} {title(p)}", "code.css" if q in P else "")
+    return rec
 
 
-def tokens_or_none(m, q):
-    return m["out"].get(q)
-
-
-# ---------------------------------------------------------------- results (结果)
+# ---------------------------------------------------------------- 结果
 def bar_chart():
-    """LCB raw vs corrected passes per model."""
-    W, top, bottom, left, right = 680, 34, 230, 34, 8
+    """Pass rate by difficulty, per model."""
+    cats = [("中等", "medium"), ("困难", "hard"), ("总计", None)]
+    W, top, bottom, left, right = 680, 34, 230, 40, 8
     span = bottom - top
     out = []
-    for v in (0, 10, 20, 30):
-        y = bottom - span * v / N
+    for v in (0, 20, 40, 60, 80, 100):
+        y = bottom - span * v / 100
         out.append(f'<line class="grid" x1="{left}" x2="{W - right}" y1="{y:.1f}" y2="{y:.1f}"/>'
                    f'<text x="{left - 8}" y="{y + 4:.1f}" text-anchor="end">{v}</text>')
-    gw, bw = (W - left - right) / len(MODELS), 56
-    for i, (k, name, short) in enumerate(MODELS):
+    gw, bw = (W - left - right) / len(cats), 44
+    for i, (label, d) in enumerate(cats):
+        qs = [q for q in P if d is None or P[q]["difficulty"] == d]
         cx = left + gw * (i + 0.5)
-        for j, (v, faint) in enumerate(((S[k]["lcb"], True), (S[k]["pass"], False))):
-            x = cx + (j - 1) * (bw + 6) + 3
-            h = span * v / N
-            out.append(f'<rect class="{CLS[k]}{" faint" if faint else ""}" x="{x:.1f}" y="{bottom - h:.1f}" width="{bw}" '
-                       f'height="{h:.1f}" rx="5"/><text class="val" x="{x + bw / 2:.1f}" y="{bottom - h - 8:.1f}" '
-                       f'text-anchor="middle">{v}</text>')
-        out.append(f'<text class="cat" x="{cx:.1f}" y="{bottom + 24}" text-anchor="middle">{name}</text>')
-    return (f'<svg class="chart" viewBox="0 0 {W} {bottom + 36}" role="img" aria-label="LCB 原始判分与复核后的通过题数">'
-            + "".join(out) + "</svg>"
-            '<ul class="legend"><li><i class="faint"></i>LCB 原始判分</li><li><i></i>复核后</li></ul>')
+        for j, (k, name, short) in enumerate(MODELS):
+            v = 100 * sum(R[k]["passed"][q] for q in qs) / len(qs)
+            x = cx + (j - 1) * (bw + 6) - bw / 2
+            h = span * v / 100
+            out.append(f'<rect class="{CLS[k]}" x="{x:.1f}" y="{bottom - h:.1f}" width="{bw}" height="{h:.1f}" rx="5"/>'
+                       f'<text class="val" x="{x + bw / 2:.1f}" y="{bottom - h - 8:.1f}" text-anchor="middle">{v:.0f}</text>')
+        out.append(f'<text class="cat" x="{cx:.1f}" y="{bottom + 24}" text-anchor="middle">{label}（{len(qs)} 题）</text>')
+    legend = "".join(f'<li><i class="{CLS[k]}-bg"></i>{name}</li>' for k, name, short in MODELS)
+    return (f'<svg class="chart" viewBox="0 0 {W} {bottom + 36}" role="img" aria-label="按难度的通过率（%）">' + "".join(out)
+            + f'</svg><ul class="legend">{legend}</ul>')
 
 
 def results():
     ms = [R[k] for k, *_ in MODELS]
-    import collections
     dn = collections.Counter(P[q]["difficulty"] for q in P)
     pn = collections.Counter(P[q]["platform"] for q in P)
 
@@ -446,15 +417,13 @@ def results():
         return sum(m["passed"][q] for q in P if f(P[q]))
 
     rows = [
-        [("通过：LCB 原始判分", "")] + best_cells([sum(m["lcb"].values()) for m in ms], lambda v: f"{v}（{100 * v / N:.1f}%）", max),
-        [("通过：复核后", "")] + best_cells([sum(m["passed"].values()) for m in ms], lambda v: f"{v}（{100 * v / N:.1f}%）", max),
+        [(f"通过（共 {N} 题）", "")] + best_cells([S[k]["pass"] for k, *_ in MODELS], lambda v: f"{v}（{100 * v / N:.1f}%）", max),
         [(f"中等（{dn['medium']}）", "")] + best_cells([by(m, lambda p: p["difficulty"] == "medium") for m in ms], str, max),
         [(f"困难（{dn['hard']}）", "")] + best_cells([by(m, lambda p: p["difficulty"] == "hard") for m in ms], str, max),
         [(f"AtCoder（{pn['atcoder']}）", "")] + best_cells([by(m, lambda p: p["platform"] == "atcoder") for m in ms], str, max),
         [(f"LeetCode（{pn['leetcode']}）", "")] + best_cells([by(m, lambda p: p["platform"] == "leetcode") for m in ms], str, max),
-        [("实际作答题数", "")] + [(str(len(m["by_q"])), "n") for m in ms],
         [("有效运行时间（分钟）", "")] + best_cells([m["wall"] for m in ms], lambda v: f"{v:.0f}", min),
-        [("每题延迟中位数（秒）", "")] + best_cells([statistics.median(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min),
+        [("每题延迟中位数（秒）", "")] + best_cells([S[k]["lat"] for k, *_ in MODELS], lambda v: f"{v:.0f}", min),
         [("每题延迟 P90（秒）", "")] + best_cells([gen.pct(list(m["lat"].values()), 90) for m in ms], lambda v: f"{v:.0f}", min),
         [("每题延迟最长（秒）", "")] + best_cells([max(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min),
         [("输出速度中位数（token/秒）", "")] + best_cells([S[k]["speed"] for k, *_ in MODELS], lambda v: f"{v:.0f}", max),
@@ -466,43 +435,42 @@ def results():
         [("每道通过题的费用（美元）", "")] + best_cells([S[k]["per"] for k, *_ in MODELS], lambda v: money(v, 3), min),
         [("API 出错次数", "")] + [(str(len(m["errors"])), "n") for m in ms],
     ]
+    mhead = [(f"{dot(k)} {mname(name, short)}", "n") for k, name, short in MODELS]
     drows = []
-    for d, dname in (("medium", "中等"), ("hard", "困难")):
+    for d in ("medium", "hard"):
         qs = [q for q in P if P[q]["difficulty"] == d]
         for idx, ((k, name, short), m) in enumerate(zip(MODELS, ms)):
             have = [q for q in qs if q in m["out"]]
-            row = [(dname if idx == 0 else "", ""), (f"{dot(k)} {name}", "nw"), (f"{sum(m['passed'][q] for q in qs)}/{len(qs)}", "n"),
-                   (f"{statistics.median(m['lat'][q] for q in have):.0f}", "n"),
-                   (ktok(statistics.mean(m["out"][q] for q in have)), "n"), (ktok(max(m["out"][q] for q in have)), "n")]
-            drows.append((' class="grp"' if idx == 2 and d == "medium" else "", row))
+            drows.append((' class="grp"' if idx == 2 and d == "medium" else "",
+                          [(DIFF[d] if idx == 0 else "", ""), (f"{dot(k)} {name}", "nw"),
+                           (f"{sum(m['passed'][q] for q in qs)}/{len(qs)}", "n"),
+                           (f"{statistics.median(m['lat'][q] for q in have):.0f}", "n"),
+                           (ktok(statistics.mean(m["out"][q] for q in have)), "n"), (ktok(max(m["out"][q] for q in have)), "n")]))
     prow = []
     for q in ORDER:
-        p = P[q]
-        cells = [(f'<a class="mono" href="p/{q}.html">{q}</a>', "nw"), (esc(title(p)), ""), (diff(p), "nw")]
+        cells = [(f'<a class="mono" href="p/{q}.html">{q}</a>', "nw"), (esc(title(P[q])), ""), (DIFF[P[q]["difficulty"]], "nw")]
         for k, *_ in MODELS:
             m = R[k]
             c, t = verdict(k, q)
             why = "" if m["passed"][q] else f' <span class="sec">{m["why"][q]}</span>'
-            cells += [(f'<span class="{c}">{t}</span>{why}', "nw"),
-                      (f"{m['out'][q] / 1e3:.1f}k" if q in m["out"] else "—", "n"),
+            cells += [(f'<span class="{c}">{t}</span>{why}', "nw"), (f"{m['out'][q] / 1e3:.1f}k" if q in m["out"] else "—", "n"),
                       (f"{m['lat'][q]:.0f}" if q in m["lat"] else "—", "n")]
         prow.append(cells)
     phead = [("题号", ""), ("题目", ""), ("难度", "")]
     for k, name, short in MODELS:
         phead += [(f"{dot(k)} {short}", ""), ("token", "n"), ("秒", "n")]
-    # performance
     perf_rows = []
     for q in perfgen.measurable:
         d = perfgen.prob[q]
         best = min(v[0] for v in d.values())
-        cells = [(f'<a class="mono" href="p/{q}.html">{q}</a>', "nw"), (diff(P[q]), "nw"),
+        cells = [(f'<a class="mono" href="p/{q}.html">{q}</a>', "nw"), (DIFF[P[q]["difficulty"]], "nw"),
                  ("LC" if P[q]["platform"] == "leetcode" else "AC", "nw"), (f"{perfgen.sizes[q]['max_bytes'] / 1024:.0f}", "n")]
         for k, *_ in MODELS:
             if k not in d:
                 cells += [("—", "n"), ("—", "n")]
                 continue
             c = d[k][0]
-            txt = f"{c:.2f}" + (f" <span class=\"sec\">{c / best:.1f}×</span>" if best > 0 and c / best >= 2 else "")
+            txt = f"{c:.2f}" + (f' <span class="sec">{c / best:.1f}×</span>' if best > 0 and c / best >= 2 else "")
             cells += [(txt, "n best" if c == best else "n"), (f"{d[k][2] / 1024:.0f}", "n")]
         perf_rows.append(cells)
     pfhead = [("题号", ""), ("难度", ""), ("类型", ""), ("最大输入 KB", "n")]
@@ -513,39 +481,51 @@ def results():
     srows = [[(f"{dot(k)} {name}", "nw"), (f"{agg[k][0]:.2f}", "n best" if agg[k][0] == gm_best else "n"), (str(agg[k][1]), "n"),
               (str(agg[k][2]), "n"), (f"{agg[k][3]:.1f}", "n"), (f"{agg[k][4]:.0f}", "n"), (f"{agg[k][5]:.0f}", "n")]
              for k, name, short in MODELS]
-    # static
     strows, iorows = [], []
-    import collections as C
     for k, name, short in MODELS:
         Rr = [r for r in perfgen.static if r["model"] == k and r["q"] in perfgen.st_common]
-        io = C.Counter(r["io"] for r in Rr if r["platform"] == "atcoder")
+        io = collections.Counter(r["io"] for r in Rr if r["platform"] == "atcoder")
         strows.append([(f"{dot(k)} {name}", "nw"), (str(sum(r["sloc"] for r in Rr)), "n"),
                        (f"{statistics.median(r['sloc'] for r in Rr):.0f}", "n"), (str(sum(r["comments"] for r in Rr)), "n"),
                        (f"{statistics.median(r['cc_total'] for r in Rr):.0f}", "n"), (f"{statistics.median(r['mi'] for r in Rr):.1f}", "n"),
                        (f"{statistics.median(r['depth'] for r in Rr):.0f}", "n"), (str(sum(r["pyflakes"] for r in Rr)), "n")])
         iorows.append([(f"{dot(k)} {name}", "nw"), ("、".join(f"<code>{x}</code> {v}" for x, v in io.most_common()), "")])
-    ncom = len(perfgen.common)
+    setting = table([("项目", ""), ("本轮设置", "")], [
+        [("题目", "nw"), (f"题库最新 100 题中，按难度各取最新的中等 {dn['medium']} 题、困难 {dn['hard']} 题，共 {N} 题；比赛日期 {dates35[0]} 至 {dates35[-1]}；AtCoder {pn['atcoder']} 题、LeetCode {pn['leetcode']} 题", "")],
+        [("次数", "nw"), ("每题 1 次（pass@1）", "")],
+        [("思考档位", "nw"), ("各模型默认（Kimi max，DeepSeek high）", "")],
+        [("采样", "nw"), ("DeepSeek：temperature 0.2（LCB 官方）；Kimi：固定 1.0（平台不允许传入）", "")],
+        [("输出上限", "nw"), ("DeepSeek 262,144；Kimi 不传上限（平台默认 131,072）；全部回答正常结束（finish_reason=stop），无截断", "")],
+        [("并发", "nw"), ("V4.1-Flash 16，V4-Pro 8；Kimi 前 32 题 4 路非流式，后 3 题 1 路流式（5 分钟无 token 判超时）；延迟含服务端排队", "")],
+    ])
+    nruns = sum(1 for r in perfgen.rows if r["model"] != "baseline")
     body = f"""<section class="section tight"><div class="wrap">
 <h2 id="overall">结果</h2>
-<p class="sub">35 题，每题 1 次（pass@1）。粗体为该行最优；按难度、来源的通过数均为复核后结果。1 题 = 2.9 个百分点。</p>
-{bar_chart()}
+<p class="sub">本轮从题库中取最新的中等 {dn['medium']} 题和困难 {dn['hard']} 题，共 {N} 题，每题调用 1 次。粗体为该行最优；1 题 = {100 / N:.1f} 个百分点。</p>
+<div class="tiles">
+<div>{dist_table(list(P), P)}</div>
+<div>{bar_chart()}</div>
+</div>
+<h3>本轮设置</h3>
+{setting}
+<p class="note">其余设置（提示词、判题、计量）见 <a href="method.html">原理</a>；复现命令见 <a href="custom.html">自定义评测</a>。</p>
 <h3>总表</h3>
-{table([("指标", "")] + MHEAD, rows)}
-<p class="note">有效运行时间 = 成功请求覆盖的时长（不含因余额不足暂停的时间）。延迟含服务端排队。API 出错：DS-V4-Pro 13 次为余额不足（402）；Kimi 30 次为挂起请求被切断后的连接错误，1 次为余额不足（429）。</p>
+{table([("指标", "")] + mhead, rows)}
+<p class="note">有效运行时间 = 成功请求覆盖的时长（不含因余额不足暂停的时间）。API 出错：DS-V4-Pro 13 次为余额不足（402）；Kimi 30 次为挂起请求被切断后的连接错误，1 次为余额不足（429）。</p>
 <h3>按难度</h3>
 {table([("难度", ""), ("模型", ""), ("通过", "n"), ("延迟中位数（秒）", "n"), ("平均输出 token", "n"), ("最多输出 token", "n")], drows)}
 <h3 id="matrix">逐题结果</h3>
 {table(phead, prow)}
-<p class="note">每个模型：结果（复核后）/ 输出 token（含思考）/ 延迟（秒）。✓* LCB 判为失败、复核后通过；✓† API 返回与题目无关的内容，人工另行调用验证正确，按通过计。</p>
+<p class="note">每个模型：结果 / 输出 token（含思考）/ 延迟（秒）。✓† Kimi <code>abc399_e</code>：评测中 API 返回与题目无关的内容，人工另行调用验证正确，按通过计。</p>
 </div></section>
 <section class="section alt"><div class="wrap">
 <h2 id="perf">代码性能</h2>
-<p class="sub">复核后通过的答案在绑定单核的全新进程里重跑官方测试，每个测试 3 次取中位数。只比较 {len(perfgen.measurable)} 道耗时足以区分的题。</p>
+<p class="sub">通过的答案（Kimi {sum(r['model'] == KF for r in perfgen.static)} 份，不含 <code>abc398_g</code>、<code>abc399_e</code>；DeepSeek 各 {N} 份）在绑定单核的全新进程里重跑官方测试，共 {nruns:,} 次，每个测试 3 次取中位数。只比较 {len(perfgen.measurable)} 道耗时足以区分的题。</p>
 {table(pfhead, perf_rows)}
-<p class="note">CPU 秒为最慢一个测试的 CPU 时间（扣除进程启动）；粗体为该题最快，灰字为相对最快者的倍数（≥ 2 时标出）。MB 为各测试中的最大峰值内存。AC = AtCoder，LC = LeetCode。</p>
+<p class="note">CPU 秒为最慢一个测试的 CPU 时间（扣除进程启动）；粗体为该题最快，灰字为相对最快者的倍数（≥ 2 时标出）。MB 为各测试中的最大峰值内存。AC = AtCoder，LC = LeetCode。其余 {len(perfgen.small)} 题官方测试太小，耗时主要是启动开销，不比较。</p>
 <h3>汇总</h3>
 {table([("模型", ""), ("相对最快倍数（几何平均）", "n"), ("最快（题）", "n"), ("慢 ≥ 2 倍（题）", "n"), ("CPU 合计（秒）", "n"), ("内存中位数 MB", "n"), ("内存最大 MB", "n")], srows)}
-<p class="note">基于 {ncom} 道可比题（三个模型都通过）。“最快”按严格最小值计；有 3 题第二名与最快相差不到 5%（噪声范围内）：<code>3765</code>、<code>3801</code> 上 Flash 比 Kimi 慢 3% 和 2%，<code>abc399_c</code> 上 Kimi 比 Pro 慢 3%。按并列计，Flash 的最快题数为 2。</p>
+<p class="note">基于 {len(perfgen.common)} 道可比题（三个模型都通过）。“最快”按严格最小值计；有 3 题第二名与最快相差不到 5%（噪声范围内）：<code>3765</code>、<code>3801</code> 上 Flash 比 Kimi 慢 3% 和 2%，<code>abc399_c</code> 上 Kimi 比 Pro 慢 3%。按并列计，Flash 的最快题数为 2。</p>
 <h3>差距最大的题</h3>
 <ul class="list">
 <li><a href="p/arc195_b.html"><code>arc195_b</code></a>（Flash 慢 8.5 倍，内存 91 MB）：Flash 枚举 A、B 所有不同取值的两两组合，复杂度 O(U·V)，并把重复的和逐个展开存入列表；Kimi 先按通配数量选出必须参与配对的候选值，再用二分查找限定候选和，0.15 秒。</li>
@@ -558,7 +538,7 @@ def results():
 <h3 id="static">静态指标</h3>
 {table([("模型", ""), ("有效行合计", "n"), ("有效行中位数", "n"), ("注释行合计", "n"), ("圈复杂度中位数", "n"), ("可维护性中位数", "n"), ("嵌套深度中位数", "n"), ("pyflakes 警告", "n")], strows)}
 {table([("模型", ""), ("AtCoder 读入方式（题数）", "")], iorows)}
-<p class="note">基于 {len(perfgen.st_common)} 道三个模型都通过的题。有效行不含空行和注释；圈复杂度为每份答案所有函数之和（radon）；可维护性指数 0–100，越高越好（radon）；pyflakes 警告全部为“局部变量赋值后未使用”。不评价可读性、命名等主观项。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。</p>
+<p class="note">基于 {len(perfgen.st_common)} 道三个模型都通过的题；指标定义见 <a href="method.html#static">原理 › 静态指标</a>。pyflakes 警告全部为“局部变量赋值后未使用”。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。</p>
 <ul class="list">
 <li>Kimi：可比题上整体最快（几何平均 {agg[KF][0]:.2f} 倍），代码最短、注释最多、无 pyflakes 警告；读入几乎都用一次性 <code>sys.stdin.buffer.read()</code>。</li>
 <li>DS-V4.1-Flash：没有一题严格最快（2 题与最快并列），{agg[FL][2]} 题慢 2 倍以上；最差情况为 <code>arc195_b</code> 的平方复杂度枚举。</li>
@@ -575,26 +555,65 @@ def results():
 </ul>
 <h3>分析</h3>
 <ul class="list">
-<li>复核后唯一的真实错误：Kimi <a href="p/abc398_g.html"><code>abc398_g</code></a>（博弈题），思考 11.9 万 token、耗时 31 分钟后，在 4/43 个测试上答案错误。这题 DS-V4.1-Flash 用 6.3 万 token、DS-V4-Pro 用 17.4 万 token 都做对了。</li>
+<li>唯一的错误：Kimi <a href="p/abc398_g.html"><code>abc398_g</code></a>（博弈题），思考 11.9 万 token、耗时 31 分钟后，在 4/43 个测试上答案错误。这题 DS-V4.1-Flash 用 6.3 万 token、DS-V4-Pro 用 17.4 万 token 都做对了。</li>
 <li>推理量：每题输出 token 中位数 DS-V4.1-Flash 12k、Kimi 14k、DS-V4-Pro 38k；困难题平均分别为 22k、31k、61k。DS-V4-Pro 多用的 token 没有换来更多通过题。</li>
 <li>调用稳定性：DeepSeek 余额不足时立即返回 402，补跑即可，已答结果不丢。Kimi 非流式请求在余额耗尽后挂起 1–1.5 小时，既不返回也不报错；改为流式 + 5 分钟空闲超时后，最后 3 题单路完成（每题 20–31 分钟）。</li>
-<li>LCB 原始判分的误差：在这 35 题上，原始判分把 Flash 和 Pro 都低估了，Flash 少算 5 题、Pro 少算 3 题，而且两者的排序也被颠倒（原始 Pro 领先 2 题，复核后持平）。凡是用 LCB 判分做模型对比，都应复核失败题。</li>
 </ul>
 <h3>局限</h3>
 <ul class="list">
-<li>35 题、每题 1 次：相差 1–2 题不显著；两个 DeepSeek 模型均为满分，这批题已不足以区分二者。</li>
+<li>{N} 题、每题 1 次：相差 1–2 题不显著；两个 DeepSeek 模型均为满分，这批题已不足以区分二者。</li>
 <li>采样温度不同：DeepSeek 0.2，Kimi 固定 1.0。</li>
 <li>延迟受并发和服务端负载影响。</li>
 <li>题目早于三个模型发布，不排除训练数据污染。</li>
-<li>复核后的成绩依赖本评测的重判程序和校验器；LCB 原始判分同时列出，可对照。</li>
+<li>成绩依赖本评测的判题程序和校验器（见 <a href="method.html#judge">原理 › 判题</a>）。</li>
 <li>Kimi <code>abc399_e</code> 按人工另行调用的结果计为通过，未在本评测流程中复现。</li>
 </ul>
 </div></section>"""
     page("results.html", "结果 · 代码能力评测", body, "通过率、延迟、token、费用、代码性能与静态指标")
 
 
-# ---------------------------------------------------------------- method (原理)
+# ---------------------------------------------------------------- 原理
 def method():
+    c = cite
+    setting = table([("项目", ""), ("设置", "")], [
+        [("题库", "nw"), (f"LiveCodeBench release_v6 {c('lcb')} 中发布日期最新的 100 题，官方测试数据", "")],
+        [("提示词", "nw"), ("LCB 官方提示词：AtCoder 题要求完整程序读写标准输入输出，LeetCode 题要求补全给定的 Python 函数", "")],
+        [("指标", "nw"), (f"pass@1 {c('codex')}：每题生成 1 次，全部测试通过才算通过", "")],
+        [("调用", "nw"), ("各厂商官方的 OpenAI 兼容 API；codingBench 的 <code>cb livecodebench</code>", "")],
+        [("采样", "nw"), ("temperature 0.2（LCB 官方）；平台固定采样参数的模型不传，按平台固定值", "")],
+        [("思考档位", "nw"), ("不传，按各平台默认", "")],
+        [("输出上限", "nw"), ("按模型设置；推理模型的思考计入输出 token，用完上限交不出答案即判失败", "")],
+        [("判题", "nw"), ("见下文“判题”；与 <code>cb rejudge</code> 相同", "")],
+        [("计量", "nw"), ("每次调用记录起止时间与服务端返回的 token 数（含思考）", "")],
+        [("费用", "nw"), ("官方单价 × token，分峰谷的平台按调用时段计；用账户余额变化核对", "")],
+    ])
+    judge_tbl = table([("问题", ""), ("处理", "")], [
+        [("LCB 用模拟对象替换标准输入，<code>sys.stdin.buffer.readline</code> 每次都返回输入的第一行", ""),
+         ("AtCoder 答案改为独立 Python 进程，用真实的标准输入输出运行", "")],
+        [("不支持 <code>sys.stdout.buffer</code>：标准输出被替换为 StringIO", ""), ("同上", "")],
+        [("测试数据错误：<code>abc397_d</code> 第 41 个测试 N=27，标准答案为“3 0”；y=0 不是正整数，27 不存在正整数解，正确输出为 -1", ""),
+         ("校验器：输出的 x、y 须为正整数且 x³ − y³ = N；输出 -1 时须确实无解", "")],
+        [("多解题按单一答案比对：<code>arc195_c</code> 允许任意合法构造", ""),
+         ("校验器：逐条检查摆法合法；Yes/No 须与标准答案一致", "")],
+    ])
+    perf_tbl = table([("项目", ""), ("设置", "")], [
+        [("对象", "nw"), ("判为通过的答案；每次运行的输出都须正确才计入", "")],
+        [("运行", "nw"), ("每次运行都是一个全新的 Python 3.11 进程（LCB 环境），绑定到单个 CPU 核", "")],
+        [("计时", "nw"), (f"AtCoder：进程 CPU 时间（rusage）扣除启动基线 {1000 * perfgen.B:.1f} ms；LeetCode：只计 <code>Solution</code> 方法调用的 CPU 时间", "")],
+        [("内存", "nw"), (f"进程峰值常驻内存（ru_maxrss）；空程序为 {perfgen.base_rss / 1024:.1f} MB", "")],
+        [("重复", "nw"), (f"每个测试 3 次、三个模型轮流先跑，取中位数；同一测试 3 次的离散度中位数 {100 * statistics.median(perfgen.spread):.1f}%，"
+                          f"P90 {100 * sorted(perfgen.spread)[int(0.9 * (len(perfgen.spread) - 1))]:.1f}%", "")],
+        [("可比题", "nw"), (f"最慢答案扣除启动后仍 ≥ {perfgen.THRESH:.1f} 秒的题；更小的测试耗时主要是启动开销，不比较", "")],
+        [("比较", "nw"), ("每题取最慢一个测试的 CPU 时间，除以三个模型中最快者，得相对倍数；汇总用几何平均", "")],
+    ])
+    agent_tbl = table([("", ""), ("单次生成（本评测）", ""), ("智能体评测", "")], [
+        [("输入", "nw"), ("题目描述", ""), ("任务描述 + 可操作的环境（代码仓库、终端）", "")],
+        [("模型做什么", "nw"), ("回复一次，给出完整程序", ""), ("循环“思考 → 调用工具（读文件、改代码、执行命令、跑测试）→ 观察结果”，直到提交", "")],
+        [("环境", "nw"), ("无；判题在模型之外进行", ""), ("每个任务一个隔离容器，固定代码版本与依赖", "")],
+        [("判定", "nw"), ("隐藏测试全部通过", ""), (f"提交后在干净环境中运行隐藏测试；SWE-bench 要求原本失败的测试变为通过（FAIL_TO_PASS），且原本通过的测试仍通过（PASS_TO_PASS）{c('swebench')}", "")],
+        [("结果取决于", "nw"), ("模型", ""), (f"模型 + 外壳（scaffold：工具集、提示词、上下文管理、步数上限）{c('sweagent', 'effi')}", "")],
+        [("代表", "nw"), (f"LiveCodeBench {c('lcb')}、HumanEval {c('codex')}", ""), (f"SWE-bench {c('swebench')}、SWE-bench Verified {c('verified')}、Terminal-Bench {c('tbench')}", "")],
+    ])
     models_tbl = table([("", "")] + [(f"{dot(k)} {name}", "") for k, name, short in MODELS], [
         [("API 模型名", "nw"), ("<code>kimi-k3.1-pro</code>", ""), ("<code>deepseek-flash</code>", ""), ("<code>deepseek-v4-pro</code>", "")],
         [("最近更新", "nw"), ("K3.1 系列首发", ""), ("2026-10-17（1017 版）", ""), ("2026-08-13（GA）", "")],
@@ -607,73 +626,56 @@ def method():
         [("单价（美元/百万 token：输入 / 缓存 / 输出）", ""), ("2 / 0.2 / 10，无峰谷", ""), ("0.3 / 0.006 / 1.2，谷时半价", ""),
          ("1.32 / 0.044 / 3.96，谷时半价", "")],
     ])
-    setting = table([("项目", ""), ("设置", "")], [
-        [("评测集", "nw"), ("LiveCodeBench release_v6（ICLR 2025），官方提示词、官方判题，隐藏测试全过才算通过", "")],
-        [("指标", "nw"), ("pass@1，每题 1 次", "")],
-        [("调用", "nw"), ("各厂商官方 API；codingBench 的 <code>cb livecodebench</code>", "")],
-        [("思考档位", "nw"), ("各模型默认（Kimi max，DeepSeek high）", "")],
-        [("采样", "nw"), ("DeepSeek：temperature 0.2（LCB 官方）；Kimi：固定 1.0（API 不允许传入）", "")],
-        [("输出上限", "nw"), ("DeepSeek 262,144；Kimi 131,072（默认）；全部回答正常结束（finish_reason=stop），无截断", "")],
-        [("并发", "nw"), ("V4.1-Flash 16，V4-Pro 8；Kimi 前 32 题 4 路非流式，后 3 题 1 路流式（5 分钟无 token 判超时）", "")],
-        [("计量", "nw"), ("每次调用记录起止时间与服务端返回的 token 数（含思考）", "")],
-        [("费用", "nw"), ("官方单价 × token，DeepSeek 按调用时段区分峰谷；用账户余额变化核对", "")],
-    ])
-    issues = table([("问题", ""), ("受影响答案", ""), ("LCB 判定", "nw"), ("复核", "")], [
-        [("测试数据错误：<code>abc397_d</code> 第 41 个测试 N=27，标准答案为“3 0”；y=0 不是正整数，27 不存在正整数解，正确输出为 -1", ""),
-         ("三个模型（均输出 -1）", ""), ("答案错误", "nw"), ("校验器 43/43", "nw")],
-        [("多解题按单一答案比对：<code>arc195_c</code> 允许任意合法构造", ""), ("三个模型", ""), ("答案错误", "nw"), ("校验器 5/5", "nw")],
-        [("<code>sys.stdin.buffer.readline</code> 模拟错误：每次都返回输入的第一行", ""),
-         ("Flash <code>abc399_c</code>、<code>arc196_b</code>；Pro <code>arc196_b</code>", ""), ("答案错误 / 运行错误", ""), ("真实输入全部通过", "")],
-        [("不支持 <code>sys.stdout.buffer</code>：标准输出被替换为 StringIO", ""), ("Kimi、Flash <code>abc398_f</code>", ""),
-         ("运行错误", "nw"), ("真实输出 43/43", "nw")],
-        [("API 返回与题目无关的内容（一部电影的营销手法）", ""), ("Kimi <code>abc399_e</code>", ""), ("无代码", "nw"),
-         ("人工另行调用，验证正确", "")],
-    ])
-    perf_tbl = table([("项目", ""), ("设置", "")], [
-        [("对象", "nw"), (f"复核后通过的答案（Kimi {sum(r['model'] == KF for r in perfgen.static)} 份，不含 <code>abc398_g</code>、<code>abc399_e</code>；DeepSeek 各 {N} 份）", "")],
-        [("运行", "nw"), (f"每次运行都是一个全新的 Python 3.11 进程（LCB 环境），绑定到单个 CPU 核；共 {sum(1 for r in perfgen.rows if r['model'] != 'baseline'):,} 次，输出全部正确", "")],
-        [("计时", "nw"), (f"AtCoder：进程 CPU 时间（rusage）扣除启动基线 {1000 * perfgen.B:.1f} ms；LeetCode：只计 <code>Solution</code> 方法调用的 CPU 时间", "")],
-        [("内存", "nw"), (f"进程峰值常驻内存（ru_maxrss）；空程序为 {perfgen.base_rss / 1024:.1f} MB", "")],
-        [("重复", "nw"), (f"每个测试 3 次、三个模型轮流先跑，取中位数；同一测试 3 次的离散度中位数 "
-                          f"{100 * statistics.median(perfgen.spread):.1f}%，P90 {100 * sorted(perfgen.spread)[int(0.9 * (len(perfgen.spread) - 1))]:.1f}%", "")],
-        [("可比题", "nw"), (f"最慢答案扣除启动后仍 ≥ {perfgen.THRESH:.1f} 秒的题，共 {len(perfgen.measurable)} 题；其余 {len(perfgen.small)} 题官方测试太小，耗时主要是启动开销，不比较", "")],
-    ])
+    refs = "".join(f'<li id="ref-{i + 1}">{esc(t)} <a href="{u}">{esc(u.split("://", 1)[1])}</a></li>' for i, (_, t, u) in enumerate(REFS))
     body = f"""<section class="section tight"><div class="wrap">
 <h2>原理</h2>
-<p class="sub">用 LiveCodeBench 的官方题目、提示词和判题程序评测，再对判为失败的答案复核，最后测量通过答案的运行效率和代码指标。</p>
+<p class="sub">用 LiveCodeBench {c('lcb')} 的官方题目、提示词和测试数据评测模型，用自己的判题程序判分，再测量通过答案的运行效率和代码指标。</p>
 <div class="steps">
-<div class="card"><h4>选题</h4><p>release_v6 最新 100 题中取最新的中等 10、困难 25 题。</p></div>
+<div class="card"><h4>题库</h4><p>LiveCodeBench release_v6 中发布日期最新的 100 题。</p></div>
 <div class="card"><h4>生成</h4><p>官方提示词，每题调用模型 API 1 次，提取回答中的最后一个代码块。</p></div>
-<div class="card"><h4>判题</h4><p>AtCoder 题作为完整程序读写标准输入输出，LeetCode 题调用给定函数；隐藏测试全过才算通过。</p></div>
-<div class="card"><h4>复核</h4><p>用真实 stdin/stdout 重跑全部 AtCoder 答案，多解题用校验器。</p></div>
-<div class="card"><h4>代码分析</h4><p>通过的答案绑核重跑，测 CPU 时间与峰值内存；radon、pyflakes 统计代码指标。</p></div>
+<div class="card"><h4>判题</h4><p>AtCoder 答案用真实标准输入输出在独立进程中运行全部官方测试，多解题用校验器；LeetCode 答案调用给定函数。</p></div>
+<div class="card"><h4>代码分析</h4><p>通过的答案绑核重跑，测 CPU 时间与峰值内存；用 radon、pyflakes 统计代码指标。</p></div>
 </div>
 <h3>评测设置</h3>
 {setting}
 <h3>为什么用最新的题</h3>
-<p>LiveCodeBench 持续从 AtCoder、LeetCode、Codeforces 收集比赛题并标注发布日期，可以只用某个日期之后的题，降低训练数据污染。本次 35 题发布于 2025-03-15 至 2025-04-06，仍早于三个模型的发布时间，不排除污染（见“结果 › 局限”）。</p>
+<p>LiveCodeBench 持续从 AtCoder、LeetCode、Codeforces 收集比赛题并标注比赛日期，可以只用模型训练截止之后发布的题，降低训练数据污染 {c('lcb')}。题库中的 100 题发布于 {dates100[0]} 至 {dates100[-1]}；对发布更晚的模型仍不能排除污染。</p>
 </div></section>
 <section class="section alt"><div class="wrap">
-<h2 id="rejudge">判分与复核</h2>
-<p class="sub">LCB 判题程序在标准输入输出上有缺陷，测试数据也有错误。只用原始判分会低估模型，甚至颠倒排名。</p>
-{issues}
-<p class="note">复核方法：26 道 AtCoder 题 × 3 个模型 = 78 份答案，作为独立 Python 进程用真实 stdin/stdout 运行官方全部测试（每个测试 6 秒）。两道多解题用按题意编写的校验器，其余逐 token 比对。LCB 判为通过的答案复核后全部仍通过。LeetCode 9 题为函数调用，不受上述问题影响，沿用 LCB 判分。上述问题均出自 LCB 官方判题代码与数据（本评测固定的版本），未作修改。Kimi <code>abc398_g</code> 在 LCB 中报 IndexError，也是 readline 问题导致；换成真实输入后仍有 4/43 个测试答案错误，按失败计。</p>
+<h2 id="judge">判题</h2>
+<p class="sub">测试不充分或有误会让通过率失真 {c('evalplus', 'cao')}。LCB 自带的判题程序在标准输入输出上有缺陷，个别测试数据有误，因此不用它判 AtCoder 题。</p>
+{judge_tbl}
+<p class="note">每个测试限时 6 秒；校验器之外的题逐 token 比对输出。LeetCode 答案是函数调用，不受上述问题影响，沿用 LCB 的判题程序。LCB 的题目与测试数据为本评测固定的版本，未修改。同样的判题可在服务器上用 <code>cb rejudge</code> 完成（见 <a href="custom.html">自定义评测</a>）。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <h2 id="perf">性能测量</h2>
-<p class="sub">只比较复核后通过的答案，所有输出都校验正确后才计入。</p>
+<p class="sub">与 EvalPerf {c('evalperf')}、ENAMEL {c('enamel')} 一样，只在答案正确的前提下比较效率；不同的是，这里以三个模型中最快的答案为基准，而不是专家写的参考解，所以“最快”不代表最优。</p>
 {perf_tbl}
 <h3 id="static">静态指标</h3>
 <ul class="list">
-<li>有效行：不含空行和注释的代码行（radon raw）。注释行含文档字符串。</li>
-<li>圈复杂度：每份答案所有函数与方法的圈复杂度之和（radon cc）。</li>
-<li>可维护性指数：0–100，越高越好（radon mi，含多行字符串）。</li>
+<li>有效行：不含空行和注释的代码行（<a href="https://radon.readthedocs.io/">radon</a> raw）。注释行含文档字符串。</li>
+<li>圈复杂度 {c('mccabe')}：每份答案所有函数与方法的圈复杂度之和（radon cc）。</li>
+<li>可维护性指数 {c('oman', 'coleman')}：0–100，越高越好（radon mi，含多行字符串）。</li>
 <li>嵌套深度：语法树中复合语句（if、for、while、with、try、def、class、match）的最大嵌套层数。</li>
-<li>pyflakes 警告：未使用的变量、未定义的名字等。</li>
+<li>pyflakes 警告：未使用的变量、未定义的名字等（<a href="https://github.com/PyCQA/pyflakes">pyflakes</a>）。</li>
 </ul>
-<p>这些指标只描述代码形态，不评价可读性、命名等主观项。</p>
+<p>这些指标只描述代码形态，不评价可读性、命名等主观项。多维度评价代码质量的做法见 RACE {c('race')}。</p>
 </div></section>
 <section class="section alt"><div class="wrap">
+<h2 id="agent">智能体（agent）评测</h2>
+<p class="sub">本评测是单次生成：模型读题后一次写出程序。智能体评测让模型在可执行的环境里多步行动，按最终结果判定。</p>
+{agent_tbl}
+<h3>评测智能体的要点</h3>
+<ul class="list">
+<li>环境可复现：每个任务固定代码版本、依赖和镜像，智能体与判题在同一份环境中运行。SWE-bench 取自 12 个流行 Python 仓库的 2,294 个真实 issue 与对应的修复 {c('swebench')}；Terminal-Bench 2.0 的 89 个终端任务各带独立环境、人工参考解和自动测试 {c('tbench')}。</li>
+<li>按结果判定，测试要充分：提交后由环境之外的隐藏测试判定。测试不足会把错误补丁判为通过：SWE-bench Verified 中 26/500 题测试不足 {c('utboost')}；被判为通过的补丁有 7.8% 跑不过开发者的完整测试 {c('wang')}。SWE-bench Verified 本身是 93 名开发者从原题中筛出的 500 题 {c('verified')}。</li>
+<li>测试对智能体隐藏：智能体能看到或修改测试时会走捷径。ImpossibleBench 把测试改成与题意矛盾，能“通过”即说明作弊；能力更强的模型作弊率更高，把测试对模型隐藏后作弊率接近 0 {c('impossible')}。</li>
+<li>外壳与模型一起报告：同一模型换外壳，解决率和花费都会变 {c('sweagent', 'effi')}。</li>
+<li>同时报告成本：只比准确率会鼓励昂贵的智能体，应给出准确率与成本（token、美元、时间）的取舍 {c('matter', 'hal')}。</li>
+<li>警惕污染：只给 issue 文本、不给代码，模型在 SWE-bench 的仓库上猜中出错文件的准确率最高 76%，换成其他仓库只有 53% {c('illusion')}。</li>
+</ul>
+</div></section>
+<section class="section"><div class="wrap">
 <h2>参评模型</h2>
 <p class="sub">信息取自两家官方文档与 API <code>/v1/models</code>（{DATE}）。</p>
 {models_tbl}
@@ -698,17 +700,102 @@ def method():
 <li>V4.1-Flash 新闻稿称 9 月 14 日起该模型名改由 V4.1-Flash 承接，更新日志称继续提供、计费不变。本次 API 返回的模型名为 <code>deepseek-v4-pro</code>，按 V4-Pro 单价扣费。</li>
 <li>仅文本输入；单价为 V4.1-Flash 的 3.3 倍；DeepSeek 自报多数基准低于 V4.1-Flash。</li>
 </ul>
+<p class="note">模型资料：Kimi <a href="https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart">K3.1 Pro 快速开始</a>、<a href="https://platform.kimi.ai/docs/models">模型列表</a>、<a href="https://platform.kimi.ai/docs/pricing/chat">价格</a>；DeepSeek <a href="https://api-docs.deepseek.com/updates/">更新日志</a>、<a href="https://www.deepseek.com/en/news/deepseek-v4-1-flash/">V4.1-Flash 发布</a>、<a href="https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash">模型卡</a>、<a href="https://api-docs.deepseek.com/quick_start/pricing">价格</a>。</p>
 </div></section>
-<section class="section"><div class="wrap">
-<h2>来源</h2>
+<section class="section alt"><div class="wrap">
+<h2 id="refs">参考文献</h2>
+<ol class="refs">{refs}</ol>
+</div></section>"""
+    page("method.html", "原理 · 代码能力评测", body, "评测流程、设置、判题、性能测量、静态指标、智能体评测与参考文献")
+
+
+# ---------------------------------------------------------------- 自定义评测
+def cmd(cid, text):
+    return (f'<div class="cmd"><button class="copy" data-src="{cid}">复制</button>'
+            f'<pre class="code" id="{cid}"><code>{esc(text)}</code></pre></div>')
+
+
+def custom():
+    params = table([("变量", ""), ("默认", "nw"), ("作用", ""), ("怎么选", "")], [
+        [("<code>MODEL</code>", "nw"), ("必填", "nw"), ("平台上的模型名，也用作运行目录名（其中的 / 换成 _）", ""), ("按平台文档，如 <code>deepseek-flash</code>、<code>kimi-k3.1-pro</code>", "")],
+        [("<code>OPENAI_BASE_URL</code>", "nw"), ("必填", "nw"), ("OpenAI 兼容接口地址，以 <code>/v1</code> 结尾", ""), ("按平台文档", "")],
+        [("<code>OPENAI_API_KEY</code>", "nw"), ("必填", "nw"), ("平台的 API key", ""), ("用 <code>read -rs</code> 输入，不写进命令行、脚本或仓库", "")],
+        [("<code>LCB_IDS</code>", "nw"), ("全部 1055 题", "nw"), ("只跑清单里的题，每行一个题号；相对路径从安装目录算起", ""),
+         ("<code>samples/lcb_newest100.txt</code>：本站题库 100 题；<code>samples/lcb_newest35.txt</code>：本站结果用的 35 题；也可以自己写清单（题号见“题目”页）", "")],
+        [("<code>LCB_START</code>", "nw"), ("不限", "nw"), ("只跑这个日期之后发布的题，如 <code>2025-01-01</code>", ""), ("设在模型训练截止日期之后，避开可能见过的题；release_v6 的题截至 2025-04-06", "")],
+        [("<code>LCB_RELEASE</code>", "nw"), ("<code>release_v6</code>", "nw"), ("LiveCodeBench 数据版本", ""), ("保持默认，与本站可比", "")],
+        [("<code>MAX_TOKENS</code>", "nw"), ("16384", "nw"), ("每次回答的最大 token 数，含思考；<code>none</code> 表示不传上限，由平台决定", ""),
+         ("非推理模型用默认；推理模型设成平台允许的最大输出（本站 DeepSeek 262144），或 <code>none</code>。上限太小时困难题会思考到上限、交不出答案而判失败；可以先小后大，续跑只重做空答案", "")],
+        [("<code>WORKERS</code>", "nw"), ("16", "nw"), ("同时发出的请求数", ""), ("按平台限流调；遇到 429 就调小。余额不多时调小，避免同时挂起多个昂贵请求（本站 Flash 16、Pro 8、Kimi 4）", "")],
+        [("<code>LCB_TIMEOUT</code>", "nw"), ("1800 秒", "nw"), ("单个请求的超时；开流式时为两次收到 token 之间的最长间隔", ""),
+         ("非流式：不小于最长思考时间（本站困难题最长约 31 分钟）；流式：300", "")],
+        [("<code>LCB_STREAM</code>", "nw"), ("关", "nw"), ("<code>1</code> = 流式请求；运行目录里的 <code>usage.jsonl.live.&lt;进程号&gt;</code> 每 10 秒更新已收到的字符数", ""),
+         ("思考很长、或平台可能长时间不返回时开；Kimi K3.1 Pro 必须开", "")],
+        [("<code>LCB_OMIT</code>", "nw"), ("无", "nw"), ("请求里不发送的字段，逗号分隔", ""),
+         ("平台固定了采样参数、传了会报错时用，如 Kimi K3.1 Pro：<code>temperature,top_p,n,presence_penalty,frequency_penalty</code>", "")],
+    ])
+    fixed = table([("项目", ""), ("固定为", "")], [
+        [("提示词", "nw"), ("LCB 官方", "")], [("采样次数", "nw"), ("每题 1 次（pass@1）", "")],
+        [("temperature", "nw"), ("0.2（LCB 官方）；用 <code>LCB_OMIT</code> 去掉后按平台默认", "")],
+        [("思考档位", "nw"), ("不传，按平台默认", "")],
+        [("判题", "nw"), ("<code>cb rejudge</code>：与本站相同", "")],
+    ])
+    cost_rows = [[(f"{dot(k)} {name}", "nw"), (ktok(R[k]["tot"][0]), "n"), (ktok(R[k]["tot"][2]), "n"), (money(R[k]["cost"]), "n")]
+                 for k, name, short in MODELS]
+    body = f"""<section class="section tight"><div class="wrap">
+<h2>自定义评测</h2>
+<p class="sub">在实验室服务器上用 codingBench 评测任意 OpenAI 兼容接口的模型，判题方式与本站相同。模型写的代码会在服务器上执行，所有评测都以无特权用户 <code>bench</code> 运行。</p>
+<h3>准备</h3>
 <ul class="list">
-<li>LiveCodeBench：<a href="https://livecodebench.github.io">livecodebench.github.io</a></li>
-<li>Kimi：<a href="https://platform.kimi.ai/docs/guide/kimi-k3-1-pro-quickstart">K3.1 Pro 快速开始</a>、<a href="https://platform.kimi.ai/docs/models">模型列表</a>、<a href="https://platform.kimi.ai/docs/pricing/chat">价格</a></li>
-<li>DeepSeek：<a href="https://api-docs.deepseek.com/updates/">更新日志</a>、<a href="https://www.deepseek.com/en/news/deepseek-v4-1-flash/">V4.1-Flash 发布</a>、<a href="https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash">模型卡</a>、<a href="https://api-docs.deepseek.com/quick_start/pricing">价格</a></li>
-<li>上下文、最大输出、默认档位：两家 API <code>/v1/models</code>（{DATE}）</li>
+<li>服务器账号：地址、端口和账号向实验室管理员索取，本站不公开。需要 root 或有 sudo 权限的账号（<code>cb</code> 会切换到 <code>bench</code> 用户运行）。</li>
+<li>模型接口：OpenAI 兼容的接口地址、模型名和 API key，以及足够的账户余额（费用估算见下文）。</li>
+</ul>
+<h3>1. 登录</h3>
+{cmd("c1", "ssh -p <端口> <用户名>@<服务器地址>")}
+<h3>2. 设置模型</h3>
+{cmd("c2", '''export MODEL=<模型名>                        # 例如 deepseek-flash
+export OPENAI_BASE_URL=https://<平台地址>/v1
+read -rsp "API key: " OPENAI_API_KEY && export OPENAI_API_KEY && echo   # 粘贴后回车；不显示，也不进命令历史''')}
+<h3>3. 冒烟测试</h3>
+{cmd("c3", "cb livecodebench --smoke      # 只跑最新的几道题，先确认接口、格式和扣费正常")}
+<h3>4. 正式运行</h3>
+{cmd("c4", '''export LCB_IDS=samples/lcb_newest35.txt    # 本站结果用的 35 题；全部 100 题用 samples/lcb_newest100.txt
+nohup cb livecodebench > ~/lcb.log 2>&1 &   # 断开 SSH 也继续跑
+tail -f ~/lcb.log''')}
+<p>推理模型和平台限制较多的模型，在第 4 步前按下面的参数手册加上对应设置，例如：</p>
+{cmd("c5", '''# 推理模型（思考计入输出 token），例如 DeepSeek-V4.1-Flash / V4-Pro
+export MAX_TOKENS=262144 WORKERS=16
+
+# 平台固定采样参数、思考很长的模型，例如 Kimi K3.1 Pro
+export MAX_TOKENS=none LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty \\
+       LCB_STREAM=1 LCB_TIMEOUT=300 WORKERS=4''')}
+<h3>5. 判分与费用</h3>
+{cmd("c6", '''cb rejudge <模型名>/livecodebench-lcb_newest35-full   # 本站的判分方式，输出通过题数与逐题结果
+cb usage <模型名>/livecodebench-lcb_newest35-full --price-in 0.3 --price-hit 0.006 --price-out 1.2
+                                                      # 延迟、token 与费用（单价：美元/百万 token，按平台价目填）''')}
+<p>运行目录在安装目录的 <code>runs/&lt;模型名&gt;/livecodebench-&lt;清单名&gt;-full/</code>，模型的原始回答、每次调用的记录（<code>usage.jsonl</code>）和判题结果（<code>rejudge.jsonl</code>）都在里面。<code>cb summary</code> 列出已完成的运行，其中的分数是 LCB 自带的判题，比较模型请用 <code>cb rejudge</code> 的结果。</p>
+<h3>6. 中断与续跑</h3>
+<p>直接重跑同一条命令：已经答过的题不会再请求；空答案（超时、余额不足、思考用完上限）会重新请求。每次续跑都会在本机重新判分，不花钱。</p>
+</div></section>
+<section class="section alt"><div class="wrap">
+<h2 id="manual">参数手册</h2>
+<p class="sub">全部通过环境变量设置，在运行 <code>cb</code> 前 <code>export</code>。</p>
+{params}
+<h3>固定不变的设置</h3>
+{fixed}
+<h3>费用估算</h3>
+<p>费用 ≈ 输入 token × 输入单价 + 输出 token × 输出单价。输入只有题面，35 题约 2.4 万 token；输出 token 主要是思考，不同模型差别很大。本站 35 题的实际用量：</p>
+{table([("模型", ""), ("输入 token", "n"), ("输出 token", "n"), ("费用（美元）", "n")], cost_rows)}
+<h3>常见问题</h3>
+<ul class="list">
+<li>报 400 参数错误：平台不接受某些请求字段，用 <code>LCB_OMIT</code> 去掉。</li>
+<li>很多空答案：通常是 <code>MAX_TOKENS</code> 太小，思考用完了上限；调大后重跑同一条命令，只重做空答案。</li>
+<li>429 限流：调小 <code>WORKERS</code>。</li>
+<li>余额不足：DeepSeek 立即返回 402，这题记为空答案，之后不再发新请求，充值后重跑补齐。本站观察到 Kimi 的非流式请求在余额耗尽后挂起 1–1.5 小时且照常扣费，所以要开 <code>LCB_STREAM=1</code>。</li>
+<li>其他 benchmark：<code>cb bigcodebench</code>（BigCodeBench-Hard）、<code>cb cruxeval</code>（CRUXEval）、<code>cb all</code>（三个都跑）；本站只用 LiveCodeBench。</li>
 </ul>
 </div></section>"""
-    page("method.html", "原理 · 代码能力评测", body, "评测流程、设置、LCB 判分问题与复核、性能测量方法、参评模型")
+    page("custom.html", "自定义评测 · 代码能力评测", body, "在服务器上用 codingBench 评测自己的模型：命令与参数手册")
 
 
 def assets():
@@ -735,20 +822,23 @@ def main():
     problems()
     method()
     results()
-    probs = [problem_page(i, q) for i, q in enumerate(ORDER)]
+    custom()
+    probs = [problem_page(i, q) for i, q in enumerate(POOL_ORDER)]
     os.makedirs(os.path.join(OUT, "data"), exist_ok=True)
     data = {
         "date": DATE,
-        "benchmark": "LiveCodeBench release_v6, newest 35 problems (10 medium, 25 hard), pass@1, n=1",
-        "verdicts": "passed = after re-judge (real stdin/stdout, checkers for abc397_d and arc195_c); lcb_passed = LCB's own judge",
-        "models": [{"id": k, "name": name, "passed": S[k]["pass"], "lcb_passed": S[k]["lcb"],
-                    "median_latency_s": round(S[k]["lat"], 1), "median_output_tokens_per_s": round(S[k]["speed"], 1),
-                    "cost_usd": round(S[k]["cost"], 4), "perf_geomean_vs_fastest": round(S[k]["gm"], 3)} for k, name, _ in MODELS],
+        "pool": f"LiveCodeBench release_v6, newest {len(POOL)} problems ({dates100[0]} to {dates100[-1]})",
+        "evaluated": f"{N} of them (10 medium, 25 hard), pass@1, one sample each",
+        "judge": "AtCoder: own process with real stdin/stdout on all official tests, checkers for abc397_d and arc195_c; "
+                 "LeetCode: LCB's function-call judge (same as `cb rejudge`)",
+        "models": [{"id": k, "name": name, "passed": S[k]["pass"], "median_latency_s": round(S[k]["lat"], 1),
+                    "median_output_tokens_per_s": round(S[k]["speed"], 1), "cost_usd": round(S[k]["cost"], 4),
+                    "perf_geomean_vs_fastest": round(S[k]["gm"], 3)} for k, name, _ in MODELS],
         "problems": probs,
     }
-    json.dump(data, open(os.path.join(OUT, "data", "lcb35.json"), "w"), ensure_ascii=False, indent=1)
+    json.dump(data, open(os.path.join(OUT, "data", "lcb.json"), "w"), ensure_ascii=False, indent=1)
     open(os.path.join(OUT, ".nojekyll"), "w").close()
-    print("pages:", 4 + len(probs), "->", OUT)
+    print("pages:", 5 + len(probs), "->", OUT)
 
 
 if __name__ == "__main__":
