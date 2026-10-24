@@ -761,28 +761,36 @@ def custom():
         [("<code>MAX_TOKENS</code>", "nw"), ("16384", "nw"), ("每次回答的最大 token 数，含思考；<code>none</code> 表示不传上限，由平台决定", ""),
          ("非推理模型用默认；推理模型设成平台允许的最大输出（本站 DeepSeek 262144），或 <code>none</code>。上限太小时困难题会思考到上限、交不出答案而判失败；可以先小后大，续跑只重做空答案", "")],
         [("<code>WORKERS</code>", "nw"), ("16", "nw"), ("同时发出的请求数", ""), ("按平台限流调；遇到 429 就调小（本站 Flash 16、Pro 8、Kimi 1–4）", "")],
-        [("<code>LCB_TIMEOUT</code>", "nw"), ("1800 秒", "nw"), ("单个请求的超时；开流式时为两次收到 token 之间的最长间隔", ""),
-         ("非流式：不小于最长思考时间（本站困难题最长约 31 分钟）；流式：300", "")],
-        [("<code>LCB_STREAM</code>", "nw"), ("关", "nw"), ("<code>1</code> = 流式请求；运行目录里的 <code>usage.jsonl.live.&lt;进程号&gt;</code> 每 10 秒更新已收到的字符数", ""),
-         ("思考很长、或平台可能长时间不返回时开；Kimi K3.1 Pro 必须开", "")],
+        [("<code>STREAM</code>", "nw"), ("1", "nw"), ("流式请求：卡住的请求很快重试，记录首个 token 的时间，<code>cb progress</code> 能看到每个进行中的请求", ""),
+         ("保持默认；平台不支持流式时设 <code>0</code>（一次取回整个回答）", "")],
+        [("<code>LCB_TIMEOUT</code>", "nw"), ("300 秒", "nw"), ("流式：两次收到 token 之间的最长间隔；<code>STREAM=0</code> 时为整个回答的超时（默认 1800 秒）", ""),
+         ("保持默认；<code>STREAM=0</code> 时不小于最长思考时间（本站困难题最长约 31 分钟）", "")],
         [("<code>LCB_OMIT</code>", "nw"), ("无", "nw"), ("请求里不发送的字段，逗号分隔", ""),
          ("平台固定了采样参数、传了会报错时用，如 Kimi K3.1 Pro：<code>temperature,top_p,n,presence_penalty,frequency_penalty</code>", "")],
+        [("<code>PRICE_IN</code>、<code>PRICE_HIT</code>、<code>PRICE_OUT</code>", "nw"), ("不设", "nw"),
+         ("每百万 token 的单价（输入未命中缓存 / 命中缓存 / 输出，思考算输出），<code>cb usage</code> 用来算费用和每道通过题的费用", ""),
+         ("按平台价目填；分时计价的平台再设 <code>PRICE_OFF_IN</code>、<code>PRICE_OFF_HIT</code>、<code>PRICE_OFF_OUT</code>（非高峰单价）和 <code>PEAK_HOURS_UTC</code>（工作日高峰，默认 DeepSeek 的 <code>1-4,6-10</code>）", "")],
+        [("<code>CB_POST</code>", "nw"), ("1", "nw"), ("跑完自动复核判分、统计延迟与费用、静态质量、代码性能", ""),
+         ("保持默认；设 <code>0</code> 跳过，之后用 <code>cb post</code> 补跑", "")],
     ])
     fixed = table([("项目", ""), ("固定为", "")], [
         [("提示词", "nw"), ("LCB 官方", "")], [("采样次数", "nw"), ("每题 1 次（pass@1）", "")],
         [("temperature", "nw"), ("0.2（LCB 官方）；用 <code>LCB_OMIT</code> 去掉后按平台默认", "")],
         [("思考档位", "nw"), ("不传，按平台默认", "")],
         [("判题", "nw"), ("<code>cb rejudge</code>：与本站相同", "")],
-        [("静态代码质量", "nw"), ("<code>cb quality</code>：Pylint 3.3.5、Radon 6.0.1，加 <code>--sonar</code> 再跑 SonarQube 10.4（需先由 root 运行 <code>deploy/sonarqube.sh start</code>）", "")],
+        [("静态代码质量", "nw"), ("<code>cb quality</code>：Pylint 3.3.5、Radon 6.0.1，设了 <code>SONAR_URL</code> 再跑 SonarQube 10.4（需先由 root 运行 <code>deploy/sonarqube.sh start</code>）", "")],
+        [("代码性能", "nw"), ("<code>cb perf</code>：通过的答案在官方测试上重跑，每次新进程、绑定单核、校验输出，每个测试 3 次取中位数", "")],
     ])
     cost_rows = [[(f"{dot(k)} {name}", "nw"), (ktok(R[k]["tot"][0]), "n"), (ktok(R[k]["tot"][2]), "n"), (money(R[k]["cost"]), "n")]
                  for k, name, short in MODELS]
     presets = cmd("c5", """# 推理模型（思考计入输出 token），例如 DeepSeek-V4.1-Flash / V4-Pro
 export MAX_TOKENS=262144 WORKERS=16
+export PRICE_IN=0.3 PRICE_HIT=0.006 PRICE_OUT=1.2 PRICE_OFF_IN=0.15 PRICE_OFF_HIT=0.003 PRICE_OFF_OUT=0.6
+                       # 单价（美元/百万 token），按平台当前价目填；这里是本站评测时 Flash 的高峰 / 非高峰价
 
 # 平台固定采样参数、思考很长的模型，例如 Kimi K3.1 Pro
 export MAX_TOKENS=none LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty \\
-       LCB_STREAM=1 LCB_TIMEOUT=300 WORKERS=4""")  # outside the f-string: Python 3.11 allows no backslash in one
+       WORKERS=4 PRICE_IN=2 PRICE_HIT=0.2 PRICE_OUT=10""")  # outside the f-string: Python 3.11 allows no backslash in one
     body = f"""<section class="section tight"><div class="wrap">
 <h2>自定义评测</h2>
 <p class="sub">在实验室服务器上用 codingBench 评测任意 OpenAI 兼容接口的模型，判题方式与本站相同。模型写的代码会在服务器上执行，所有评测都以无特权用户 <code>bench</code> 运行。</p>
@@ -802,15 +810,17 @@ read -rsp "API key: " OPENAI_API_KEY && export OPENAI_API_KEY && echo   # 粘贴
 <h3>4. 正式运行</h3>
 {cmd("c4", '''export LCB_IDS=samples/lcb_newest35.txt    # 本站结果用的 35 题；全部 100 题用 samples/lcb_newest100.txt
 nohup cb livecodebench > ~/lcb.log 2>&1 &   # 断开 SSH 也继续跑
-tail -f ~/lcb.log''')}
+cb progress <模型名>/livecodebench-lcb_newest35-full --watch 30
+                       # 已答题数、出错、每个进行中的请求（加 --text 看最新的思考和回答）''')}
 <p>推理模型和平台限制较多的模型，在第 4 步前按下面的参数手册加上对应设置，例如：</p>
 {presets}
-<h3>5. 判分、代码质量与费用</h3>
-{cmd("c6", '''cb rejudge <模型名>/livecodebench-lcb_newest35-full   # 本站的判分方式，输出通过题数与逐题结果
-cb quality <模型名>/livecodebench-lcb_newest35-full   # 静态代码质量（Pylint、Radon），按本站的表格输出
-cb usage <模型名>/livecodebench-lcb_newest35-full --price-in 0.3 --price-hit 0.006 --price-out 1.2
-                                                      # 延迟、token 与费用（单价：美元/百万 token，按平台价目填）''')}
-<p>运行目录在安装目录的 <code>runs/&lt;模型名&gt;/livecodebench-&lt;清单名&gt;-full/</code>，模型的原始回答、每次调用的记录（<code>usage.jsonl</code>）、判题结果（<code>rejudge.jsonl</code>）和静态质量（<code>quality.jsonl</code>、<code>quality.md</code>）都在里面。<code>cb summary</code> 列出已完成的运行，其中的分数是 LCB 自带的判题，比较模型请用 <code>cb rejudge</code> 的结果。</p>
+<h3>5. 结果</h3>
+<p>生成和判分结束后，<code>cb</code> 自动依次运行：复核判分（<code>cb rejudge</code>，本站的判分方式）、延迟与费用（<code>cb usage</code>）、静态代码质量（<code>cb quality</code>）、代码性能（<code>cb perf</code>）。</p>
+{cmd("c6", '''cb summary                                          # 所有运行：LCB 自带判分和复核后的分数
+cb post <模型名>/livecodebench-lcb_newest35-full    # 跳过了后处理（CB_POST=0）或中途中断时补跑
+cb perf <模型A>/<运行> <模型B>/<运行> --out compare.md
+                       # 几个模型放在一起交替重测，按相对最快者的倍数对比''')}
+<p>运行目录在安装目录的 <code>runs/&lt;模型名&gt;/livecodebench-&lt;清单名&gt;-full/</code>，里面有模型的原始回答、题目清单（<code>problems.json</code>）、每次调用的记录（<code>usage.jsonl</code>）和各项结果：<code>rejudge.jsonl</code>（逐题判分）、<code>usage.md</code>（延迟、首个 token、输出速度、token、费用）、<code>quality.md</code>（静态质量）、<code>perf.md</code>（CPU 时间与峰值内存）。表格都标出方向：↑ 越大越好，↓ 越小越好。比较模型用复核后的分数。</p>
 <h3>6. 中断与续跑</h3>
 <p>直接重跑同一条命令：已经答过的题不会再请求；空答案（超时、余额不足、思考用完上限）会重新请求。每次续跑都会在本机重新判分，不花钱。</p>
 </div></section>
@@ -829,7 +839,7 @@ cb usage <模型名>/livecodebench-lcb_newest35-full --price-in 0.3 --price-hit 
 <li>很多空答案：通常是 <code>MAX_TOKENS</code> 太小，思考用完了上限；调大后重跑同一条命令，只重做空答案。</li>
 <li>429 限流：调小 <code>WORKERS</code>。</li>
 <li>余额不足：这题记为空答案，之后不再发新请求；充值后重跑同一条命令补齐。</li>
-<li>请求长时间没有返回：开 <code>LCB_STREAM=1</code>，配合 <code>LCB_TIMEOUT=300</code>，超过 5 分钟收不到新 token 就按超时处理并重试。</li>
+<li>请求长时间没有返回：默认的流式请求超过 5 分钟收不到新 token 就重试；用 <code>cb progress &lt;运行目录&gt; --text</code> 看每个请求是否还在输出、最新在写什么。</li>
 <li>其他 benchmark：<code>cb bigcodebench</code>（BigCodeBench-Hard）、<code>cb cruxeval</code>（CRUXEval）、<code>cb all</code>（三个都跑）；本站只用 LiveCodeBench。</li>
 </ul>
 </div></section>"""
