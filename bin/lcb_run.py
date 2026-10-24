@@ -33,23 +33,49 @@ if name not in lm_styles.LanguageModelStore:
     lm_styles.LanguageModelList.append(lm)
     lm_styles.LanguageModelStore[name] = lm
 
-# LCB_IDS=<file with one question_id per line>: run exactly those problems (e.g. a fixed sample)
+# LCB_USAGE_LOG=<file>: append one JSON line per API call (see _create_checked below)
+USAGE = os.environ.get("LCB_USAGE_LOG")
+PROBLEMS = os.path.join(os.path.dirname(USAGE), "problems.json") if USAGE else None
+
+# LCB_IDS=<file with one question_id per line>: run exactly those problems (e.g. a fixed sample). The problems of the
+# run are also written to problems.json next to the usage log, so every logged call carries its question_id and
+# cb progress can name the problems while the run is going.
 IDS = os.environ.get("LCB_IDS")
-if IDS:
-    import lcb_runner.benchmarks as _bm
+import lcb_runner.benchmarks as _bm  # noqa: E402
 
-    _want = [l.strip() for l in open(IDS) if l.strip()]
-    _orig = _bm.load_code_generation_dataset
+_orig = _bm.load_code_generation_dataset
 
-    def _load_subset(*args, **kwargs):
-        probs = _orig(*args, **kwargs)
+
+def _load_problems(*args, **kwargs):
+    probs = _orig(*args, **kwargs)
+    if IDS:
+        want = [l.strip() for l in open(IDS) if l.strip()]
         by_id = {p.question_id: p for p in probs}
-        missing = [q for q in _want if q not in by_id]
+        missing = [q for q in want if q not in by_id]
         if missing:
             raise SystemExit(f"LCB_IDS: {len(missing)} ids not in this release/date range, e.g. {missing[:3]}")
-        return [by_id[q] for q in _want]
+        probs = [by_id[q] for q in want]
+    if PROBLEMS:
+        val = lambda x: getattr(x, "value", x)  # noqa: E731  (enums)
+        index = [{"q": p.question_id, "title": p.question_title, "platform": val(p.platform),
+                  "difficulty": val(p.difficulty), "content": p.question_content.strip()} for p in probs]
+        with open(PROBLEMS + ".tmp", "w") as f:
+            json.dump(index, f, ensure_ascii=False)
+        os.replace(PROBLEMS + ".tmp", PROBLEMS)
+    return probs
 
-    _bm.load_code_generation_dataset = _load_subset  # before scenario_router imports it
+
+_bm.load_code_generation_dataset = _load_problems  # before scenario_router imports it
+_index = []
+
+
+def _qid(messages):
+    """question_id of a request, from problems.json (read once per worker process); None if unknown."""
+    if not _index and PROBLEMS and os.path.exists(PROBLEMS):
+        _index.extend((p["content"], p["q"]) for p in json.load(open(PROBLEMS)))
+    text = "\n".join(m.get("content") or "" for m in messages or [])
+    hit = [q for content, q in _index if content and content in text]
+    return hit[0] if len(hit) == 1 else None
 
 # MAX_TOKENS=none: send no max_tokens at all, so the server lets the model answer up to its full context
 if os.environ.get("MAX_TOKENS", "").lower() == "none":
@@ -107,9 +133,8 @@ _oai.OpenAIRunner._run_single = _run_single_safe
 # LCB already retries in _run_single, so turn them off.
 _oai.OpenAIRunner.client = _oai.OpenAIRunner.client.with_options(max_retries=0)
 
-# LCB_USAGE_LOG=<file>: append one JSON line per API call (start/end time, usage, finish reason, the answer, or the
-# error), so tools/lcb_usage.py can report latency and tokens, and a later run can recover answers (see below).
-USAGE = os.environ.get("LCB_USAGE_LOG")
+# Usage log: one JSON line per API call (question_id, start/end time, first token times, usage, finish reason, the
+# answer, or the error), so tools/lcb_usage.py can report latency and tokens, and a later run can recover answers.
 _completions = _oai.OpenAIRunner.client.chat.completions
 _create = _completions.create
 
@@ -123,14 +148,31 @@ def _log(rec):
         os.close(fd)
 
 
-# LCB_STREAM=1: request a streamed answer and put it back together, so a stalled request fails after LCB_TIMEOUT
-# seconds without a token (instead of LCB_TIMEOUT for the whole answer), and progress is visible while it runs:
-# every 10 s each worker rewrites $LCB_USAGE_LOG.live.<pid> with the characters received so far.
-STREAM = os.environ.get("LCB_STREAM") == "1"
+# Streaming (the default; STREAM=0 turns it off): request a streamed answer and put it back together, so a stalled
+# request fails after LCB_TIMEOUT seconds without a token (instead of LCB_TIMEOUT for the whole answer), the time of
+# the first token is known, and progress is visible while it runs: every 10 s each worker rewrites
+# $LCB_USAGE_LOG.live.<pid> with what it has received so far (cb progress shows it). LCB_STREAM is the old name.
+STREAM = os.environ.get("STREAM", os.environ.get("LCB_STREAM", "1")) != "0"
+TAIL = 600  # characters of the latest thinking / answer text kept in the live file
+_no_stream_options = []  # set once an endpoint has rejected stream_options
 
 
 def _dump(u):
     return u.model_dump() if hasattr(u, "model_dump") else u
+
+
+def _open_stream(args, kwargs):
+    import openai
+
+    kwargs = dict(kwargs, stream=True)
+    if not _no_stream_options:
+        try:
+            return _create(*args, **dict(kwargs, stream_options={"include_usage": True}))
+        except openai.BadRequestError as e:
+            if "stream_options" not in str(e) and "include_usage" not in str(e):
+                raise
+            _no_stream_options.append(1)  # usage then comes from the last chunk, if the endpoint sends it at all
+    return _create(*args, **kwargs)
 
 
 def _create_streamed(*args, **kwargs):
@@ -139,13 +181,14 @@ def _create_streamed(*args, **kwargs):
     import httpx
     import openai
 
-    kwargs = dict(kwargs, stream=True, stream_options={"include_usage": True})
     live = f"{USAGE}.live.{os.getpid()}" if USAGE else None
+    q = _qid(kwargs.get("messages"))
     prompt = (kwargs.get("messages") or [{}])[-1].get("content") or ""
-    start, first, last_write = time.time(), None, 0.0
+    start, first, first_content, last, last_write = time.time(), None, None, None, 0.0
     model, usage, finish, content, reasoning = None, None, None, [], []
+    n_reason, n_content, r_tail, c_tail = 0, 0, "", ""
     try:
-        for ch in _create(*args, **kwargs):
+        for ch in _open_stream(args, kwargs):
             model = ch.model or model
             usage = ch.usage or usage
             for c in ch.choices:
@@ -153,52 +196,68 @@ def _create_streamed(*args, **kwargs):
                 think = getattr(d, "reasoning_content", None) or (getattr(d, "model_extra", None) or {}).get(
                     "reasoning_content")
                 if d.content or think:
-                    first = first or time.time()
+                    last = time.time()
+                    first = first or last
                 if d.content:
+                    first_content = first_content or last
                     content.append(d.content)
+                    n_content += len(d.content)
+                    c_tail = (c_tail + d.content)[-TAIL:]
                 if think:
                     reasoning.append(think)
+                    n_reason += len(think)
+                    r_tail = (r_tail + think)[-TAIL:]
                 finish = c.finish_reason or finish
                 usage = (getattr(c, "model_extra", None) or {}).get("usage") or usage  # Kimi: usage on the choice
             if live and time.time() - last_write > 10:
                 last_write = time.time()
                 with open(live + ".tmp", "w") as f:
-                    json.dump({"start": start, "updated": last_write, "first_token": first,
-                               "reasoning_chars": sum(map(len, reasoning)), "content_chars": sum(map(len, content)),
+                    json.dump({"q": q, "start": start, "updated": last_write, "first_token": first,
+                               "first_content": first_content, "last_token": last, "reasoning_chars": n_reason,
+                               "content_chars": n_content, "reasoning_tail": r_tail, "content_tail": c_tail,
                                "prompt": prompt[:2000]}, f, ensure_ascii=False)
                 os.replace(live + ".tmp", live)
-    except openai.OpenAIError:
+        if finish is None:  # the server closed the stream without finishing: a cut-off answer, not a real one
+            raise openai.APIConnectionError(message="stream ended without a finish_reason",
+                                            request=httpx.Request("POST", str(_oai.OpenAIRunner.client.base_url)))
+    except Exception as e:
+        e.cb_partial = {"q": q, "first_token": first, "first_content": first_content, "reasoning_chars": n_reason,
+                        "content_chars": n_content, "usage": _dump(usage) if usage else None}
+        if isinstance(e, openai.OpenAIError):
+            raise
+        if isinstance(e, httpx.TimeoutException):  # raised while reading the stream; LCB only retries openai errors
+            raise openai.APITimeoutError(request=e.request) from e
+        if isinstance(e, httpx.HTTPError):
+            raise openai.APIConnectionError(request=getattr(e, "request", None) or httpx.Request("POST", "")) from e
         raise
-    except httpx.TimeoutException as e:  # raised while reading the stream; LCB only retries openai errors
-        raise openai.APITimeoutError(request=e.request) from e
-    except httpx.HTTPError as e:
-        raise openai.APIConnectionError(request=getattr(e, "request", None) or httpx.Request("POST", "")) from e
     finally:
         if live and os.path.exists(live):
             os.remove(live)
     msg = types.SimpleNamespace(content="".join(content))
-    return types.SimpleNamespace(model=model, usage=usage, first_token=first, reasoning_chars=sum(map(len, reasoning)),
+    return types.SimpleNamespace(model=model, usage=usage, q=q, first_token=first, first_content=first_content,
+                                 reasoning_chars=n_reason,
                                  choices=[types.SimpleNamespace(finish_reason=finish, message=msg)])
 
 
 def _create_checked(*args, **kwargs):
-    rec = {"start": time.time(), "messages": kwargs.get("messages")}
+    rec = {"start": time.time(), "stream": STREAM, "messages": kwargs.get("messages")}
     try:
         r = (_create_streamed if STREAM else _create)(*args, **kwargs)
     except Exception as e:
         if _is_out_of_balance(e):
             _broke.append(1)
         if USAGE:
+            rec.update(getattr(e, "cb_partial", None) or {"q": _qid(kwargs.get("messages"))})
             rec.update(end=time.time(), error=repr(e)[:500])
             _log(rec)
         raise
     if USAGE:
-        rec.update(end=time.time(), model=r.model, usage=_dump(r.usage) if r.usage else None,
-                   finish=[c.finish_reason for c in r.choices],
+        rec.update(q=r.q if STREAM else _qid(kwargs.get("messages")), end=time.time(), model=r.model,
+                   usage=_dump(r.usage) if r.usage else None, finish=[c.finish_reason for c in r.choices],
                    chars=[len(c.message.content or "") for c in r.choices],
                    content=[c.message.content or "" for c in r.choices])
         if STREAM:
-            rec.update(first_token=r.first_token, reasoning_chars=r.reasoning_chars)
+            rec.update(first_token=r.first_token, first_content=r.first_content, reasoning_chars=r.reasoning_chars)
         _log(rec)
     return r
 

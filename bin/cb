@@ -6,6 +6,8 @@
 #   cb bigcodebench cruxeval
 #   cb all --smoke         # 5 problems each, to check the endpoint and the pipeline first
 #   cb summary             # scores of every finished run
+#   cb progress <run dir>  # a LiveCodeBench run while it goes: answered / errors / every request in flight with its time and
+#                          # the thinking and answer received so far (--watch 30 refreshes, --text shows the latest text)
 #   cb report <run dir>    # Markdown report of a LiveCodeBench run (by difficulty / platform / month / failure);
 #                          # a relative <run dir> is taken from runs/, e.g. cb report <model>/livecodebench-full
 #   cb usage <run dir>     # latency and tokens of each API call in a LiveCodeBench run (add --price-in/--price-hit/--price-out
@@ -18,17 +20,18 @@
 # Optional: MAX_TOKENS (default 16384; must fit the model's context; "none" = send no limit, LiveCodeBench only), WORKERS (parallel requests, default 16),
 #           LCB_RELEASE (default release_v6), LCB_START (only problems released on/after this date, e.g. 2025-01-01),
 #           LCB_IDS (file of question_ids: run exactly those LiveCodeBench problems, e.g. samples/lcb_newest100.txt),
-#           LCB_TIMEOUT (seconds per request, default 1800; long-thinking models with a large MAX_TOKENS need more),
+#           LCB_TIMEOUT (streamed: seconds without a new token before a request is retried, default 300; with STREAM=0:
+#           seconds for the whole answer, default 1800),
 #           LCB_OMIT (comma-separated request fields to leave out, for models that fix them, e.g. Kimi K3.1 Pro:
 #           temperature,top_p,n,presence_penalty,frequency_penalty),
-#           LCB_STREAM=1 (stream answers: LCB_TIMEOUT then limits the wait between tokens, and runs/<run>/usage.jsonl.live.<pid>
-#           shows each request's progress),
+#           STREAM (default 1: LiveCodeBench and CRUXEval requests are streamed; 0 = one plain response per request;
+#           BigCodeBench always uses its own client),
 #           CRUX_MAX_TOKENS (CRUXEval's own limit is 100 direct / 1000 CoT; reasoning models count their thinking
 #           in max_tokens, so set it, e.g. to $MAX_TOKENS).
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,LCB_STREAM,CRUX_MAX_TOKENS,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CRUX_MAX_TOKENS,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -50,8 +53,12 @@ for m, b, p, n, s, d in rows:
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,27p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,30p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
+if [ "$1" = progress ]; then
+  [ -n "${2:-}" ] || { echo "usage: cb progress <run dir> [--watch seconds] [--text]" >&2; exit 1; }
+  exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_progress.py "$(readlink -f "$2")" "${@:3}"
+fi
 if [ "$1" = report ]; then
   [ -n "${2:-}" ] || { echo "usage: cb report <run dir>" >&2; exit 1; }
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_report.py "$(readlink -f "$2")" "${@:3}"
@@ -120,12 +127,14 @@ run_livecodebench() {
   # generation still resumes (no repeated API calls), grading is local and takes seconds to minutes.
   rm -f "$d"/output/*/Scenario.codegeneration_*_eval.json "$d"/output/*/Scenario.codegeneration_*_eval_all.json
   export LCB_USAGE_LOG=$d/usage.jsonl   # per-call latency and tokens, read by tools/lcb_usage.py
+  local timeout=${LCB_TIMEOUT:-300}   # streamed: the longest gap between two tokens
+  [ "${STREAM:-${LCB_STREAM:-1}}" = 0 ] && timeout=${LCB_TIMEOUT:-1800}   # one response: the whole answer
   local extra=()
   [ -n "${LCB_START:-}" ] && extra+=(--start_date "$LCB_START")
   [ $SMOKE = 1 ] && extra=(--start_date 2025-04-01)   # a handful of the newest problems (release_v6 ends 2025-04-06)
   $CB/venvs/livecodebench/bin/python $CB/bin/lcb_run.py --scenario codegeneration \
     --release_version "${LCB_RELEASE:-release_v6}" --n 1 --temperature 0.2 --max_tokens "$lcb_max" \
-    --openai_timeout "${LCB_TIMEOUT:-1800}" --multiprocess "$WORKERS" --evaluate --num_process_evaluate "$WORKERS" \
+    --openai_timeout "$timeout" --multiprocess "$WORKERS" --evaluate --num_process_evaluate "$WORKERS" \
     --continue_existing_with_eval "${extra[@]}" || return 1
   local f; f=$(ls "$d"/output/*/Scenario.codegeneration_1_0.2_eval.json | head -1)
   local p1 n; read -r p1 n < <(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); r=r[0] if isinstance(r,list) else r; print(r["pass@1"]*100 if r["pass@1"]<=1 else r["pass@1"], len(json.load(open(sys.argv[1].replace("_eval.json","_eval_all.json")))))' "$f")

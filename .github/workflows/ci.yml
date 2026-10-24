@@ -38,6 +38,10 @@ jobs:
         run: python tests/test_lcb_rejudge.py
       - name: Static quality parsers
         run: python tests/test_lcb_quality.py
+      - name: Streamed requests (fake streams)
+        run: |
+          python -m pip install -q openai==3.35.1 httpx==0.28.1   # the versions in the livecodebench env
+          python tests/test_lcb_stream.py
 
   secrets:
     runs-on: ubuntu-latest

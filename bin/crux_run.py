@@ -39,7 +39,8 @@ if a.limit:
     data = data[:a.limit]
 make, extract = MAKE[(a.cot, a.mode)]
 max_tokens = a.max_tokens or (1000 if a.cot else 100)
-client = OpenAI()
+STREAM = os.environ.get("STREAM", "1") != "0"
+client = OpenAI(timeout=300 if STREAM else 600)  # streamed: the longest gap between two tokens
 model = os.environ["MODEL"]
 os.makedirs(a.out, exist_ok=True)
 raw_path = os.path.join(a.out, "raw.jsonl")
@@ -48,6 +49,20 @@ if os.path.exists(raw_path):  # resume: keep finished samples
     for l in open(raw_path):
         r = json.loads(l)
         done[r["id"]] = r["texts"]
+
+
+def complete(**kw):
+    """One answer, streamed unless STREAM=0, so a stalled request fails after 300 s without a token."""
+    if not STREAM:
+        return client.chat.completions.create(**kw).choices[0].message.content or ""
+    parts, finish = [], None
+    for ch in client.chat.completions.create(stream=True, **kw):
+        for c in ch.choices:
+            parts.append(c.delta.content or "")
+            finish = c.finish_reason or finish
+    if finish is None:  # the server closed the stream early: retry rather than keep a cut-off answer
+        raise RuntimeError("stream ended without a finish_reason")
+    return "".join(parts)
 
 
 def ask(i):
@@ -59,11 +74,9 @@ def ask(i):
     for _ in range(a.n):
         for attempt in range(5):
             try:
-                r = client.chat.completions.create(model=model, temperature=a.temperature, max_tokens=max_tokens,
-                                                   stop=["[/ANSWER]"],
-                                                   messages=[{"role": "system", "content": SYSTEM},
-                                                             {"role": "user", "content": make(q)}])
-                texts.append(r.choices[0].message.content or "")
+                texts.append(complete(model=model, temperature=a.temperature, max_tokens=max_tokens, stop=["[/ANSWER]"],
+                                      messages=[{"role": "system", "content": SYSTEM},
+                                                {"role": "user", "content": make(q)}]))
                 break
             except Exception as e:  # noqa: BLE001
                 if attempt == 4:

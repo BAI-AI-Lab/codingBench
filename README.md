@@ -18,6 +18,7 @@ cb all --smoke      # 每个只跑 5 题左右，先确认接口和格式没问�
 cb all              # 全量
 cb livecodebench    # 也可以只跑一个
 cb summary          # 所有跑完的结果
+cb progress <模型名>/livecodebench-full --watch 30   # 跑的过程中看进度：已答题数、出错、每个进行中的请求用了多久、收到多少思考和回答（加 --text 显示最新的文字）
 cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按难度、来源、月份、失败原因）
 cb usage <模型名>/livecodebench-full    # 每次 API 调用的延迟和 token（加 --price-in/--price-hit/--price-out 每百万 token 单价可算费用）
 cb rejudge <模型名>/livecodebench-full  # 复核判分：AtCoder 答案用真实标准输入输出重跑全部官方测试，多解题用校验器
@@ -38,13 +39,13 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 - `LCB_START=2025-01-01`：LiveCodeBench 只算这个日期之后发布的题，用来避开模型训练时可能见过的题。
 - `LCB_RELEASE`：默认 `release_v6`，题目到 2025 年 4 月。
 - `LCB_IDS=samples/lcb_newest100.txt`：只跑清单里的题（相对路径从安装目录算起）。`samples/lcb_newest100.txt` 是 release_v6 里最新的 100 题（2025-02-15 到 2025-04-06，简单 23、中等 30、困难 47）。`samples/lcb_newest35.txt` 是从这 100 题里按难度各取最新的：中等 10、困难 25（2025-03-15 到 2025-04-06，AtCoder 26、LeetCode 9），用来省钱。
-- `LCB_TIMEOUT`：每个请求最多等多少秒，默认 1800。推理模型把 `MAX_TOKENS` 调得很大时要跟着调大。
-- `LCB_STREAM=1`：LiveCodeBench 用流式请求。`LCB_TIMEOUT` 变成“多久收不到新 token 就算超时”，卡住的请求很快重试；运行目录里的 `usage.jsonl.live.<进程号>` 每 10 秒更新一次已收到的字符数（思考 / 回答），用来看进度。
+- `STREAM`：默认 1，LiveCodeBench 和 CRUXEval 都用流式请求：卡住的请求很快超时重试，记录首个 token 和首个回答 token 的时间，`cb progress` 能看到进行中的请求（运行目录里的 `usage.jsonl.live.<进程号>` 每 10 秒更新一次）。流没有结束标记就断开时，收到的半截回答不算数，按出错重试。端点不支持 `stream_options` 时自动去掉这个字段再请求。设成 0 就一次取回整个回答。BigCodeBench 用它自带的请求方式，不受影响。旧名 `LCB_STREAM` 仍然有效。
+- `LCB_TIMEOUT`：流式时是“多久收不到新 token 就重试”，默认 300 秒；`STREAM=0` 时是整个回答最多等多久，默认 1800 秒。
 - `LCB_OMIT`：LiveCodeBench 请求里不发送的字段，逗号分隔。有的模型把这些参数固定了，发了会报错，比如 Kimi K3.1 Pro 要设 `LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty`（它固定 temperature 1.0、top_p 0.95）。
 - `SONAR_URL`、`SONAR_TOKEN`、`SONAR_SCANNER`：`cb quality --sonar` 用的本机 SonarQube 地址、令牌和扫描器路径（`deploy/sonarqube.sh start` 生成）。
 - `CRUX_MAX_TOKENS`：CRUXEval 官方每次回答只给 100 个 token（带思维链的模式是 1000），那是给普通模型定的。推理模型的思考也算在 token 数里，会被截断成空答案，所以推理模型要设成和 `MAX_TOKENS` 一样。
 
-结果在 `runs/<模型名>/<benchmark>-full/result.json`，模型的原始回答也在同一个目录里。某题的请求重试次数用完、或账户余额不足时，这题记为空答案（判为失败），其余题照常保存和打分；余额不足后不再发新请求。中途断了直接重跑同一条命令：已经答过的题不会再请求一次（每次都会把已有的回答重新判一遍分，在本机跑，不花钱）。
+结果在 `runs/<模型名>/<benchmark>-full/result.json`，模型的原始回答也在同一个目录里；LiveCodeBench 另有 `problems.json`（本次的题目清单）和 `usage.jsonl`（每次 API 调用一行：题号、起止时间、首个 token 时间、token 用量、结束原因、回答或错误）。某题的请求重试次数用完、或账户余额不足时，这题记为空答案（判为失败），其余题照常保存和打分；余额不足后不再发新请求。中途断了直接重跑同一条命令：已经答过的题不会再请求一次（每次都会把已有的回答重新判一遍分，在本机跑，不花钱）。
 
 
 
@@ -58,7 +59,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 
 - `bin/cb`：入口；`bin/lcb_run.py`、`bin/crux_run.py`：在官方代码外面套的一层（不改官方代码）
 - `tools/lcb_quality.py`：静态代码质量（`cb quality`）；`deploy/sonarqube.sh`：本机 SonarQube
-- `tools/lcb_report.py`：LiveCodeBench 报告；`tools/lcb_usage.py`：延迟和 token 报告（读 LiveCodeBench 运行目录里的 `usage.jsonl`）
+- `tools/lcb_progress.py`：运行中的进度（`cb progress`）；`tools/lcb_report.py`：LiveCodeBench 报告；`tools/lcb_usage.py`：延迟和 token 报告（读 LiveCodeBench 运行目录里的 `usage.jsonl`）
 - `samples/`：固定的题目清单
 - `deploy/setup.sh`：安装和更新（只在仓库里）
 - `reports/`：跑过的评测报告（例如 `2026-10-19_lcb_newest100.md`：DeepSeek-V4.1-Flash 对比 Qwen2.5-3B）
