@@ -17,17 +17,22 @@ export MODEL=<平台上的模型名> OPENAI_BASE_URL=https://xxx/v1 OPENAI_API_K
 cb all --smoke      # 每个只跑 5 题左右，先确认接口和格式没问题（几分钟）
 cb all              # 全量
 cb livecodebench    # 也可以只跑一个
-cb summary          # 所有跑完的结果
+cb summary          # 所有跑完的结果（LiveCodeBench 同时列出 LCB 自带判分和复核后的分数）
 cb progress <模型名>/livecodebench-full --watch 30   # 跑的过程中看进度：已答题数、出错、每个进行中的请求用了多久、收到多少思考和回答（加 --text 显示最新的文字）
 cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按难度、来源、月份、失败原因）
 cb usage <模型名>/livecodebench-full    # 延迟、首个 token 时间、输出速度、token、费用和每道通过题的费用，写到 usage.md 和 usage.json（单价见下面的 PRICE_*）
 cb rejudge <模型名>/livecodebench-full  # 复核判分：AtCoder 答案用真实标准输入输出重跑全部官方测试，多解题用校验器
 cb quality <模型名>/livecodebench-full  # 静态代码质量（Pylint、Radon；加 --sonar 再跑 SonarQube），按 arXiv:2610.19167 的表格输出
+cb perf <模型名>/livecodebench-full     # 通过的答案在官方测试上的 CPU 时间和峰值内存（每次新进程、绑核、校验输出）
+cb perf <模型A>/<运行> <模型B>/<运行>    # 几个运行放在一起交替测，按“相对最快者的倍数”对比（--out 存成文件）
+cb post <模型名>/livecodebench-full     # 对一个运行补跑全部后处理：rejudge、usage、quality、perf
 ```
+
+`cb livecodebench`（以及 `cb all`）跑完生成和判分后，会自动依次运行 `cb rejudge`、`cb usage`、`cb quality`（设了 `SONAR_URL` 就加 `--sonar`）和 `cb perf`，结果都写在运行目录里：`rejudge.jsonl`、`usage.md`/`usage.json`、`quality.md`/`quality.jsonl`、`perf.md`/`perf.json`/`perf.jsonl`。某一步失败只打印出错，不影响其他步骤和已经保存的结果。设 `CB_POST=0` 可以跳过，之后再用 `cb post` 补跑。所有表格都标出方向：↑ 越大越好，↓ 越小越好，没有箭头的只作描述。
 
 LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.readline` 每次都返回输入的第一行，也不支持 `sys.stdout.buffer`，`abc397_d` 的第 41 个测试标准答案错误，`arc195_c` 允许任意合法构造却按单一答案比对。`cb rejudge` 把每份 AtCoder 答案作为独立进程运行（每个测试 6 秒），这两题用校验器，LeetCode 题沿用 LCB 判分；结果写到运行目录的 `rejudge.jsonl`，并打印复核前后的 pass@1。对比模型时用复核后的结果。
 
-每次评测都要跑 `cb quality`，按 Huang 等人的 *Beyond Functional Correctness: Static Code Quality Profiling of LLM-Generated Code*（arXiv:2610.19167）的口径输出静态代码质量：
+每次评测都要输出静态代码质量（`cb livecodebench` 跑完会自动运行 `cb quality`），按 Huang 等人的 *Beyond Functional Correctness: Static Code Quality Profiling of LLM-Generated Code*（arXiv:2610.19167）的口径输出静态代码质量：
 - 工具与版本：Pylint 3.3.5（默认配置）、Radon 6.0.1（命令行）、SonarQube 10.4 Community（可选，`--sonar`），在单独的 Python 3.12 环境 `venvs/quality` 里运行。
 - 每份答案原样分析，不补 import；空答案跳过。Pylint 统计 C/R/W/E/F 各类问题数和 0–10 分；Radon 的圈复杂度是 `cc -j` 所有条目之和（类和它的方法各算一条，与论文一致），另有 MI、函数数、LOC、LLOC、SLOC、注释行、空行；SonarQube 统计可维护性、可靠性、安全三类问题数。
 - 输出 `quality.jsonl`（每份答案一行）和 `quality.md`（三张表：全部答案的每份平均、只算通过答案的每份平均，均按难度分；通过答案每 100 SLOC 的问题密度）。不合成总分。表头标出方向：↑ 越大越好（Pylint 得分、MI），↓ 越小越好（各类问题数、圈复杂度），没有箭头的列（函数数、各类行数）只描述规模；写进报告或网站的表格也要这样标。“通过”用 `rejudge.jsonl` 的复核结果，没有复核时用 LCB 判分。
@@ -42,6 +47,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 - `STREAM`：默认 1，LiveCodeBench 和 CRUXEval 都用流式请求：卡住的请求很快超时重试，记录首个 token 和首个回答 token 的时间，`cb progress` 能看到进行中的请求（运行目录里的 `usage.jsonl.live.<进程号>` 每 10 秒更新一次）。流没有结束标记就断开时，收到的半截回答不算数，按出错重试。端点不支持 `stream_options` 时自动去掉这个字段再请求。设成 0 就一次取回整个回答。BigCodeBench 用它自带的请求方式，不受影响。旧名 `LCB_STREAM` 仍然有效。
 - `LCB_TIMEOUT`：流式时是“多久收不到新 token 就重试”，默认 300 秒；`STREAM=0` 时是整个回答最多等多久，默认 1800 秒。
 - `LCB_OMIT`：LiveCodeBench 请求里不发送的字段，逗号分隔。有的模型把这些参数固定了，发了会报错，比如 Kimi K3.1 Pro 要设 `LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty`（它固定 temperature 1.0、top_p 0.95）。
+- `CB_POST`：默认 1，LiveCodeBench 跑完自动做后处理（见上）；设成 0 跳过。
 - `PRICE_IN`、`PRICE_HIT`、`PRICE_OUT`：每百万 token 的单价（输入未命中缓存 / 命中缓存 / 输出，思考算输出），`cb usage` 用来算费用；不设就不算。分时计价的平台再设 `PRICE_OFF_IN`、`PRICE_OFF_HIT`、`PRICE_OFF_OUT`（非高峰单价）和 `PEAK_HOURS_UTC`（工作日的高峰时段，UTC，默认 DeepSeek 的 `1-4,6-10`），每次调用按开始时间计价。
 - `SONAR_URL`、`SONAR_TOKEN`、`SONAR_SCANNER`：`cb quality --sonar` 用的本机 SonarQube 地址、令牌和扫描器路径（`deploy/sonarqube.sh start` 生成）。
 - `CRUX_MAX_TOKENS`：CRUXEval 官方每次回答只给 100 个 token（带思维链的模式是 1000），那是给普通模型定的。推理模型的思考也算在 token 数里，会被截断成空答案，所以推理模型要设成和 `MAX_TOKENS` 一样。
@@ -60,7 +66,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 
 - `bin/cb`：入口；`bin/lcb_run.py`、`bin/crux_run.py`：在官方代码外面套的一层（不改官方代码）
 - `tools/lcb_quality.py`：静态代码质量（`cb quality`）；`deploy/sonarqube.sh`：本机 SonarQube
-- `tools/lcb_progress.py`：运行中的进度（`cb progress`）；`tools/lcb_report.py`：LiveCodeBench 报告；`tools/lcb_usage.py`：延迟和 token 报告（读 LiveCodeBench 运行目录里的 `usage.jsonl`）
+- `tools/lcb_progress.py`：运行中的进度（`cb progress`）；`tools/lcb_rejudge.py`：复核判分（`cb rejudge`）；`tools/lcb_perf.py`：代码性能（`cb perf`）；`tools/lcb_report.py`：LiveCodeBench 报告；`tools/lcb_usage.py`：延迟和 token 报告（读 LiveCodeBench 运行目录里的 `usage.jsonl`）
 - `samples/`：固定的题目清单
 - `deploy/setup.sh`：安装和更新（只在仓库里）
 - `reports/`：跑过的评测报告（例如 `2026-10-19_lcb_newest100.md`：DeepSeek-V4.1-Flash 对比 Qwen2.5-3B）

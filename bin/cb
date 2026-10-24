@@ -5,7 +5,9 @@
 #   cb all                 # bigcodebench livecodebench cruxeval
 #   cb bigcodebench cruxeval
 #   cb all --smoke         # 5 problems each, to check the endpoint and the pipeline first
-#   cb summary             # scores of every finished run
+#   cb summary             # scores of every finished run (LiveCodeBench: LCB's own judge and the re-judged score)
+#   cb post <run dir>      # every post-processing step of a LiveCodeBench run (rejudge, usage, quality, perf); cb livecodebench
+#                          # runs it by itself at the end (CB_POST=0 skips it)
 #   cb progress <run dir>  # a LiveCodeBench run while it goes: answered / errors / every request in flight with its time and
 #                          # the thinking and answer received so far (--watch 30 refreshes, --text shows the latest text)
 #   cb report <run dir>    # Markdown report of a LiveCodeBench run (by difficulty / platform / month / failure);
@@ -35,7 +37,7 @@
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CRUX_MAX_TOKENS,PRICE_IN,PRICE_HIT,PRICE_OUT,PRICE_OFF_IN,PRICE_OFF_HIT,PRICE_OFF_OUT,PEAK_HOURS_UTC,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CB_POST,CRUX_MAX_TOKENS,PRICE_IN,PRICE_HIT,PRICE_OUT,PRICE_OFF_IN,PRICE_OFF_HIT,PRICE_OFF_OUT,PEAK_HOURS_UTC,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -47,18 +49,37 @@ import glob, json, os, sys
 rows = []
 for f in sorted(glob.glob(os.path.join(sys.argv[1], "*", "*", "result.json"))):
     r = json.load(open(f))
-    rows.append((r["model"], r["benchmark"], r.get("pass@1"), r.get("problems"), "full" if r.get("full_set") else "SMOKE/partial", os.path.dirname(f)))
+    rj = os.path.join(os.path.dirname(f), "rejudge.jsonl")  # cb rejudge: the score to compare models with
+    v = [json.loads(l)["passed"] for l in open(rj)] if os.path.exists(rj) else []
+    rows.append((r["model"], r["benchmark"], r.get("pass@1"), round(100 * sum(v) / len(v), 2) if v else "-",
+                 r.get("problems"), "full" if r.get("full_set") else "SMOKE/partial"))
 if not rows:
     print("no finished runs yet"); sys.exit()
-w = max(len(r[0]) for r in rows)
-print(f"{'model':<{w}}  {'benchmark':<24} {'pass@1':>7} {'n':>5}  set")
-for m, b, p, n, s, d in rows:
-    print(f"{m:<{w}}  {b:<24} {p if p is not None else '-':>7} {n:>5}  {s}")
+w, wb = max(len(r[0]) for r in rows), max(len(r[1]) for r in rows)
+print(f"{'model':<{w}}  {'benchmark':<{wb}} {'pass@1':>7} {'rejudged':>8} {'n':>5}  set")
+for m, b, p, rp, n, s in rows:
+    print(f"{m:<{w}}  {b:<{wb}} {p if p is not None else '-':>7} {rp:>8} {n:>5}  {s}")
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,34p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+post() {  # every evaluation also gets its re-judged score, latency and cost, static quality and code performance
+  local d=$1 py=$CB/venvs/livecodebench/bin/python sonar=()
+  [ -n "${SONAR_URL:-}" ] && sonar=(--sonar)
+  echo "=== post-processing $d: rejudge, usage, quality${SONAR_URL:+ (SonarQube)}, perf  $(date +%T)"
+  $py $CB/tools/lcb_rejudge.py "$d" | tail -3 || echo "=== rejudge FAILED" >&2
+  $py $CB/tools/lcb_usage.py "$d" > /dev/null && sed -n 3,8p "$d/usage.md" || echo "=== usage FAILED" >&2
+  SONAR_USER_HOME=$CB/.cache/sonar $CB/venvs/quality/bin/python $CB/tools/lcb_quality.py "$d" "${sonar[@]}" > /dev/null \
+    && echo "quality: $d/quality.md" || echo "=== quality FAILED" >&2
+  $py $CB/tools/lcb_perf.py "$d" > /dev/null && echo "perf: $d/perf.md" || echo "=== perf FAILED" >&2
+  echo "=== post-processing done  $(date +%T)"
+}
+
+[ $# -ge 1 ] || { sed -n 2,36p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
+if [ "$1" = post ]; then
+  [ -n "${2:-}" ] || { echo "usage: cb post <run dir>" >&2; exit 1; }
+  post "$(readlink -f "$2")"; exit
+fi
 if [ "$1" = progress ]; then
   [ -n "${2:-}" ] || { echo "usage: cb progress <run dir> [--watch seconds] [--text]" >&2; exit 1; }
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_progress.py "$(readlink -f "$2")" "${@:3}"
@@ -148,6 +169,7 @@ run_livecodebench() {
   local f; f=$(ls "$d"/output/*/Scenario.codegeneration_1_0.2_eval.json | head -1)
   local p1 n; read -r p1 n < <(python3 -c 'import json,sys; r=json.load(open(sys.argv[1])); r=r[0] if isinstance(r,list) else r; print(r["pass@1"]*100 if r["pass@1"]<=1 else r["pass@1"], len(json.load(open(sys.argv[1].replace("_eval.json","_eval_all.json")))))' "$f")
   result "livecodebench-${LCB_RELEASE:-release_v6}${LCB_START:+-from-$LCB_START}${LCB_IDS:+-$(basename "$LCB_IDS" .txt)}" "$MODEL" "$p1" "$n" $([ $SMOKE = 1 ] && echo 0 || echo 1) "$d"
+  [ "${CB_POST:-1}" = 0 ] || post "$d"
 }
 
 run_cruxeval() {
