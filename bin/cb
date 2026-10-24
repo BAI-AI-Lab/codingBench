@@ -10,8 +10,9 @@
 #                          # the thinking and answer received so far (--watch 30 refreshes, --text shows the latest text)
 #   cb report <run dir>    # Markdown report of a LiveCodeBench run (by difficulty / platform / month / failure);
 #                          # a relative <run dir> is taken from runs/, e.g. cb report <model>/livecodebench-full
-#   cb usage <run dir>     # latency and tokens of each API call in a LiveCodeBench run (add --price-in/--price-hit/--price-out
-#                          # per 1M tokens for the cost)
+#   cb usage <run dir>     # latency, first-token times, speed, tokens and cost of a LiveCodeBench run; writes usage.md and
+#                          # usage.json (prices per 1M tokens: --price-in/--price-hit/--price-out or PRICE_IN/PRICE_HIT/PRICE_OUT,
+#                          # off-peak rates with --price-off-* or PRICE_OFF_*)
 #   cb rejudge <run dir>   # re-judge a LiveCodeBench run: AtCoder answers with real stdin/stdout and checkers (LCB's judge
 #                          # mocks stdin wrongly); writes <run dir>/rejudge.jsonl
 #   cb quality <run dir>   # static code quality of a LiveCodeBench run (Pylint, Radon; add --sonar for SonarQube) with the
@@ -31,7 +32,7 @@
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CRUX_MAX_TOKENS,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CRUX_MAX_TOKENS,PRICE_IN,PRICE_HIT,PRICE_OUT,PRICE_OFF_IN,PRICE_OFF_HIT,PRICE_OFF_OUT,PEAK_HOURS_UTC,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -53,7 +54,7 @@ for m, b, p, n, s, d in rows:
 PY
 }
 
-[ $# -ge 1 ] || { sed -n 2,30p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,31p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
 if [ "$1" = progress ]; then
   [ -n "${2:-}" ] || { echo "usage: cb progress <run dir> [--watch seconds] [--text]" >&2; exit 1; }
@@ -64,7 +65,7 @@ if [ "$1" = report ]; then
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_report.py "$(readlink -f "$2")" "${@:3}"
 fi
 if [ "$1" = usage ]; then
-  [ -n "${2:-}" ] || { echo "usage: cb usage <run dir> [--price-in X --price-hit Y --price-out Z]" >&2; exit 1; }
+  [ -n "${2:-}" ] || { echo "usage: cb usage <run dir> [--price-in X --price-hit Y --price-out Z [--price-off-in ...]]" >&2; exit 1; }
   exec $CB/venvs/livecodebench/bin/python $CB/tools/lcb_usage.py "$(readlink -f "$2")" "${@:3}"
 fi
 if [ "$1" = rejudge ]; then

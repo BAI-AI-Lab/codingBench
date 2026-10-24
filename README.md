@@ -20,7 +20,7 @@ cb livecodebench    # 也可以只跑一个
 cb summary          # 所有跑完的结果
 cb progress <模型名>/livecodebench-full --watch 30   # 跑的过程中看进度：已答题数、出错、每个进行中的请求用了多久、收到多少思考和回答（加 --text 显示最新的文字）
 cb report <模型名>/livecodebench-full   # LiveCodeBench 的详细报告（按难度、来源、月份、失败原因）
-cb usage <模型名>/livecodebench-full    # 每次 API 调用的延迟和 token（加 --price-in/--price-hit/--price-out 每百万 token 单价可算费用）
+cb usage <模型名>/livecodebench-full    # 延迟、首个 token 时间、输出速度、token、费用和每道通过题的费用，写到 usage.md 和 usage.json（单价见下面的 PRICE_*）
 cb rejudge <模型名>/livecodebench-full  # 复核判分：AtCoder 答案用真实标准输入输出重跑全部官方测试，多解题用校验器
 cb quality <模型名>/livecodebench-full  # 静态代码质量（Pylint、Radon；加 --sonar 再跑 SonarQube），按 arXiv:2610.19167 的表格输出
 ```
@@ -42,6 +42,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 - `STREAM`：默认 1，LiveCodeBench 和 CRUXEval 都用流式请求：卡住的请求很快超时重试，记录首个 token 和首个回答 token 的时间，`cb progress` 能看到进行中的请求（运行目录里的 `usage.jsonl.live.<进程号>` 每 10 秒更新一次）。流没有结束标记就断开时，收到的半截回答不算数，按出错重试。端点不支持 `stream_options` 时自动去掉这个字段再请求。设成 0 就一次取回整个回答。BigCodeBench 用它自带的请求方式，不受影响。旧名 `LCB_STREAM` 仍然有效。
 - `LCB_TIMEOUT`：流式时是“多久收不到新 token 就重试”，默认 300 秒；`STREAM=0` 时是整个回答最多等多久，默认 1800 秒。
 - `LCB_OMIT`：LiveCodeBench 请求里不发送的字段，逗号分隔。有的模型把这些参数固定了，发了会报错，比如 Kimi K3.1 Pro 要设 `LCB_OMIT=temperature,top_p,n,presence_penalty,frequency_penalty`（它固定 temperature 1.0、top_p 0.95）。
+- `PRICE_IN`、`PRICE_HIT`、`PRICE_OUT`：每百万 token 的单价（输入未命中缓存 / 命中缓存 / 输出，思考算输出），`cb usage` 用来算费用；不设就不算。分时计价的平台再设 `PRICE_OFF_IN`、`PRICE_OFF_HIT`、`PRICE_OFF_OUT`（非高峰单价）和 `PEAK_HOURS_UTC`（工作日的高峰时段，UTC，默认 DeepSeek 的 `1-4,6-10`），每次调用按开始时间计价。
 - `SONAR_URL`、`SONAR_TOKEN`、`SONAR_SCANNER`：`cb quality --sonar` 用的本机 SonarQube 地址、令牌和扫描器路径（`deploy/sonarqube.sh start` 生成）。
 - `CRUX_MAX_TOKENS`：CRUXEval 官方每次回答只给 100 个 token（带思维链的模式是 1000），那是给普通模型定的。推理模型的思考也算在 token 数里，会被截断成空答案，所以推理模型要设成和 `MAX_TOKENS` 一样。
 
