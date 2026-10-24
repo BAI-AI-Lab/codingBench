@@ -35,7 +35,7 @@ SONAR_QUALITIES = ("maintainability", "reliability", "security")
 RADON_SIZES = ("loc", "lloc", "sloc", "comments", "blank")
 DIFFS = ("easy", "medium", "hard")
 HIGHER_BETTER = {"Pylint score", "MI"}
-SIZES = {"Func", "LOC", "LLOC", "SLOC", "CMT", "BLN"}  # describe size only: no better direction
+SIZES = {"Func", "LOC", "LLOC", "SLOC", "CMT", "BLANK"}  # describe size only: no better direction
 LEGEND = "↑ higher is better, ↓ lower is better; columns without an arrow describe size only."
 
 
