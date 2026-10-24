@@ -196,6 +196,7 @@ def page(path, title_, body, desc, extra_css=""):
 <p>BAI AI Lab 代码能力评测 · 数据截至 {DATE}（UTC）</p>
 <p>评测框架 LiveCodeBench release_v6 <a href="{up}method.html#ref-1">[1]</a>，运行与判分用 codingBench。题面版权归 AtCoder 与 LeetCode，本站只给出概述与原题链接。</p>
 <p>全部数据：<a href="{up}data/lcb.json">data/lcb.json</a></p>
+<p>如有任何问题，联系 <a href="https://alberthx86.github.io/" target="_blank" rel="noopener">Albert Huang</a>。</p>
 </div></footer>
 <script src="{up}assets/app.js"></script>
 </body>
