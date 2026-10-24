@@ -34,4 +34,5 @@ recs = [{"q": "a", "difficulty": "hard", "passed": True, "pylint": pl, "radon": 
         {"q": "b", "difficulty": "hard", "passed": False, "pylint": pl, "radon": dict(ra, sloc=7), "sonar": None}]
 md = summarize(recs, sonar_on=False)
 assert "| hard | 2 |" in md and "| hard | 1 | 13 | 46.15 |" in md, md  # 6 issues / 13 SLOC x 100
+assert "| Pylint score ↑ | CC ↓ | MI ↑ | Func | LOC |" in md, md  # direction marks; size columns get none
 print("ok")

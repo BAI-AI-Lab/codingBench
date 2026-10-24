@@ -219,13 +219,17 @@ def table(head, rows, tid=None):
     return f'<div class="tw"><table{idattr}><thead><tr>{th}</tr></thead><tbody>{"".join(trs)}</tbody></table></div>'
 
 
+UP, DN = " ↑", " ↓"  # after a header or label: higher / lower is better; none means it only describes
+LEGEND = "↑ 越大越好，↓ 越小越好"
+
+
 def qual_html(blocks, cols, nd, groups):
     """qualitygen tables as HTML: optional group header row, one label row per block, bold best 合计 values."""
     n = 3 + len(cols)
     head = ""
     if groups:
         head = "<tr><th></th><th></th><th></th>" + "".join(f'<th class="c grp-h" colspan="{k}">{t}</th>' for t, k in groups) + "</tr>"
-    head += "<tr><th>模型</th><th>难度</th><th class=\"n\">份数</th>" + "".join(f'<th class="n">{h}</th>' for h, _ in cols) + "</tr>"
+    head += "<tr><th>模型</th><th>难度</th><th class=\"n\">份数</th>" + "".join(f'<th class="n">{h}{qg.arrow(h, UP, DN)}</th>' for h, _ in cols) + "</tr>"
     body = []
     for label, t in blocks:
         if label:
@@ -236,7 +240,7 @@ def qual_html(blocks, cols, nd, groups):
             for j, v in enumerate(vals):
                 txt = "—" if v is None else f"{v:.{nd}f}"
                 strong = (dn == "合计" and v is not None and bests[j] is not None and round(v, nd) == round(bests[j], nd)
-                          and cols[j][0] not in ("LOC", "LLOC", "SLOC", "CMT", "BLN", "Func"))
+                          and cols[j][0] not in qg.NEUTRAL)
                 cells.append(f'<td class="n{" best" if strong else ""}">{txt}</td>')
             cls = ' class="grp"' if dn == "合计" else ""
             body.append(f"<tr{cls}><td class=\"nw\">{name if dn == '中等' else ''}</td><td class=\"nw\">{dn}</td>"
@@ -269,9 +273,9 @@ def index():
     for k, name, short in MODELS:
         s = S[k]
         cols.append(f"""<div class="model"><div>{dot(k)}<h3>{mname(name, short)}</h3><div class="id">{k}</div></div>
-<div class="big">{s['pass']}/{N}</div><div class="cap">通过</div>
-{specs([(f"{s['lat']:.0f} 秒", "延迟"), (f"{s['speed']:.0f}", "输出 token/秒"), (money(s['cost']), "费用"),
-        (money(s['per'], 3), "每道通过题费用"), (f"{s['gm']:.2f}×", "代码耗时 / 最快者")])}</div>""")
+<div class="big">{s['pass']}/{N}</div><div class="cap">通过{UP}</div>
+{specs([(f"{s['lat']:.0f} 秒", "延迟" + DN), (f"{s['speed']:.0f}", "输出 token/秒" + UP), (money(s['cost']), "费用" + DN),
+        (money(s['per'], 3), "每道通过题费用" + DN), (f"{s['gm']:.2f}×", "代码耗时 / 最快者" + DN)])}</div>""")
     nperf = len(perfgen.common)
     body = f"""<section class="hero"><div class="wrap">
 <p class="eyebrow">LiveCodeBench · {DATE}</p>
@@ -283,7 +287,7 @@ def index():
 <h2>三个模型</h2>
 <p class="sub">LiveCodeBench 竞赛题，每题调用 1 次。题目范围与设置见“结果”。</p>
 <div class="compare" style="--rows:8">{''.join(cols)}</div>
-<p class="note">延迟、输出速度为每题中位数；费用按 token 计；代码耗时为 {nperf} 道可比题上相对最快者的几何平均倍数。</p>
+<p class="note">{LEGEND}。延迟、输出速度为每题中位数；费用按 token 计；代码耗时为 {nperf} 道可比题上相对最快者的几何平均倍数。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <h2>要点</h2>
@@ -369,16 +373,16 @@ def problem_page(i, q):
             pf, st = perf(k, q), QL.get((k, q))
             cpu = (f"{pf[0]:.2f} 秒" + (f"（{pf[2]:.1f}×）" if pf[2] >= 2 else "（最快）" if pf[2] == 1 else "")) if pf else "—"
             items = [f'<li><span class="t">{judged(k, q)}</span><span>判题</span></li>']
-            nums = [(f"{m['out'][q] / 1e3:.1f}k" if q in m["out"] else "—", "输出 token（含思考）"),
-                    (f"{m['lat'][q]:.0f} 秒" if q in m["lat"] else "—", "延迟"), (cpu, "最慢测试的 CPU 时间"),
-                    (f"{pf[1]:.0f} MB" if pf else "—", "峰值内存"),
-                    (str(st["pylint"]["total"]) if st else "—", "Pylint 问题"),
-                    (f"{st['pylint']['score']:.2f}" if st and st["pylint"]["score"] is not None else "—", "Pylint 得分"),
-                    (str(st["radon"]["complexity"]) if st else "—", "圈复杂度"), (f"{st['radon']['mi']:.1f}" if st else "—", "可维护性指数"),
-                    (str(st["radon"]["sloc"]) if st else "—", "有效行")]
+            nums = [(f"{m['out'][q] / 1e3:.1f}k" if q in m["out"] else "—", "输出 token（含思考）" + DN),
+                    (f"{m['lat'][q]:.0f} 秒" if q in m["lat"] else "—", "延迟" + DN), (cpu, "最慢测试的 CPU 时间" + DN),
+                    (f"{pf[1]:.0f} MB" if pf else "—", "峰值内存" + DN),
+                    (str(st["pylint"]["total"]) if st else "—", "Pylint 问题" + DN),
+                    (f"{st['pylint']['score']:.2f}" if st and st["pylint"]["score"] is not None else "—", "Pylint 得分" + UP),
+                    (str(st["radon"]["complexity"]) if st else "—", "圈复杂度" + DN),
+                    (f"{st['radon']['mi']:.1f}" if st else "—", "可维护性指数" + UP), (str(st["radon"]["sloc"]) if st else "—", "有效行")]
             if qg.SONAR:
                 nums.append((str(sum(st["sonar"][x] for x in ("maintainability", "reliability", "security"))) if st else "—",
-                             "SonarQube 问题"))
+                             "SonarQube 问题" + DN))
             items += [f"<li><b>{v}</b><span>{lab}</span></li>" for v, lab in nums]
             status = "通过" if m["passed"][q] else f"未通过：{m['why'][q]}"
             cols.append(f"""<div class="model"><div>{dot(k)}<h3>{mname(name, short)}</h3></div>
@@ -403,7 +407,7 @@ def problem_page(i, q):
         parts.append(f"""<section class="section alt"><div class="wrap">
 <h2>结果</h2>
 <div class="compare small" style="--rows:{3 + len(items)}">{''.join(cols)}</div>
-<p class="note">CPU 时间与内存只统计能区分性能的题（最慢答案扣除进程启动后仍 ≥ {perfgen.THRESH:.1f} 秒），括号内为相对最快者的倍数（≥ 2 时标出）。静态质量按 arXiv:2610.19167 的口径（见 <a href="../method.html#static">原理</a>）。判题方法见 <a href="../method.html#judge">原理 › 判题</a>。</p>
+<p class="note">{LEGEND}，有效行只描述代码长短。CPU 时间与内存只统计能区分性能的题（最慢答案扣除进程启动后仍 ≥ {perfgen.THRESH:.1f} 秒），括号内为相对最快者的倍数（≥ 2 时标出）。静态质量按 arXiv:2610.19167 的口径（见 <a href="../method.html#static">原理</a>）。判题方法见 <a href="../method.html#judge">原理 › 判题</a>。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <div class="codehead"><h2>代码</h2><div class="seg" data-tabs="code">{''.join(tabs)}</div></div>
@@ -453,22 +457,22 @@ def results():
         return sum(m["passed"][q] for q in P if f(P[q]))
 
     rows = [
-        [(f"通过（共 {N} 题）", "")] + best_cells([S[k]["pass"] for k, *_ in MODELS], lambda v: f"{v}（{100 * v / N:.1f}%）", max),
-        [(f"中等（{dn['medium']}）", "")] + best_cells([by(m, lambda p: p["difficulty"] == "medium") for m in ms], str, max),
-        [(f"困难（{dn['hard']}）", "")] + best_cells([by(m, lambda p: p["difficulty"] == "hard") for m in ms], str, max),
-        [(f"AtCoder（{pn['atcoder']}）", "")] + best_cells([by(m, lambda p: p["platform"] == "atcoder") for m in ms], str, max),
-        [(f"LeetCode（{pn['leetcode']}）", "")] + best_cells([by(m, lambda p: p["platform"] == "leetcode") for m in ms], str, max),
-        [("有效运行时间（分钟）", "")] + best_cells([m["wall"] for m in ms], lambda v: f"{v:.0f}", min),
-        [("每题延迟中位数（秒）", "")] + best_cells([S[k]["lat"] for k, *_ in MODELS], lambda v: f"{v:.0f}", min),
-        [("每题延迟 P90（秒）", "")] + best_cells([gen.pct(list(m["lat"].values()), 90) for m in ms], lambda v: f"{v:.0f}", min),
-        [("每题延迟最长（秒）", "")] + best_cells([max(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min),
-        [("输出速度中位数（token/秒）", "")] + best_cells([S[k]["speed"] for k, *_ in MODELS], lambda v: f"{v:.0f}", max),
-        [("输出 token 合计", "")] + [(ktok(m["tot"][2]), "n") for m in ms],
+        [(f"通过（共 {N} 题）{UP}", "")] + best_cells([S[k]["pass"] for k, *_ in MODELS], lambda v: f"{v}（{100 * v / N:.1f}%）", max),
+        [(f"中等（{dn['medium']}）{UP}", "")] + best_cells([by(m, lambda p: p["difficulty"] == "medium") for m in ms], str, max),
+        [(f"困难（{dn['hard']}）{UP}", "")] + best_cells([by(m, lambda p: p["difficulty"] == "hard") for m in ms], str, max),
+        [(f"AtCoder（{pn['atcoder']}）{UP}", "")] + best_cells([by(m, lambda p: p["platform"] == "atcoder") for m in ms], str, max),
+        [(f"LeetCode（{pn['leetcode']}）{UP}", "")] + best_cells([by(m, lambda p: p["platform"] == "leetcode") for m in ms], str, max),
+        [("有效运行时间（分钟）" + DN, "")] + best_cells([m["wall"] for m in ms], lambda v: f"{v:.0f}", min),
+        [("每题延迟中位数（秒）" + DN, "")] + best_cells([S[k]["lat"] for k, *_ in MODELS], lambda v: f"{v:.0f}", min),
+        [("每题延迟 P90（秒）" + DN, "")] + best_cells([gen.pct(list(m["lat"].values()), 90) for m in ms], lambda v: f"{v:.0f}", min),
+        [("每题延迟最长（秒）" + DN, "")] + best_cells([max(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min),
+        [("输出速度中位数（token/秒）" + UP, "")] + best_cells([S[k]["speed"] for k, *_ in MODELS], lambda v: f"{v:.0f}", max),
+        [("输出 token 合计" + DN, "")] + best_cells([m["tot"][2] for m in ms], ktok, min),
         [("其中思考 token 占比", "")] + [(f"{100 * m['tot'][3] / m['tot'][2]:.0f}%" if m["tot"][2] else "—", "n") for m in ms],
-        [("每题输出 token 中位数", "")] + best_cells([statistics.median(m["out"].values()) for m in ms], ktok, min),
+        [("每题输出 token 中位数" + DN, "")] + best_cells([statistics.median(m["out"].values()) for m in ms], ktok, min),
         [("输入 token 合计（缓存命中）", "")] + [(f"{ktok(m['tot'][0])}（{ktok(m['tot'][1])}）", "n") for m in ms],
-        [("费用（美元，按 token 计）", "")] + best_cells([m["cost"] for m in ms], money, min),
-        [("每道通过题的费用（美元）", "")] + best_cells([S[k]["per"] for k, *_ in MODELS], lambda v: money(v, 3), min),
+        [("费用（美元，按 token 计）" + DN, "")] + best_cells([m["cost"] for m in ms], money, min),
+        [("每道通过题的费用（美元）" + DN, "")] + best_cells([S[k]["per"] for k, *_ in MODELS], lambda v: money(v, 3), min),
     ]
     mhead = [(f"{dot(k)} {mname(name, short)}", "n") for k, name, short in MODELS]
     drows = []
@@ -493,7 +497,7 @@ def results():
         prow.append(cells)
     phead = [("题号", ""), ("题目", ""), ("难度", "")]
     for k, name, short in MODELS:
-        phead += [(f"{dot(k)} {short}", ""), ("token", "n"), ("秒", "n")]
+        phead += [(f"{dot(k)} {short}", ""), ("token" + DN, "n"), ("秒" + DN, "n")]
     perf_rows = []
     for q in perfgen.measurable:
         d = perfgen.prob[q]
@@ -510,7 +514,7 @@ def results():
         perf_rows.append(cells)
     pfhead = [("题号", ""), ("难度", ""), ("类型", ""), ("最大输入 KB", "n")]
     for k, name, short in MODELS:
-        pfhead += [(f"{dot(k)} {short} CPU 秒", "n"), ("MB", "n")]
+        pfhead += [(f"{dot(k)} {short} CPU 秒" + DN, "n"), ("MB" + DN, "n")]
     agg = perfgen.agg
     gm_best = min(a[0] for a in agg.values())
     srows = [[(f"{dot(k)} {name}", "nw"), (f"{agg[k][0]:.2f}", "n best" if agg[k][0] == gm_best else "n"), (str(agg[k][1]), "n"),
@@ -534,7 +538,7 @@ def results():
     nruns = sum(1 for r in perfgen.rows if r["model"] != "baseline")
     body = f"""<section class="section tight"><div class="wrap">
 <h2 id="overall">结果</h2>
-<p class="sub">本轮从题库中取最新的中等 {dn['medium']} 题和困难 {dn['hard']} 题，共 {N} 题，每题调用 1 次。粗体为该行最优；1 题 = {100 / N:.1f} 个百分点。</p>
+<p class="sub">本轮从题库中取最新的中等 {dn['medium']} 题和困难 {dn['hard']} 题，共 {N} 题，每题调用 1 次。表中 {LEGEND}，没有箭头的只作描述；粗体为最优；1 题 = {100 / N:.1f} 个百分点。</p>
 <div class="tiles">
 <div>{dist_table(list(P), P)}</div>
 <div>{bar_chart()}</div>
@@ -546,7 +550,7 @@ def results():
 {table([("指标", "")] + mhead, rows)}
 <p class="note">有效运行时间 = 成功请求覆盖的时长。</p>
 <h3>按难度</h3>
-{table([("难度", ""), ("模型", ""), ("通过", "n"), ("延迟中位数（秒）", "n"), ("平均输出 token", "n"), ("最多输出 token", "n")], drows)}
+{table([("难度", ""), ("模型", ""), ("通过" + UP, "n"), ("延迟中位数（秒）" + DN, "n"), ("平均输出 token" + DN, "n"), ("最多输出 token" + DN, "n")], drows)}
 <h3 id="matrix">逐题结果</h3>
 {table(phead, prow)}
 <p class="note">每个模型：结果 / 输出 token（含思考）/ 延迟（秒）。✓† Kimi <code>abc399_e</code>：评测中 API 返回与题目无关的内容，人工另行调用验证正确，按通过计。</p>
@@ -555,10 +559,10 @@ def results():
 <h2 id="perf">代码性能</h2>
 <p class="sub">通过的答案（Kimi {sum(r['model'] == KF for r in perfgen.static)} 份，不含 <code>abc398_g</code>、<code>abc399_e</code>；DeepSeek 各 {N} 份）在绑定单核的全新进程里重跑官方测试，共 {nruns:,} 次，每个测试 3 次取中位数。只比较 {len(perfgen.measurable)} 道耗时足以区分的题。</p>
 {table(pfhead, perf_rows)}
-<p class="note">CPU 秒为最慢一个测试的 CPU 时间（扣除进程启动）；粗体为该题最快，灰字为相对最快者的倍数（≥ 2 时标出）。MB 为各测试中的最大峰值内存。AC = AtCoder，LC = LeetCode。其余 {len(perfgen.small)} 题官方测试太小，耗时主要是启动开销，不比较。</p>
+<p class="note">↓ 越小越好。CPU 秒为最慢一个测试的 CPU 时间（扣除进程启动）；粗体为该题最快，灰字为相对最快者的倍数（≥ 2 时标出）。MB 为各测试中的最大峰值内存。AC = AtCoder，LC = LeetCode。其余 {len(perfgen.small)} 题官方测试太小，耗时主要是启动开销，不比较。</p>
 <h3>汇总</h3>
-{table([("模型", ""), ("相对最快倍数（几何平均）", "n"), ("最快（题）", "n"), ("慢 ≥ 2 倍（题）", "n"), ("CPU 合计（秒）", "n"), ("内存中位数 MB", "n"), ("内存最大 MB", "n")], srows)}
-<p class="note">基于 {len(perfgen.common)} 道可比题（三个模型都通过）。“最快”按严格最小值计；有 3 题第二名与最快相差不到 5%（噪声范围内）：<code>3765</code>、<code>3801</code> 上 Flash 比 Kimi 慢 3% 和 2%，<code>abc399_c</code> 上 Kimi 比 Pro 慢 3%。按并列计，Flash 的最快题数为 2。</p>
+{table([("模型", ""), ("相对最快倍数（几何平均）" + DN, "n"), ("最快（题）" + UP, "n"), ("慢 ≥ 2 倍（题）" + DN, "n"), ("CPU 合计（秒）" + DN, "n"), ("内存中位数 MB" + DN, "n"), ("内存最大 MB" + DN, "n")], srows)}
+<p class="note">{LEGEND}。基于 {len(perfgen.common)} 道可比题（三个模型都通过）。“最快”按严格最小值计；有 3 题第二名与最快相差不到 5%（噪声范围内）：<code>3765</code>、<code>3801</code> 上 Flash 比 Kimi 慢 3% 和 2%，<code>abc399_c</code> 上 Kimi 比 Pro 慢 3%。按并列计，Flash 的最快题数为 2。</p>
 <h3>差距最大的题</h3>
 <ul class="list">
 <li><a href="p/arc195_b.html"><code>arc195_b</code></a>（Flash 慢 8.5 倍，内存 91 MB）：Flash 枚举 A、B 所有不同取值的两两组合，复杂度 O(U·V)，并把重复的和逐个展开存入列表；Kimi 先按通配数量选出必须参与配对的候选值，再用二分查找限定候选和，0.15 秒。</li>
@@ -572,17 +576,17 @@ def results():
 <p>按 Huang 等 {cite("huang", page="method.html")} 的口径（与 <code>cb quality</code> 相同）：Pylint 3.3.5、Radon 6.0.1{"、SonarQube 10.4" if qg.SONAR else ""}，每份答案原样分析，不合成总分。Kimi 的 <code>abc399_e</code> 没有代码，不计入；“全部答案”与“仅通过”只差 Kimi 的 <code>abc398_g</code> 一份。</p>
 <h4 class="tcap">问题数（每份答案平均）</h4>
 {qual_html([("全部答案", qg.T_ISSUES_ALL), ("仅通过的答案", qg.T_ISSUES_OK)], qg.ISSUE_COLS, 2, qg.ISSUE_GROUPS)}
-<p class="note">C 规范、R 重构、W 警告、E 错误；得分 0–10，越高越好{"；SonarQube 为可维护性、可靠性、安全三类问题数" if qg.SONAR else ""}。粗体为合计行中最优。每份答案都有一条“缺少末尾换行”（C0304），来自答案提取，三个模型相同。Kimi 的 1 个 E 是 <code>arc196_c</code> 导入 numpy（分析环境未安装 numpy）。</p>
+<p class="note">{LEGEND}。C 规范、R 重构、W 警告、E 错误，均为问题条数；得分 0–10{"；SonarQube 为可维护性、可靠性、安全三类问题数" if qg.SONAR else ""}。粗体为合计行中最优。每份答案都有一条“缺少末尾换行”（C0304），来自答案提取，三个模型相同。Kimi 的 1 个 E 是 <code>arc196_c</code> 导入 numpy（分析环境未安装 numpy）。</p>
 <h4 class="tcap">结构与规模（Radon，每份答案平均）</h4>
 {qual_html([("全部答案", qg.T_RADON_ALL), ("仅通过的答案", qg.T_RADON_OK)], qg.RADON, 1, None)}
-<p class="note">CC 为 <code>radon cc -j</code> 全部条目之和（类与它的方法各计一条）；MI 为可维护性指数，0–100，越高越好；Func 为条目数；LOC、LLOC、SLOC、CMT、BLN 分别为总行、逻辑行、有效行、注释行、空行。</p>
+<p class="note">{LEGEND}；没有箭头的列只描述规模，不分好坏。CC 为圈复杂度，<code>radon cc -j</code> 全部条目之和（类与它的方法各计一条）；难题本身需要更多分支，且代码越长 CC 越高，宜结合下表每 100 有效行的密度看。MI 为可维护性指数，0–100，20 以上为易维护；Func 为条目数；LOC、LLOC、SLOC、CMT、BLN 分别为总行、逻辑行、有效行、注释行、空行。</p>
 <h4 class="tcap">每 100 有效行（仅通过的答案）</h4>
 {qual_html([(None, qg.T_DENSITY)], qg.DENSITY, 2, qg.DENSITY_GROUPS)}
-<p class="note">各题之和 ÷ SLOC 之和 × 100。</p>
+<p class="note">各题之和 ÷ SLOC 之和 × 100。↓ 越小越好；Func 只描述代码拆分方式，不分好坏。</p>
 <ul class="list">{"".join(f"<li>{h}</li>" for _, h in qg.bullets())}</ul>
 <h4 class="tcap">补充（不属于上述口径）</h4>
-{table([("模型", ""), ("嵌套深度中位数", "n"), ("嵌套深度最大", "n"), ("AtCoder 读入方式（题数）", "")], sup)}
-<p class="note">基于 {len(perfgen.st_common)} 道三个模型都通过的题；嵌套深度为语法树中复合语句的最大嵌套层数。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。</p>
+{table([("模型", ""), ("嵌套深度中位数" + DN, "n"), ("嵌套深度最大" + DN, "n"), ("AtCoder 读入方式（题数）", "")], sup)}
+<p class="note">基于 {len(perfgen.st_common)} 道三个模型都通过的题；嵌套深度为语法树中复合语句的最大嵌套层数，越小越好；读入方式只作描述。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。</p>
 </div></section>
 <section class="section"><div class="wrap">
 <h2 id="analysis">分析</h2>

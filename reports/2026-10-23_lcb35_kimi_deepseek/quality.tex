@@ -3,7 +3,7 @@
 \toprule
  & & & \multicolumn{6}{c}{Pylint} & \multicolumn{3}{c}{SonarQube} \\
 \cmidrule(lr){4-9}\cmidrule(lr){10-12}
-模型 & 难度 & 份数 & Pylint 合计 & C & R & W & E & 得分 & 可维护性 & 可靠性 & 安全 \\
+模型 & 难度 & 份数 & Pylint 合计\,$\downarrow$ & C\,$\downarrow$ & R\,$\downarrow$ & W\,$\downarrow$ & E\,$\downarrow$ & 得分\,$\uparrow$ & 可维护性\,$\downarrow$ & 可靠性\,$\downarrow$ & 安全\,$\downarrow$ \\
 \midrule
 \multicolumn{12}{@{}l}{\textit{全部答案}} \\
 Kimi & 中等 & 10 & 3.90 & 3.50 & 0.40 & 0.00 & 0.00 & 7.87 & 0.60 & 0.00 & 0.00 \\
@@ -31,7 +31,7 @@ DS-Pro & 中等 & 10 & 6.10 & 5.40 & 0.60 & 0.10 & 0.00 & 7.39 & 0.70 & 0.00 & 0
 \newcommand{\QualRadonTable}{%
 \begin{tabular}{@{}llrrrrrrrrr@{}}
 \toprule
-模型 & 难度 & 份数 & CC & MI & Func & LOC & LLOC & SLOC & CMT & BLN \\
+模型 & 难度 & 份数 & CC\,$\downarrow$ & MI\,$\uparrow$ & Func & LOC & LLOC & SLOC & CMT & BLN \\
 \midrule
 \multicolumn{11}{@{}l}{\textit{全部答案}} \\
 Kimi & 中等 & 10 & 8.5 & 65.3 & 1.2 & 33.6 & 24.8 & 24.8 & 1.7 & 7.2 \\
@@ -61,7 +61,7 @@ DS-Pro & 中等 & 10 & 12.2 & 56.2 & 1.3 & 37.0 & 30.9 & 30.3 & 0.5 & 6.2 \\
 \toprule
  & & & \multicolumn{5}{c}{Pylint} & \multicolumn{2}{c}{Radon} & \multicolumn{3}{c}{SonarQube} \\
 \cmidrule(lr){4-8}\cmidrule(lr){9-10}\cmidrule(lr){11-13}
-模型 & 难度 & 份数 & Pylint 合计 & C & R & W & E & CC & Func & 可维护性 & 可靠性 & 安全 \\
+模型 & 难度 & 份数 & Pylint 合计\,$\downarrow$ & C\,$\downarrow$ & R\,$\downarrow$ & W\,$\downarrow$ & E\,$\downarrow$ & CC\,$\downarrow$ & Func & 可维护性\,$\downarrow$ & 可靠性\,$\downarrow$ & 安全\,$\downarrow$ \\
 \midrule
 Kimi & 中等 & 10 & 15.73 & 14.11 & 1.61 & 0.00 & 0.00 & 34.27 & 4.84 & 2.42 & 0.00 & 0.00 \\
  & 困难 & 23 & 12.90 & 7.61 & 2.68 & 2.54 & 0.07 & 28.96 & 3.66 & 1.48 & 0.00 & 0.00 \\

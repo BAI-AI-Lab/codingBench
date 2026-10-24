@@ -184,7 +184,7 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \bottomrule
 \end{tabular}
 \end{center}
-{\footnotesize 粗体为该行最优。1 题 = 2.9 个百分点。有效运行时间 = 成功请求覆盖的时长。}
+{\footnotesize $\uparrow$ 越大越好，$\downarrow$ 越小越好，没有箭头的行只作描述；粗体为该行最优。1 题 = 2.9 个百分点。有效运行时间 = 成功请求覆盖的时长。}
 
 \begin{center}
 \begin{tikzpicture}
@@ -206,7 +206,7 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \small
 \begin{tabular}{@{}llcccc@{}}
 \toprule
-难度 & 模型 & 通过 & 延迟中位数（秒） & 平均输出 token & 最多输出 token \\
+难度 & 模型 & 通过\,$\uparrow$ & 延迟中位数（秒）\,$\downarrow$ & 平均输出 token\,$\downarrow$ & 最多输出 token\,$\downarrow$ \\
 \midrule
 \DiffRows
 \bottomrule
@@ -217,7 +217,7 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \Analysis
 
 \subsection{逐题结果}
-{\footnotesize 每个模型：结果 / 输出 token（含思考）/ 延迟（秒）。$^{\dagger}$ 评测中 API 返回的内容与题目无关，人工另行调用验证正确，按通过计。}
+{\footnotesize 每个模型：结果 / 输出 token（含思考，越小越好）/ 延迟（秒，越小越好）。$^{\dagger}$ 评测中 API 返回的内容与题目无关，人工另行调用验证正确，按通过计。}
 {\scriptsize
 \setlength{\tabcolsep}{3pt}
 \begin{longtable}{@{}llclrrlrrlrr@{}}
@@ -261,27 +261,27 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \toprule
 题号 & 难度 & 类型 & 最大输入 KB & \multicolumn{2}{c}{Kimi K3.1 Pro} & \multicolumn{2}{c}{DS-V4.1-Flash} & \multicolumn{2}{c}{DS-V4-Pro} \\
 \cmidrule(lr){5-6}\cmidrule(lr){7-8}\cmidrule(l){9-10}
- & & & & CPU 秒 & MB & CPU 秒 & MB & CPU 秒 & MB \\
+ & & & & CPU 秒\,$\downarrow$ & MB\,$\downarrow$ & CPU 秒\,$\downarrow$ & MB\,$\downarrow$ & CPU 秒\,$\downarrow$ & MB\,$\downarrow$ \\
 \midrule
 \PerfRows
 \bottomrule
 \end{tabular}
 \end{center}
-{\footnotesize CPU 秒为最慢一个测试的 CPU 时间（3 次取中位数，扣除启动）；粗体为该题最快；括号内为相对最快者的倍数（$\ge 2$ 时标出）。MB 为该题各测试中的最大峰值内存。AC = AtCoder，LC = LeetCode。}
+{\footnotesize $\downarrow$ 越小越好。CPU 秒为最慢一个测试的 CPU 时间（3 次取中位数，扣除启动）；粗体为该题最快；括号内为相对最快者的倍数（$\ge 2$ 时标出）。MB 为该题各测试中的最大峰值内存。AC = AtCoder，LC = LeetCode。}
 
 \subsection{汇总}
 \begin{center}
 \small
 \begin{tabular}{@{}lcccccc@{}}
 \toprule
-模型 & 相对最快倍数 & 最快 & 慢 $\ge 2$ 倍 & CPU 合计 & \multicolumn{2}{c}{峰值内存（MB）} \\
+模型 & 相对最快倍数\,$\downarrow$ & 最快\,$\uparrow$ & 慢 $\ge 2$ 倍\,$\downarrow$ & CPU 合计\,$\downarrow$ & \multicolumn{2}{c}{峰值内存（MB）\,$\downarrow$} \\
  & （几何平均） & （题） & （题） & （秒） & 中位数 & 最大 \\
 \midrule
 \PerfSummaryRows
 \bottomrule
 \end{tabular}
 \end{center}
-{\footnotesize 基于 \PerfCommon{} 道可比题（三个模型都通过）。CPU 合计为这些题所有测试的 CPU 时间之和。“最快”按严格最小值计；有 3 题第二名与最快相差不到 5\%（噪声范围内）：\texttt{3765}、\texttt{3801} 上 Flash 比 Kimi 慢 3\% 和 2\%，\texttt{abc399\_c} 上 Kimi 比 Pro 慢 3\%。按并列计，Flash 的最快题数为 2。}
+{\footnotesize $\uparrow$ 越大越好，$\downarrow$ 越小越好。基于 \PerfCommon{} 道可比题（三个模型都通过）。CPU 合计为这些题所有测试的 CPU 时间之和。“最快”按严格最小值计；有 3 题第二名与最快相差不到 5\%（噪声范围内）：\texttt{3765}、\texttt{3801} 上 Flash 比 Kimi 慢 3\% 和 2\%，\texttt{abc399\_c} 上 Kimi 比 Pro 慢 3\%。按并列计，Flash 的最快题数为 2。}
 
 \begin{itemize}
   \item \texttt{arc195\_b}（Flash 慢 8.5 倍，内存 91 MB）：Flash 枚举 A、B 所有不同取值的两两组合，复杂度 $O(U\cdot V)$，并把重复的和逐个展开存入列表；Kimi 先按通配数量选出必须参与配对的候选值，再用二分查找限定候选和，0.15 秒。
@@ -300,21 +300,21 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \setlength{\tabcolsep}{3.5pt}
 \QualIssueTable
 \end{center}
-{\footnotesize 每份答案平均问题数。C 规范、R 重构、W 警告、E 错误；得分 0--10，越高越好\ifnum\QualSonar=1；SonarQube 为可维护性、可靠性、安全三类问题数\fi。粗体为合计行中最优。每份答案都有一条“缺少末尾换行”（C0304），来自答案提取，三个模型相同。Kimi 的 1 个 E 是 \texttt{arc196\_c} 导入 numpy（分析环境未安装 numpy）。}
+{\footnotesize 每份答案平均。$\uparrow$ 越大越好，$\downarrow$ 越小越好。C 规范、R 重构、W 警告、E 错误，均为问题条数；得分 0--10\ifnum\QualSonar=1；SonarQube 为可维护性、可靠性、安全三类问题数\fi。粗体为合计行中最优。每份答案都有一条“缺少末尾换行”（C0304），来自答案提取，三个模型相同。Kimi 的 1 个 E 是 \texttt{arc196\_c} 导入 numpy（分析环境未安装 numpy）。}
 
 \begin{center}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \QualRadonTable
 \end{center}
-{\footnotesize 每份答案平均。CC 为 \texttt{radon cc -j} 全部条目之和（类与它的方法各计一条）；MI 为可维护性指数，0--100，越高越好；Func 为条目数；LOC、LLOC、SLOC、CMT、BLN 分别为总行、逻辑行、有效行、注释行、空行。}
+{\footnotesize 每份答案平均。$\uparrow$ 越大越好，$\downarrow$ 越小越好；没有箭头的列只描述规模，不分好坏。CC 为圈复杂度，\texttt{radon cc -j} 全部条目之和（类与它的方法各计一条）；难题本身需要更多分支，且代码越长 CC 越高，宜结合每 100 有效行的密度看。MI 为可维护性指数，0--100，20 以上为易维护；Func 为条目数；LOC、LLOC、SLOC、CMT、BLN 分别为总行、逻辑行、有效行、注释行、空行。}
 
 \begin{center}
 \footnotesize
 \setlength{\tabcolsep}{4pt}
 \QualDensityTable
 \end{center}
-{\footnotesize 仅通过的答案，每 100 有效行（SLOC）的数量：各题之和 $\div$ SLOC 之和 $\times$ 100。}
+{\footnotesize 仅通过的答案，每 100 有效行（SLOC）的数量：各题之和 $\div$ SLOC 之和 $\times$ 100。$\downarrow$ 越小越好；Func 只描述代码拆分方式，不分好坏。}
 
 \begin{itemize}
 \QualBullets
@@ -325,13 +325,13 @@ LeetCode 周赛 / 双周赛 & 9 & 补全给定 Python 函数 \\
 \small
 \begin{tabular}{@{}lccl@{}}
 \toprule
-模型 & 嵌套深度中位数 & 嵌套深度最大 & AtCoder 读入方式（题数） \\
+模型 & 嵌套深度中位数\,$\downarrow$ & 嵌套深度最大\,$\downarrow$ & AtCoder 读入方式（题数） \\
 \midrule
 \StaticRows
 \bottomrule
 \end{tabular}
 \end{center}
-{\footnotesize 基于 \StaticCommon{} 道三个模型都通过的题。嵌套深度为语法树中复合语句的最大嵌套层数。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。}
+{\footnotesize 基于 \StaticCommon{} 道三个模型都通过的题。嵌套深度为语法树中复合语句的最大嵌套层数，越小越好；读入方式只作描述。Kimi 采样温度 1.0、DeepSeek 0.2，风格差异部分来自采样。}
 
 \section{局限}
 \begin{itemize}

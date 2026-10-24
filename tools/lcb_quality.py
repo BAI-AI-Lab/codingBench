@@ -34,6 +34,14 @@ PYLINT_TYPES = ("convention", "refactor", "warning", "error", "fatal")
 SONAR_QUALITIES = ("maintainability", "reliability", "security")
 RADON_SIZES = ("loc", "lloc", "sloc", "comments", "blank")
 DIFFS = ("easy", "medium", "hard")
+HIGHER_BETTER = {"Pylint score", "MI"}
+SIZES = {"Func", "LOC", "LLOC", "SLOC", "CMT", "BLN"}  # describe size only: no better direction
+LEGEND = "↑ higher is better, ↓ lower is better; columns without an arrow describe size only."
+
+
+def head(name):
+    """A column header with its direction mark."""
+    return name if name in SIZES else name + (" ↑" if name in HIGHER_BETTER else " ↓")
 
 
 def parse_pylint(text):
@@ -140,7 +148,7 @@ def summarize(recs, sonar_on):
 
     L = []
     for title, keep in (("All answers", lambda r: True), ("Correct answers only", lambda r: r["passed"])):
-        L += [f"## {title}: mean per answer", "", "| difficulty | n | " + " | ".join(n for n, _ in cols()) + " |",
+        L += [f"## {title}: mean per answer", "", LEGEND, "", "| difficulty | n | " + " | ".join(head(n) for n, _ in cols()) + " |",
               "|---|---|" + "---|" * len(cols())]
         for dname in DIFFS + ("all",):
             g = [r for r in recs if keep(r) and r["radon"] and (dname == "all" or r["difficulty"] == dname)]
@@ -152,7 +160,7 @@ def summarize(recs, sonar_on):
     dens += [("CC", lambda r: r["radon"]["complexity"]), ("Func", lambda r: r["radon"]["functions"])]
     if sonar_on:
         dens += [(f"Sonar {q[:5]}.", lambda r, q=q: r["sonar"][q]) for q in SONAR_QUALITIES]
-    L += ["## Correct answers only: per 100 SLOC", "", "| difficulty | n | SLOC | " + " | ".join(n for n, _ in dens) + " |",
+    L += ["## Correct answers only: per 100 SLOC", "", LEGEND, "", "| difficulty | n | SLOC | " + " | ".join(head(n) for n, _ in dens) + " |",
           "|---|---|---|" + "---|" * len(dens)]
     for dname in DIFFS + ("all",):
         g = [r for r in recs if r["passed"] and r["radon"] and (dname == "all" or r["difficulty"] == dname)]

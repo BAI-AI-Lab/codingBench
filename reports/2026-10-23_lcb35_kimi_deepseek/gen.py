@@ -138,6 +138,7 @@ for k, name, short, _ in MODELS:
 diff_n = collections.Counter(p["difficulty"] for p in problems.values())
 plat_n = collections.Counter(p["platform"] for p in problems.values())
 rows = []
+UP, DN = "\\,$\\uparrow$", "\\,$\\downarrow$"  # higher / lower is better; rows without one only describe
 
 
 def cell(vals, fmt, best=max):
@@ -150,23 +151,23 @@ def by(m, f):
 
 
 ms = [R[k] for k, *_ in MODELS]
-rows.append(["通过（总计 35）"] + cell([sum(m["passed"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
-rows.append([f"中等（{diff_n['medium']}）"] + cell([by(m, lambda p: p["difficulty"] == "medium") for m in ms], str))
-rows.append([f"困难（{diff_n['hard']}）"] + cell([by(m, lambda p: p["difficulty"] == "hard") for m in ms], str))
-rows.append([f"AtCoder（{plat_n['atcoder']}）"] + cell([by(m, lambda p: p["platform"] == "atcoder") for m in ms], str))
-rows.append([f"LeetCode（{plat_n['leetcode']}）"] + cell([by(m, lambda p: p["platform"] == "leetcode") for m in ms], str))
-rows.append(["有效运行时间（分钟）"] + cell([m["wall"] for m in ms], lambda v: f"{v:.0f}", min))
-rows.append(["每题延迟中位数（秒）"] + cell([statistics.median(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min))
-rows.append(["每题延迟 P90（秒）"] + cell([pct(list(m["lat"].values()), 90) for m in ms], lambda v: f"{v:.0f}", min))
-rows.append(["每题延迟最长（秒）"] + cell([max(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min))
-rows.append(["输出速度中位数（token/秒）"] + cell(
+rows.append(["通过（总计 35）" + UP] + cell([sum(m["passed"].values()) for m in ms], lambda v: f"{v}（{100 * v / 35:.1f}\\%）"))
+rows.append([f"中等（{diff_n['medium']}）" + UP] + cell([by(m, lambda p: p["difficulty"] == "medium") for m in ms], str))
+rows.append([f"困难（{diff_n['hard']}）" + UP] + cell([by(m, lambda p: p["difficulty"] == "hard") for m in ms], str))
+rows.append([f"AtCoder（{plat_n['atcoder']}）" + UP] + cell([by(m, lambda p: p["platform"] == "atcoder") for m in ms], str))
+rows.append([f"LeetCode（{plat_n['leetcode']}）" + UP] + cell([by(m, lambda p: p["platform"] == "leetcode") for m in ms], str))
+rows.append(["有效运行时间（分钟）" + DN] + cell([m["wall"] for m in ms], lambda v: f"{v:.0f}", min))
+rows.append(["每题延迟中位数（秒）" + DN] + cell([statistics.median(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min))
+rows.append(["每题延迟 P90（秒）" + DN] + cell([pct(list(m["lat"].values()), 90) for m in ms], lambda v: f"{v:.0f}", min))
+rows.append(["每题延迟最长（秒）" + DN] + cell([max(m["lat"].values()) for m in ms], lambda v: f"{v:.0f}", min))
+rows.append(["输出速度中位数（token/秒）" + UP] + cell(
     [statistics.median(m["out"][q] / m["lat"][q] for q in m["lat"] if m["lat"][q] > 0) for m in ms], lambda v: f"{v:.0f}"))
-rows.append(["输出 token 合计"] + [ktok(m["tot"][2]) for m in ms])
+rows.append(["输出 token 合计" + DN] + cell([m["tot"][2] for m in ms], ktok, min))
 rows.append(["其中思考 token 占比"] + [f"{100 * m['tot'][3] / m['tot'][2]:.0f}\\%" if m["tot"][2] else "—" for m in ms])
-rows.append(["每题输出 token 中位数"] + cell([statistics.median(m["out"].values()) for m in ms], ktok, min))
+rows.append(["每题输出 token 中位数" + DN] + cell([statistics.median(m["out"].values()) for m in ms], ktok, min))
 rows.append(["输入 token 合计（缓存命中）"] + [f"{ktok(m['tot'][0])}（{ktok(m['tot'][1])}）" for m in ms])
-rows.append(["费用（美元，按 token 计）"] + cell([m["cost"] for m in ms], lambda v: f"\\${v:.2f}", min))
-rows.append(["每道通过题的费用（美元）"] + cell([m["cost"] / max(1, sum(m["passed"].values())) for m in ms],
+rows.append(["费用（美元，按 token 计）" + DN] + cell([m["cost"] for m in ms], lambda v: f"\\${v:.2f}", min))
+rows.append(["每道通过题的费用（美元）" + DN] + cell([m["cost"] / max(1, sum(m["passed"].values())) for m in ms],
                                        lambda v: f"\\${v:.3f}", min))
 L.append("\\newcommand{\\OverallRows}{%")
 L += [" & ".join(r) + " \\\\" for r in rows]

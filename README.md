@@ -29,7 +29,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 每次评测都要跑 `cb quality`，按 Huang 等人的 *Beyond Functional Correctness: Static Code Quality Profiling of LLM-Generated Code*（arXiv:2610.19167）的口径输出静态代码质量：
 - 工具与版本：Pylint 3.3.5（默认配置）、Radon 6.0.1（命令行）、SonarQube 10.4 Community（可选，`--sonar`），在单独的 Python 3.12 环境 `venvs/quality` 里运行。
 - 每份答案原样分析，不补 import；空答案跳过。Pylint 统计 C/R/W/E/F 各类问题数和 0–10 分；Radon 的圈复杂度是 `cc -j` 所有条目之和（类和它的方法各算一条，与论文一致），另有 MI、函数数、LOC、LLOC、SLOC、注释行、空行；SonarQube 统计可维护性、可靠性、安全三类问题数。
-- 输出 `quality.jsonl`（每份答案一行）和 `quality.md`（三张表：全部答案的每份平均、只算通过答案的每份平均，均按难度分；通过答案每 100 SLOC 的问题密度）。不合成总分。“通过”用 `rejudge.jsonl` 的复核结果，没有复核时用 LCB 判分。
+- 输出 `quality.jsonl`（每份答案一行）和 `quality.md`（三张表：全部答案的每份平均、只算通过答案的每份平均，均按难度分；通过答案每 100 SLOC 的问题密度）。不合成总分。表头标出方向：↑ 越大越好（Pylint 得分、MI），↓ 越小越好（各类问题数、圈复杂度），没有箭头的列（函数数、各类行数）只描述规模；写进报告或网站的表格也要这样标。“通过”用 `rejudge.jsonl` 的复核结果，没有复核时用 LCB 判分。
 - SonarQube：先以 root 运行 `deploy/sonarqube.sh start`（本机 Docker 容器，只监听 127.0.0.1:9000，令牌写在 `/root/.config/code_bench/sonar.env`），再 `set -a; source /root/.config/code_bench/sonar.env; set +a; cb quality <运行目录> --sonar`，用完 `deploy/sonarqube.sh stop`。
 
 可选的环境变量：

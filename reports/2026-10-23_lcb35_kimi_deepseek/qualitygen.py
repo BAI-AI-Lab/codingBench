@@ -61,6 +61,12 @@ def best(table, col, low=True):
 
 ISSUE_COLS = ISSUES + (SONAR_COLS if SONAR else [])
 HIGHER_BETTER = {"得分", "MI"}
+NEUTRAL = {"Func", "LOC", "LLOC", "SLOC", "CMT", "BLN"}  # size only: no better direction, never bold
+
+
+def arrow(h, up, down):
+    """The direction mark after a column header: up (higher is better), down (lower is better), none for a size."""
+    return "" if h in NEUTRAL else up if h in HIGHER_BETTER else down
 
 
 def tex_rows(table, cols, nd=2):
@@ -71,7 +77,7 @@ def tex_rows(table, cols, nd=2):
         for j, v in enumerate(vals):
             s = "—" if v is None else f"{v:.{nd}f}"
             if dn == "合计" and v is not None and bests[j] is not None and round(v, nd) == round(bests[j], nd) \
-                    and cols[j][0] not in ("LOC", "LLOC", "SLOC", "CMT", "BLN", "Func"):
+                    and cols[j][0] not in NEUTRAL:
                 s = f"\\textbf{{{s}}}"
             cells.append(s)
         head = (name if dn == "中等" else "") + f" & {dn} & {n}"
@@ -94,7 +100,7 @@ def tex_table(blocks, cols, nd, groups):
             rules.append(f"\\cmidrule(lr){{{pos}-{pos + k - 1}}}")
             pos += k
         L.append("".join(rules))
-    L.append("模型 & 难度 & 份数 & " + " & ".join(h for h, _ in cols) + " \\\\")
+    L.append("模型 & 难度 & 份数 & " + " & ".join(h + arrow(h, "\\,$\\uparrow$", "\\,$\\downarrow$") for h, _ in cols) + " \\\\")
     L.append("\\midrule")
     for bi, (label, table) in enumerate(blocks):
         if bi:
