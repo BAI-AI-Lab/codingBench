@@ -66,7 +66,7 @@ def build(meta, code, lang, work):
     if j["kind"] in ("grader", "communication"):
         sources.append(os.path.join(cdir, j["grader"]))
         includes.append(cdir)
-        flags = ["-O2", "-pipe", "-std=gnu++20"]  # IOI 2026 compiles with C++20
+        flags = ["-DEVAL", "-O2", "-pipe", "-std=gnu++20"]  # IOI 2026's CMS command, minus -static -s
     ok, log = L.compile_cpp(sources, os.path.join(work, "sol"), includes=includes, flags=flags)
     return ([os.path.join(work, "sol")], None) if ok else (None, log)
 
