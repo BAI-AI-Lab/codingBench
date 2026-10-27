@@ -7,7 +7,8 @@
 \setCJKmainfont{Kaiti.ttc}[Path=\KaiPath, FontIndex=0, BoldFont=Kaiti.ttc, BoldFeatures={FontIndex=3}]
 \setCJKsansfont{Kaiti.ttc}[Path=\KaiPath, FontIndex=0, BoldFont=Kaiti.ttc, BoldFeatures={FontIndex=3}]
 \setCJKmonofont{Kaiti.ttc}[Path=\KaiPath, FontIndex=0]
-\usepackage{booktabs,tabularx,array,multirow}
+\usepackage{amsmath}
+\usepackage{booktabs,tabularx,array,multirow,longtable}
 \usepackage{enumitem}
 \usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
@@ -129,7 +130,7 @@ L5 开放式 & FrontierCS 算法赛道（按类别抽样） & 30 & 题库 v1.1 &
 
 \subsection{计分}
 \begin{itemize}
-  \item \textbf{每题得分（0--100）}按来源的官方规则计算：
+  \item \textbf{每题得分（0--100）}按来源的官方规则计算（公式见第 5 节）：
     \begin{itemize}
       \item USACO：每个测试点分值相同；
       \item EGOI、IOI：子任务取其中所有测试点的最低分，再乘以该子任务的分值（CMS GroupMin）；
@@ -163,26 +164,7 @@ L5 开放式 & FrontierCS 算法赛道（按类别抽样） & 30 & 题库 v1.1 &
 \end{itemize}
 输入大小变化不足 8 倍，或可测的测试点少于 4 个时，规模和真实的 $n$ 关系不大（例如输入只有一个 $N \le 10^{18}$ 的数），记为不可测。时间和空间分别判定。增长慢于官方解的答案会在报告中单独列出，供人工复核是否真的是更优的解法。
 
-\section{评测维度}
-\begin{center}
-\small
-\begin{tabularx}{\linewidth}{@{}l>{\raggedright}p{6.2cm}cL@{}}
-\toprule
-维度 & 指标 & 方向 & 说明 \\
-\midrule
-正确性 & pass@1（宽时限）、平均得分（宽时限）、pass@$n$ & ↑ & 算法是否正确；得分含部分分 \\
-效率 & pass@1 与平均得分（官方时限） & ↑ & 是否在人类选手的时限内通过 \\
- & 运行时间倍数（相对官方解，几何平均） & ↓ & 同语言、同测试点、交替重复测量 \\
- & 峰值内存倍数（相对官方解） & ↓ & 来自判题时的资源统计 \\
-复杂度 & 时间、空间增长幂次 $k$；相对官方解的更优、相同、更差（$\Delta k$） & -- & 更优者单列，作为可能更新颖的解法 \\
-失败类型 & 无代码、编译错误、答案错误、部分分、运行错误、超内存、超时、只在官方时限下超时 & -- & 定位模型失分的原因 \\
-静态质量 & Pylint 问题数与得分、圈复杂度、可维护性指数、SLOC、SonarQube（L1--L2） & 见表头 & 沿用 arXiv:2610.19167 的口径与工具版本 \\
-成本与时延 & 输出 token、费用、延迟、首个 token 时间 & ↓ & 来自每次 API 调用的记录 \\
-泄露检查 & 同档内 2026 子集与 USACO 子集分开报告 & -- & 新题明显更差时提示旧题可能见过 \\
-\bottomrule
-\end{tabularx}
-\end{center}
-所有表格都标出方向：↑ 越大越好，↓ 越小越好，没有箭头的只作描述。
+\input{criteria.tex}
 
 \section{预期结果}
 以下是根据已有数据作出的预测，不是测量结果；它们的作用是给出判断标尺，实际数字以评测为准。

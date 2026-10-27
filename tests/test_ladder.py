@@ -177,6 +177,12 @@ def main():
         check(all(c.get("first_token") and c.get("usage") for c in calls), "usage log: first-token time and usage per call")
         subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", run], env=env, check=True)
         check(len([json.loads(l) for l in open(os.path.join(run, "usage.jsonl"))]) == len(calls), "re-run asks nothing again")
+        with open(os.path.join(run, "answers.jsonl"), "a") as f:  # a sample whose retries all failed
+            f.write(json.dumps({"q": "t-sum-py#1", "pid": "t-sum-py", "k": 1, "tier": "L1", "lang": "python", "code": "",
+                                "finish": "error", "code_hash": "x"}) + "\n")
+        subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", run], env=env, check=True)
+        check(len([json.loads(l) for l in open(os.path.join(run, "usage.jsonl"))]) == len(calls),
+              "re-run: a failed sample with an answer in the usage log is recovered, not asked again")
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_judge.py"), run, "--workers", "4",
                         "--perf-reps", "1", "--min-ref-cpu", "0"], env=env, check=True)
         judged = {json.loads(l)["q"]: json.loads(l) for l in open(os.path.join(run, "judge.jsonl"))}

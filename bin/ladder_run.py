@@ -173,7 +173,11 @@ def main():
             if r.get("content") and r["content"][0].strip():
                 have[r["q"]] = r
     ans_path = os.path.join(a.out, "answers.jsonl")
-    done = {json.loads(l)["q"] for l in open(ans_path)} if os.path.exists(ans_path) else set()
+    # a sample whose retries all failed (finish "error", no code) is asked again on the next run
+    last = {}
+    for r in (map(json.loads, open(ans_path)) if os.path.exists(ans_path) else []):
+        last[r["q"]] = r  # the last answer per sample counts (as in the judge)
+    done = {q for q, r in last.items() if r.get("finish") != "error"}
 
     def answer(rec, p, k):
         code = L.extract_code(rec["content"][0], metas[p]["lang"]) if rec.get("content") else ""
