@@ -27,6 +27,8 @@ import lcb_usage as U  # noqa: E402
 
 TIER_NAME = {"L1": "L1 基础", "L2": "L2 中等", "L3": "L3 困难", "L4": "L4 顶尖", "L5": "L5 开放式"}
 FAIL_ORDER = ("no code", "CE", "WA", "partial", "RE", "MLE", "TLE", "slow", "JE")
+FAIL_NAME = {"no code": "无代码", "CE": "编译错误", "WA": "答案错误", "partial": "部分分", "RE": "运行错误", "MLE": "超内存",
+             "TLE": "超时", "slow": "只在官方时限下超时", "JE": "判题错误"}
 
 
 def jl(path):
@@ -272,7 +274,7 @@ def md_report(stats, date):
     for t in L.TIERS:
         if any(s["tiers"].get(t, {}).get("perf_n") for s in stats):
             L_.append(f"| {TIER_NAME[t]}：CPU 时间倍数（几何平均）↓ | " + " | ".join(
-                f"{f1(s['tiers'].get(t, {}).get('perf_geo'), 2, '×')}（{s['tiers'].get(t, {}).get('perf_n', 0)} 题）" for s in stats) + " |")
+                f"{f1(s['tiers'].get(t, {}).get('perf_geo'), 2, '×')}（{s['tiers'].get(t, {}).get('perf_n', 0)} 份答案）" for s in stats) + " |")
     L_ += ["", "## 时间与空间复杂度（相对官方解，同一批官方测试）", "",
            "按输入大小拟合增长幂次 k（log 时间或内存 对 log 输入大小的斜率，扣除空程序开销），与官方解比较："
            "更优 = 增长慢于官方解（dk ≤ -0.3，可能是更好或更新颖的解法），相同 = |dk| < 0.3，更差 = dk ≥ 0.3。", "",
@@ -295,7 +297,7 @@ def md_report(stats, date):
                                                         for m, t, k, q in nov)] if nov else ["- 没有增长慢于官方解的答案。"])
     L_ += ["", "## 失败类型（答案数）", ""]
     for s in stats:
-        L_.append(f"- {s['model']}：" + "；".join(f"{TIER_NAME[t]} " + "，".join(f"{k} {v}" for k, v in sorted(
+        L_.append(f"- {s['model']}：" + "；".join(f"{TIER_NAME[t]} " + "，".join(f"{FAIL_NAME[k]} {v}" for k, v in sorted(
             st["fails"].items(), key=lambda kv: FAIL_ORDER.index(kv[0]))) for t, st in s["tiers"].items() if st["fails"]))
     L_ += ["", "## 静态质量（L1–L2 Python，正确答案）", "", "| 指标 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
     for key, name in (("pylint_issues", "Pylint 问题数 ↓"), ("pylint_score", "Pylint 分 ↑"), ("cc", "圈复杂度 CC ↓"),
@@ -310,7 +312,7 @@ def md_report(stats, date):
     for s in stats:
         L_ += [f"### {s['model']}", "", "| 题目 | 档 | 子集 | 解出 / 采样 | 平均得分 | 主要失败 |", "|---|---|---|---:|---:|---|"]
         for pid, p in s["per_problem"].items():
-            L_.append(f"| {pid} {p['title']} | {p['tier']} | {p['subset']} | {p['solved']}/{p['n']} | {p['score']:.1f} | {p['fail'] or ''} |")
+            L_.append(f"| {pid} {p['title']} | {p['tier']} | {p['subset']} | {p['solved']}/{p['n']} | {p['score']:.1f} | {FAIL_NAME.get(p['fail'], '')} |")
         L_.append("")
     return "\n".join(L_) + "\n"
 
@@ -378,7 +380,7 @@ def tex_report(stats, date):
                                       for s in stats] for t in L.TIERS if any(s["tiers"].get(t, {}).get("perf_n") for s in stats)]
     if prow:
         parts.append(r"\section{代码性能}")
-        parts.append("解出的答案在官方解最慢的 3 个测试点上与官方解交替各跑 3 次取中位数；表中为答案 CPU 时间 ÷ 官方解（几何平均，括号内为题数）。")
+        parts.append("解出的答案在官方解最慢的 3 个测试点上与官方解交替各跑 3 次取中位数；表中为答案 CPU 时间 ÷ 官方解（几何平均，括号内为答案份数）。")
         parts.append(tex_table(["档位"] + models, prow, spec))
     if any(s["complexity"] for s in stats):
         parts.append(r"\section{时间与空间复杂度}")
@@ -407,7 +409,7 @@ def tex_report(stats, date):
         for k in FAIL_ORDER:
             vals = [str(s["tiers"].get(t, {}).get("fails", {}).get(k, 0)) for s in stats]
             if any(v != "0" for v in vals):
-                frows.append([f"{TIER_NAME[t]}：{k}"] + vals)
+                frows.append([f"{TIER_NAME[t]}：{FAIL_NAME[k]}"] + vals)
     parts.append(tex_table(["档位与类型"] + models, frows or [["无"] + [""] * len(models)], spec))
     if any(s["quality"].get("correct") for s in stats):
         parts.append(r"\section{静态质量（L1--L2，Python）}")
@@ -425,7 +427,7 @@ def tex_report(stats, date):
     for s in stats:
         parts.append(rf"\subsection*{{{tex(s['model'])}}}")
         parts += [r"{\small\begin{longtable}{llrrl}", r"\toprule 题目 & 档 & 解出/采样 & 得分 & 主要失败 \\ \midrule \endhead"]
-        parts += [rf"{tex(pid)} {tex(p['title'])} & {p['tier']} & {p['solved']}/{p['n']} & {p['score']:.1f} & {tex(p['fail'] or '')} \\"
+        parts += [rf"{tex(pid)} {tex(p['title'])} & {p['tier']} & {p['solved']}/{p['n']} & {p['score']:.1f} & {tex(FAIL_NAME.get(p['fail'], ''))} \\"
                   for pid, p in s["per_problem"].items()]
         parts += [r"\bottomrule", r"\end{longtable}}"]
     parts.append(r"\end{document}")
