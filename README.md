@@ -72,6 +72,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 - 判题在本机进行，不用 Docker：答案以 `bench` 用户运行，经一个小的 `python -I -S` 启动器设置内存、栈、CPU、输出大小上限并绑核，CPU 时间和峰值内存取自子进程的 rusage。每个测试点只跑一次，时限放宽到官方的 `LADDER_LENIENT` 倍（默认 5 倍）；按 CPU 时间同时得出“宽时限”（算法对不对）和“官方时限”（够不够快）两种判定。USACO 按空白分隔的 token 比对，EGOI/IOI 用官方 checker 和 grader，FrontierCS 用官方 testlib checker/interactor（规则照搬它的 judge_engine.js）。
 - 建库时（`cb ladder-build --calibrate`）先把每题的所有官方题解在全部测试上判一遍：没有一份官方解能通过的题不进清单；通过的官方解里最快的一份作为性能对照。
 - 代码性能：解出的答案在官方解最慢的 3 个测试点上和官方解交替各跑 3 次取中位数，报告“答案 CPU 时间 ÷ 官方解”的几何平均。
+- 时间与空间复杂度：每份解出的答案在官方测试上按输入大小拟合增长幂次 k（log CPU 时间或峰值内存对 log 输入字节数的斜率，扣除空程序的开销），与官方解在同一批测试点上比：增长慢于官方解（Δk ≤ −0.3）为“更优”，可能是更好或更新颖的解法，报告里单独列出供人工复核；|Δk| < 0.3 为“相同”；Δk ≥ 0.3 为“更差”（即使通过了时限）。输入大小变化不足 8 倍或可测测试点少于 4 个的题记为不可测（`tools/ladder_complexity.py`，写 `complexity.jsonl`）。
 - 静态质量：L1–L2 的 Python 答案按 arXiv:2610.19167 的口径（同 `cb quality`）；C++ 档位不做（这些工具只支持 Python，SonarQube 10.4 社区版不分析 C/C++）。
 - 2026 子集（EGOI、IOI）和同档的 USACO 题分开报告：难度相当而新题明显更差时，旧题成绩可能受训练数据泄露影响。
 
@@ -81,7 +82,7 @@ cb ladder-build             # 把下载的数据整理成题目；再 cb ladder-
 cb ladder-build --manifest $CB/data/ladder/ladder.json   # 写出题目清单（只有编号、档位、日期、时限）；核对后复制成仓库里的 samples/ladder.json
 export MODEL=... OPENAI_BASE_URL=... OPENAI_API_KEY=...
 cb ladder --smoke           # 每档只跑第一题，先确认接口和格式
-cb ladder                   # 全量：生成 → 判题 → 性能复测 → 静态质量 → 报告（runs/<模型>/ladder-full/report/）
+cb ladder                   # 全量：生成 → 判题 → 性能复测 → 复杂度 → 静态质量 → 报告（runs/<模型>/ladder-full/report/）
 cb progress <模型>/ladder-full --watch 30         # 跑的过程中看进度（同 LiveCodeBench）
 cb ladder-report <运行A> <运行B> --out <目录>     # 多个模型放在一份报告里对比；有 xelatex 就直接出 PDF
 ```

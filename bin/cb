@@ -25,7 +25,8 @@
 #
 # Ladder test set (L1-L4 USACO 2024-26 + EGOI/IOI 2026, L5 FrontierCS; samples/ladder.json):
 #   cb ladder [--smoke] [--tiers L1,L2] [--only pid,...]   # generate, judge, time against the official solutions,
-#                          # static quality (Python tiers), report; run dir runs/<model>/ladder-<full|smoke>
+#                          # empirical time/space complexity vs the official solution, static quality (Python tiers),
+#                          # report; run dir runs/<model>/ladder-<full|smoke>
 #   cb ladder-judge <run dir>     # (re-)judge a ladder run; cb ladder-report <run dir>... [--out dir] compares runs
 #   cb ladder-data [--status]     # download the sources (resumable) / show progress; cb ladder-build [--calibrate]
 #
@@ -80,7 +81,7 @@ post() {  # every evaluation also gets its re-judged score, latency and cost, st
   echo "=== post-processing done  $(date +%T)"
 }
 
-[ $# -ge 1 ] || { sed -n 2,44p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,45p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
 LPY=$CB/venvs/livecodebench/bin/python   # Python 3.11 with openai, httpx, PyYAML; also the judge's Python for answers
 ladder_post() {  # judge, performance, static quality, report of one ladder run
@@ -88,6 +89,7 @@ ladder_post() {  # judge, performance, static quality, report of one ladder run
   [ -n "${SONAR_URL:-}" ] && sonar=(--sonar)
   echo "=== judging $d  $(date +%T)"
   $LPY $CB/tools/ladder_judge.py "$d" || echo "=== judge FAILED" >&2
+  $LPY $CB/tools/ladder_complexity.py "$d" || echo "=== complexity FAILED" >&2
   SONAR_USER_HOME=$CB/.cache/sonar $CB/venvs/quality/bin/python $CB/tools/ladder_quality.py "$d" "${sonar[@]}" \
     || echo "=== quality FAILED" >&2
   $LPY $CB/tools/ladder_report.py "$d" --out "$d/report" || echo "=== report FAILED" >&2

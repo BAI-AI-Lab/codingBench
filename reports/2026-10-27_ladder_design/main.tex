@@ -40,6 +40,7 @@
   \item 宽时限下的正确性；
   \item 官方时限下的正确性；
   \item 相对官方解的运行时间与内存；
+  \item 相对官方解的时间、空间复杂度增长阶（是否用了更优或更差的解法）；
   \item Python 档位的静态代码质量。
 \end{itemize}
 评测流程已实现为一条命令（\texttt{cb ladder}）：接入模型 API 后自动生成、判题、复测性能并输出报告。
@@ -150,6 +151,18 @@ L5 开放式 & FrontierCS 算法赛道（按类别抽样） & 30 & 题库 v1.1 &
 \end{itemize}
 只有官方解在测试点上至少需要 0.05 秒 CPU 的题才做这项对照，否则时间主要是进程启动开销。Python 档只与 Python 官方解比较，没有 Python 官方解的题不做这项对照。
 
+\subsection{时间与空间复杂度}
+正确率只说明“做没做对”，复杂度还能说明“用了什么样的解法”。一份答案如果增长得比官方解还慢，往往意味着更好或更新颖的算法；增长得更快，则说明它虽然在这批测试上通过了，但算法在渐近意义上更差。
+
+方法参照 BigO(Bench)\cite{bigo} 一类基于规模扫描的复杂度推断，不同的是不另外生成输入，直接用官方测试：
+\begin{itemize}
+  \item 每个测试点的输入字节数作为规模 $x$；
+  \item 答案在该测试点上的 CPU 时间（或峰值内存）扣除同语言空程序的开销，作为 $y$；
+  \item 在 $y$ 高于噪声下限的测试点上，拟合 $\log y = a + k \log x$，斜率 $k$ 就是经验增长幂次；
+  \item 在答案与官方解都可测的测试点上，拟合 $\log(y_{\text{答案}}/y_{\text{官方}})$ 对 $\log x$ 的斜率 $\Delta k$：$\Delta k \le -0.3$ 记为更优，$|\Delta k| < 0.3$ 记为相同，$\Delta k \ge 0.3$ 记为更差。
+\end{itemize}
+输入大小变化不足 8 倍，或可测的测试点少于 4 个时，规模和真实的 $n$ 关系不大（例如输入只有一个 $N \le 10^{18}$ 的数），记为不可测。时间和空间分别判定。增长慢于官方解的答案会在报告中单独列出，供人工复核是否真的是更优的解法。
+
 \section{评测维度}
 \begin{center}
 \small
@@ -161,6 +174,7 @@ L5 开放式 & FrontierCS 算法赛道（按类别抽样） & 30 & 题库 v1.1 &
 效率 & pass@1 与平均得分（官方时限） & ↑ & 是否在人类选手的时限内通过 \\
  & 运行时间倍数（相对官方解，几何平均） & ↓ & 同语言、同测试点、交替重复测量 \\
  & 峰值内存倍数（相对官方解） & ↓ & 来自判题时的资源统计 \\
+复杂度 & 时间、空间增长幂次 $k$；相对官方解的更优、相同、更差（$\Delta k$） & -- & 更优者单列，作为可能更新颖的解法 \\
 失败类型 & 无代码、编译错误、答案错误、部分分、运行错误、超内存、超时、只在官方时限下超时 & -- & 定位模型失分的原因 \\
 静态质量 & Pylint 问题数与得分、圈复杂度、可维护性指数、SLOC、SonarQube（L1--L2） & 见表头 & 沿用 arXiv:2610.19167 的口径与工具版本 \\
 成本与时延 & 输出 token、费用、延迟、首个 token 时间 & ↓ & 来自每次 API 调用的记录 \\
@@ -217,7 +231,7 @@ cb ladder-data                # 后台下载（可断点续传）；--status 看
 cb ladder-build               # 整理题目；--calibrate 判官方解并选出性能对照
 export MODEL=... OPENAI_BASE_URL=... OPENAI_API_KEY=...
 cb ladder --smoke             # 每档 1 题，先确认接口
-cb ladder                     # 全量：生成 -> 判题 -> 性能复测 -> 静态质量 -> 报告
+cb ladder                     # 全量：生成 -> 判题 -> 性能复测 -> 复杂度 -> 静态质量 -> 报告
 cb ladder-report <运行A> <运行B> --out <目录>   # 多模型对比报告
 \end{verbatim}
 管路的测试 \texttt{tests/test\_ladder.py} 用合成题和一个假的模型接口，把生成、判题（四种判题方式、超时、超内存、两种时限）、性能复测和报告完整跑一遍，在 CI 和服务器上均已通过。
@@ -232,6 +246,7 @@ cb ladder-report <运行A> <运行B> --out <目录>   # 多模型对比报告
 \bibitem{enamel} R. Qiu, W. W. Zeng, J. Ezick, et al. How Efficient is LLM-Generated Code? A Rigorous \& High-Standard Benchmark. arXiv:2406.06647, 2024.
 \bibitem{perfbench} N. M. Le, Y. Xu, Z. Wang, et al. Rethinking Code Performance Benchmarks for LLMs. arXiv:2607.07619, 2026.
 \bibitem{quality} J. Huang, T. Mahmud, M. Che, et al. Beyond Functional Correctness: Static Code Quality Profiling of LLM-Generated Code. arXiv:2610.19167, 2026.
+\bibitem{bigo} P. Chambon, B. Rozière, B. Sagot, G. Synnaeve. BigO(Bench): Can LLMs Generate Code with Controlled Time and Space Complexity? arXiv:2503.15242, 2025.
 \bibitem{algotune} O. Press, B. Amos, H. Zhao, et al. AlgoTune: Can Language Models Speed Up General-Purpose Numerical Programs? arXiv:2507.15887, 2025.
 \bibitem{oaiioi} OpenAI. 关于 IOI 2025 线上赛成绩的公告, 2025-08-11. \url{https://x.com/OpenAI/status/1954969035713687975}
 \end{thebibliography}

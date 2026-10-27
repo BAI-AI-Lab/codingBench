@@ -58,9 +58,11 @@ def load(run_dir, prices=None):
     judged = {r["q"]: r for r in jl(os.path.join(run_dir, "judge.jsonl"))}
     perf = {r["q"]: r for r in jl(os.path.join(run_dir, "perf.jsonl"))}
     quality = {r["q"]: r for r in jl(os.path.join(run_dir, "quality.jsonl"))}
+    complexity = {r["q"]: r for r in jl(os.path.join(run_dir, "complexity.jsonl"))}
     calls = jl(os.path.join(run_dir, "usage.jsonl"))
     metas = {r["pid"]: L.load_meta(r["pid"]) for r in judged.values()}
     return {"dir": run_dir, "model": info["model"], "info": info, "judged": judged, "perf": perf, "quality": quality,
+            "complexity": complexity,
             "calls": calls, "metas": metas, "prices": prices}
 
 
@@ -131,6 +133,26 @@ def quality_stats(run):
     return out
 
 
+def complexity_stats(run):
+    """Per tier and kind (time, space): answers per class (better / same / worse / not measurable), the median
+    growth exponent of the answers and of the official solutions, and the answers that grow more slowly."""
+    out = {}
+    for t in L.TIERS:
+        rows = [r for r in run["complexity"].values() if r["tier"] == t]
+        if not rows:
+            continue
+        d = {}
+        for kind in ("time", "space"):
+            cls = collections.Counter(r[kind]["class"] for r in rows)
+            ks = [r[kind]["answer"]["k"] for r in rows if "answer" in r[kind]]
+            kr = [r[kind]["ref"]["k"] for r in rows if "ref" in r[kind]]
+            d[kind] = {"classes": dict(cls), "k_median": statistics.median(ks) if ks else None,
+                       "k_ref_median": statistics.median(kr) if kr else None,
+                       "better": sorted(r["q"] for r in rows if r[kind]["class"] == "better")}
+        out[t] = d
+    return out
+
+
 def analyze(run):
     rs = list(run["judged"].values())
     metas = run["metas"]
@@ -143,6 +165,7 @@ def analyze(run):
         for sub in sorted({r["subset"] for r in rs if r["tier"] == t}):
             sel = [r for r in rs if r["tier"] == t and r["subset"] == sub]
             s["subsets"][f"{t}|{sub}"] = tier_stats(sel, metas, run["perf"])
+    s["complexity"] = complexity_stats(run)
     s["usage"] = usage_stats(run, {p: m["tier"] for p, m in metas.items()})
     s["quality"] = quality_stats(run)
     s["per_problem"] = {}
@@ -189,6 +212,26 @@ def md_report(stats, date):
         if any(s["tiers"].get(t, {}).get("perf_n") for s in stats):
             L_.append(f"| {TIER_NAME[t]}：CPU 时间倍数（几何平均）↓ | " + " | ".join(
                 f"{f1(s['tiers'].get(t, {}).get('perf_geo'), 2, '×')}（{s['tiers'].get(t, {}).get('perf_n', 0)} 题）" for s in stats) + " |")
+    L_ += ["", "## 时间与空间复杂度（相对官方解，同一批官方测试）", "",
+           "按输入大小拟合增长幂次 k（log 时间或内存 对 log 输入大小的斜率，扣除空程序开销），与官方解比较："
+           "更优 = 增长慢于官方解（dk ≤ -0.3，可能是更好或更新颖的解法），相同 = |dk| < 0.3，更差 = dk ≥ 0.3。", "",
+           "| 档位 | 维度 | " + " | ".join(models) + " |", "|---|---|" + "---:|" * len(models)]
+    for t in L.TIERS:
+        for kind, kname in (("time", "时间"), ("space", "空间")):
+            if not any(s["complexity"].get(t) for s in stats):
+                continue
+            def cell(s):
+                c = (s["complexity"].get(t) or {}).get(kind)
+                if not c:
+                    return "–"
+                k = c["classes"]
+                return (f"更优 {k.get('better', 0)} / 相同 {k.get('same', 0)} / 更差 {k.get('worse', 0)} / 不可测 "
+                        f"{k.get('not measurable', 0)}；k 中位数 {f1(c['k_median'], 2)}（官方 {f1(c['k_ref_median'], 2)}）")
+            L_.append(f"| {TIER_NAME[t]} | {kname} | " + " | ".join(cell(s) for s in stats) + " |")
+    nov = [(s["model"], t, kind, q) for s in stats for t, d in s["complexity"].items() for kind in ("time", "space")
+           for q in d[kind]["better"]]
+    L_ += [""] + ([f"- 增长慢于官方解、值得人工复核的答案：" + "；".join(f"{m} {q}（{'时间' if k == 'time' else '空间'}）"
+                                                        for m, t, k, q in nov)] if nov else ["- 没有增长慢于官方解的答案。"])
     L_ += ["", "## 失败类型（答案数）", ""]
     for s in stats:
         L_.append(f"- {s['model']}：" + "；".join(f"{TIER_NAME[t]} " + "，".join(f"{k} {v}" for k, v in sorted(
@@ -274,6 +317,27 @@ def tex_report(stats, date):
         parts.append(r"\section{代码性能}")
         parts.append("解出的答案在官方解最慢的 3 个测试点上与官方解交替各跑 3 次取中位数；表中为答案 CPU 时间 ÷ 官方解（几何平均，括号内为题数）。")
         parts.append(tex_table(["档位"] + models, prow, spec))
+    if any(s["complexity"] for s in stats):
+        parts.append(r"\section{时间与空间复杂度}")
+        parts.append("在官方测试上按输入大小拟合增长幂次 $k$（log 时间或内存对 log 输入大小的斜率，扣除空程序开销），"
+                     "与官方解在同一批测试点上比较：更优 = 增长慢于官方解（$\\Delta k \\le -0.3$，可能是更好或更新颖的解法），"
+                     "相同 = $|\\Delta k| < 0.3$，更差 = $\\Delta k \\ge 0.3$；输入规模变化不足 8 倍或可测测试点少于 4 个的记为不可测。")
+        crow = []
+        for t in L.TIERS:
+            for kind, kname in (("time", "时间"), ("space", "空间")):
+                if not any((s["complexity"].get(t) or {}).get(kind) for s in stats):
+                    continue
+                def c2(s):
+                    c = (s["complexity"].get(t) or {}).get(kind)
+                    if not c:
+                        return "–"
+                    k = c["classes"]
+                    return f"{k.get('better', 0)}/{k.get('same', 0)}/{k.get('worse', 0)}/{k.get('not measurable', 0)}"
+                crow.append([f"{TIER_NAME[t]}：{kname}（更优/相同/更差/不可测）"] + [c2(s) for s in stats])
+        parts.append(tex_table(["档位"] + models, crow, spec))
+        nov = [(s["model"], q, k) for s in stats for t, d in s["complexity"].items() for k in ("time", "space") for q in d[k]["better"]]
+        parts.append(("增长慢于官方解、值得人工复核的答案：" + "；".join(f"{tex(m)} {tex(q)}（{'时间' if k == 'time' else '空间'}）"
+                                                         for m, q, k in nov) + "。") if nov else "没有增长慢于官方解的答案。")
     parts.append(r"\section{失败类型}")
     frows = []
     for t in L.TIERS:
@@ -321,6 +385,10 @@ def main():
     if os.environ.get("PRICE_IN") and os.environ.get("PRICE_OUT"):
         env = {"in": float(os.environ["PRICE_IN"]), "hit": float(os.environ.get("PRICE_HIT") or os.environ["PRICE_IN"]),
                "out": float(os.environ["PRICE_OUT"])}
+        if os.environ.get("PRICE_OFF_IN") and os.environ.get("PRICE_OFF_OUT"):  # off-peak rates, as cb usage
+            env["off"] = {"in": float(os.environ["PRICE_OFF_IN"]), "out": float(os.environ["PRICE_OFF_OUT"]),
+                          "hit": float(os.environ.get("PRICE_OFF_HIT") or os.environ["PRICE_OFF_IN"])}
+            env["peak_hours"] = [tuple(map(int, r.split("-"))) for r in os.environ.get("PEAK_HOURS_UTC", "1-4,6-10").split(",") if r]
     stats = []
     for d in a.runs:
         run = load(d)

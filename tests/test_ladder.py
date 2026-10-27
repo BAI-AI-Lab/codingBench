@@ -136,6 +136,20 @@ def main():
     check(L.extract_code("x\n```python\nprint(1)\n```\ny\n```cpp\nint main(){}\n```", "python") == "print(1)\n",
           "extract_code picks the block of the language")
 
+    import ladder_complexity as C
+    sizes = {str(i): 1000 * 2 ** i for i in range(6)}           # 1 KB .. 32 KB inputs
+    ref = {n: 0.02 + 1e-5 * x for n, x in sizes.items()}       # linear, plus the 0.02 s startup
+    quad = {n: 0.02 + 1e-9 * x * x for n, x in sizes.items()}
+    root = {n: 0.02 + 2e-3 * x ** 0.5 for n, x in sizes.items()}
+    half = {n: 0.02 + 0.5e-5 * x for n, x in sizes.items()}
+    check(C.compare(sizes, quad, ref, 0.02, 0.001)["class"] == "worse", "complexity: n^2 against n -> worse")
+    check(C.compare(sizes, half, ref, 0.02, 0.001)["class"] == "same", "complexity: half the time, same growth -> same")
+    check(C.compare(sizes, root, ref, 0.02, 0.001)["class"] == "better", "complexity: sqrt(n) against n -> better")
+    r = C.compare(sizes, quad, ref, 0.02, 0.001)
+    check(abs(r["answer"]["k"] - 2) < 0.05 and abs(r["ref"]["k"] - 1) < 0.05, "complexity: fitted exponents 2 and 1")
+    narrow = {n: 1000 + int(n) for n in sizes}                # inputs of nearly the same size
+    check(C.compare(narrow, quad, ref, 0.02, 0.001)["class"] == "not measurable", "complexity: no size spread -> not measurable")
+
     try:
         import openai  # noqa: F401
     except ImportError:
@@ -168,6 +182,8 @@ def main():
         judged = {json.loads(l)["q"]: json.loads(l) for l in open(os.path.join(run, "judge.jsonl"))}
         check(judged["t-sum-py#0"]["solved"] and judged["t-sum-cpp#0"]["solved"], "judge: reference answers solve")
         check(os.path.exists(os.path.join(run, "perf.jsonl")), "perf re-runs written")
+        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_complexity.py"), run], env=env, check=True)
+        check(os.path.exists(os.path.join(run, "complexity.jsonl")), "complexity written")
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
                         os.path.join(run, "report")], env=env, check=True)
         rep = json.load(open(os.path.join(run, "report", "report.json")))[0]

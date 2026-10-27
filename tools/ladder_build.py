@@ -424,17 +424,20 @@ def calibrate(pid, workers=8):
     res = {}
     for c in meta.get("ref_candidates", []):
         code = open(os.path.join(d, "ref", c["file"])).read()
-        r = J.judge_code(meta, code, c["lang"], workers=workers)
+        # 2x the official limit is plenty for an official solution, and partial (subtask) solutions in the
+        # editorials then fail in 2x instead of burning the 5x lenient limit on every big test
+        r = J.judge_code(meta, code, c["lang"], workers=workers, lenient=float(os.environ.get("CALIBRATE_LENIENT", "2")))
         res[c["file"]] = {"lang": c["lang"], "solved": r["solved"], "score": r["score"],
                           "strict_solved": r["strict_solved"], "max_cpu": r["max_cpu"], "total_cpu": r["total_cpu"],
                           "rss_kb": r["max_rss_kb"], "cpu": {t["name"]: t["cpu"] for t in r["tests"]},
+                          "rss": {t["name"]: t.get("rss_kb", 0) for t in r["tests"]},
                           "fails": [f"{t['name']}:{t['verdict']}" for t in r["tests"] if t["score"] < 1][:5]}
     best = {}
     for f, r in res.items():
         if r["solved"] and (r["lang"] not in best or r["max_cpu"] < res[best[r["lang"]]]["max_cpu"]):
             best[r["lang"]] = f
     meta["calibration"] = res
-    meta["ref"] = {lang: dict(file=f, **{k: res[f][k] for k in ("max_cpu", "total_cpu", "rss_kb", "cpu", "strict_solved")})
+    meta["ref"] = {lang: dict(file=f, **{k: res[f][k] for k in ("max_cpu", "total_cpu", "rss_kb", "cpu", "rss", "strict_solved")})
                    for lang, f in best.items()}
     meta["verified"] = bool(best) or not meta.get("ref_candidates")
     json.dump(meta, open(os.path.join(d, "meta.json"), "w"), indent=1, ensure_ascii=False)
