@@ -24,8 +24,10 @@ SUM_PY = "a, b = map(int, input().split())\nprint(a + b)\n"
 SUM_CPP = "#include <cstdio>\nint main(){long long a,b;scanf(\"%lld %lld\",&a,&b);printf(\"%lld\\n\",a+b);}\n"
 SLOW_PY = "import time\na, b = map(int, input().split())\nt = time.process_time()\nwhile time.process_time() - t < 0.3: pass\nprint(a + b)\n"
 LOOP_CPP = "int main(){volatile long x=0; for(;;) x++;}\n"
-HOG_CPP = ("#include <cstdio>\n#include <cstring>\n#include <cstdlib>\nint main(){long long a,b;scanf(\"%lld %lld\",&a,&b);"
-           "char*p=(char*)malloc(200<<20); if(!p) return 1; memset(p,1,200<<20); printf(\"%lld\\n\",a+b+p[5]-1);}\n")
+HOG_CPP = ("#include <cstdio>\n#include <cstdlib>\nint main(){long long a,b;scanf(\"%lld %lld\",&a,&b);"
+           "size_t n=(size_t)200<<20; volatile char*p=(volatile char*)malloc(n); if(!p) return 1;"
+           "long long s=0; for(size_t i=0;i<n;i+=4096){p[i]=(char)(i>>12);} for(size_t i=0;i<n;i+=4096) s+=p[i];"
+           "printf(\"%lld\\n\",a+b+(s<0));}\n")  # volatile page writes: the compiler cannot drop the 200 MB
 CMS_CHECKER = r'''#include <cstdio>
 int main(int argc, char** argv) {  // checker <input> <correct> <contestant>: full point if equal, half if off by one
     long long c, x; FILE* a = fopen(argv[2], "r"); FILE* b = fopen(argv[3], "r");
