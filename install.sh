@@ -8,7 +8,7 @@ cd $CB
 t() { echo "[$(date +%T)] $*"; }
 if [ "${1:-}" = --ladder ]; then  # only the ladder test set: generation/judge env and the static-quality env
   # HOME/XDG_CONFIG_HOME explicitly: sudo may keep the calling user's, and the installer writes a receipt there
-  command -v uv >/dev/null || { t "uv"; curl -LsSf https://astral.sh/uv/install.sh | env HOME=$CB XDG_CONFIG_HOME=$CB/.config \
+  command -v uv >/dev/null || { t "uv"; curl -LsSf https://astral.sh/uv/install.sh | env HOME=$CB XDG_CONFIG_HOME=$CB/.cache/config \
     UV_INSTALL_DIR=$CB/.local/bin UV_NO_MODIFY_PATH=1 sh >/dev/null; }
   export PATH=$CB/.local/bin:$PATH
   mkdir -p venvs data/ladder runs
