@@ -1,32 +1,40 @@
 """Empirical time and space complexity of the solved answers of a ladder run, against the official solution.
 
-  python ladder_complexity.py <run dir>       # writes <run dir>/complexity.jsonl
+  python ladder_complexity.py <run dir> [--reps 5] [--max-tests 20] [--workers 96]   # writes complexity.jsonl
 
-For every solved answer, on the official tests: x = input size in bytes, y = CPU time (or peak memory) minus what an
-empty program of the same language needs. Over the tests where y is above the noise floor, the slope k of
-log y = a + k log x is the empirical growth exponent (BigO(Bench)-style scaling, but on the official tests rather
-than generated inputs). The official solution's exponent comes from the calibration run on the same tests, and the
-answer is classed on the tests both measured, by the slope of log(answer / official) against log x:
-  better  dk <= -DK   (grows more slowly than the official solution: a candidate for a better or novel algorithm)
-  same    |dk| < DK
-  worse   dk >= DK    (asymptotically worse, even if it passed the limits)
-DK = 0.3 by default. A problem whose test inputs span less than 8x in size, or with fewer than 4 measurable tests,
-is "not measurable" (the input size then says little about n, e.g. one number N up to 1e18).
+Official tests are not a scaling series: in USACO most of the tests that take measurable time are all at the maximum
+size, so the input size barely varies among them. The growth is therefore measured against the official solution's
+own work: on every test where the official solution needs at least 2 ms of CPU beyond an empty program (up to
+--max-tests of them, spread over that range), the answer and the official solution run --reps times each,
+interleaved on pinned cores, and the medians count. With x = official CPU and y = answer CPU (startup subtracted),
+the slope k of log y = a + k log x says how the answer's cost grows with the official solution's: if the official
+solution is Theta(f(n)) and the answer is Theta(f(n)^k), k is that exponent.
+  better      k <= 0.75 and R^2 >= 0.8   (grows more slowly than the official solution: a candidate for a better or
+                                          novel algorithm, listed for manual review)
+  same        0.75 < k < 1.33 and R^2 >= 0.8
+  worse       k >= 1.33 and R^2 >= 0.8   (asymptotically worse, even if it passed the limits)
+  uncertain   R^2 < 0.8                  (the points do not follow one power law; no verdict)
+  not measurable  fewer than 4 such tests, or their official CPU times span less than 4x
+Space is classed the same way with peak memory (at least 1 MB above an empty program). Where the input sizes of those
+tests do span at least 8x, the input-size exponents of both programs are reported too (k_size).
 """
 import argparse
+import concurrent.futures
 import json
 import math
 import os
+import shutil
 import statistics
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ladder_lib as L  # noqa: E402
 
-DK = float(os.environ.get("LADDER_DK", "0.3"))
-MIN_CPU = 0.01      # s above the empty program
-MIN_RSS_KB = 2048   # KB above the empty program
-MIN_SPAN = 8.0      # largest / smallest input size among the fitted tests
+BETTER, WORSE, MIN_R2 = 0.75, 1.33, 0.8
+MIN_CPU = 0.002      # s above the empty program
+MIN_RSS_KB = 1024    # KB above the empty program
+MIN_SPAN = 4.0       # largest / smallest official value among the fitted tests
+SIZE_SPAN = 8.0      # input sizes must span this much for the size exponent
 MIN_POINTS = 4
 
 
@@ -43,8 +51,29 @@ def fit(xs, ys):
     return k, (1 - res / ss) if ss > 0 else 1.0
 
 
+def classify(k, r2):
+    if r2 is None or r2 < MIN_R2:
+        return "uncertain"
+    return "better" if k <= BETTER else "worse" if k >= WORSE else "same"
+
+
+def relative(xs, ys, base, floor, sizes=None):
+    """Points (official, answer) above the floor -> {k, r2, n, class, ratio_median[, k_size_answer, k_size_ref]}."""
+    pts = [(x - base, y - base, s) for x, y, s in zip(xs, ys, sizes or [None] * len(xs))
+           if x - base >= floor and y - base >= floor]
+    if len(pts) < MIN_POINTS or max(p[0] for p in pts) / min(p[0] for p in pts) < MIN_SPAN:
+        return {"class": "not measurable", "n": len(pts)}
+    k, r2 = fit([p[0] for p in pts], [p[1] for p in pts])
+    out = {"k": round(k, 3), "r2": round(r2, 3), "n": len(pts), "class": classify(k, r2),
+           "ratio_median": round(statistics.median(p[1] / p[0] for p in pts), 3)}
+    if sizes and all(p[2] for p in pts) and max(p[2] for p in pts) / min(p[2] for p in pts) >= SIZE_SPAN:
+        out["k_size_answer"] = round(fit([p[2] for p in pts], [p[1] for p in pts])[0], 3)
+        out["k_size_ref"] = round(fit([p[2] for p in pts], [p[0] for p in pts])[0], 3)
+    return out
+
+
 def baseline(lang):
-    """Median CPU and RSS of an empty program (5 runs)."""
+    """Median CPU and RSS of an empty program (7 runs)."""
     work = L.tmpdir("cplx_base_")
     try:
         if lang == "python":
@@ -55,66 +84,98 @@ def baseline(lang):
             L.compile_cpp([os.path.join(work, "e.cpp")], os.path.join(work, "e"))
             argv = [os.path.join(work, "e")]
         open(os.path.join(work, "in"), "w").write("")
-        rs = [L.run(argv, os.path.join(work, "in"), os.path.join(work, "out"), work, 5, 256) for _ in range(5)]
+        rs = [L.run(argv, os.path.join(work, "in"), os.path.join(work, "out"), work, 5, 256) for _ in range(7)]
         return statistics.median(r["cpu"] for r in rs), statistics.median(r["rss_kb"] for r in rs)
     finally:
-        import shutil
         shutil.rmtree(work, ignore_errors=True)
 
 
-def series(sizes, vals, base, floor):
-    pts = [(sizes[n], v - base) for n, v in vals.items() if n in sizes and v - base >= floor and sizes[n] > 0]
-    return dict((x, y) for x, y in pts)  # one point per input size (duplicate sizes keep the last)
+def pick_tests(ref, base_cpu, max_tests):
+    """Tests where the official solution needs >= MIN_CPU, spread evenly over its CPU range."""
+    names = sorted((n for n, c in ref["cpu"].items() if c - base_cpu >= MIN_CPU), key=lambda n: ref["cpu"][n])
+    if len(names) <= max_tests:
+        return names
+    step = (len(names) - 1) / (max_tests - 1)
+    return sorted({names[round(i * step)] for i in range(max_tests)}, key=lambda n: ref["cpu"][n])
 
 
-def compare(sizes, ans, ref, base, floor):
-    """ans/ref: test name -> value. Returns the fit of each and the relative slope on common tests."""
-    out = {}
-    for who, vals in (("answer", ans), ("ref", ref)):
-        s = series(sizes, vals, base, floor) if vals else {}
-        if len(s) >= MIN_POINTS and max(s) / min(s) >= MIN_SPAN:
-            k, r2 = fit(list(s), list(s.values()))
-            out[who] = {"k": round(k, 3), "r2": round(r2, 3), "n": len(s)}
-    common = [n for n in ans if ref and n in ref and n in sizes and ans[n] - base >= floor and ref[n] - base >= floor]
-    xs = [sizes[n] for n in common]
-    if len(common) >= MIN_POINTS and xs and max(xs) / min(xs) >= MIN_SPAN:
-        dk, r2 = fit(xs, [(ans[n] - base) / (ref[n] - base) for n in common])
-        out["dk"] = round(dk, 3)
-        out["class"] = "better" if dk <= -DK else "worse" if dk >= DK else "same"
-        out["ratio_median"] = round(statistics.median((ans[n] - base) / (ref[n] - base) for n in common), 3)
-    else:
-        out["class"] = "not measurable"
-    return out
+def measure(meta, code, ref_code, lang, names, reps):
+    """Median CPU and peak memory per test for the answer and the official solution, runs interleaved."""
+    import ladder_judge as J
+    tests = [t for t in meta["tests"] if t["name"] in names]
+    w_a, w_r = L.tmpdir("cplx_a_"), L.tmpdir("cplx_r_")
+    try:
+        a, _ = J.build(meta, code, lang, w_a)
+        b, _ = J.build(meta, ref_code, lang, w_r)
+        if a is None or b is None:
+            return None
+        runs = {"answer": {}, "ref": {}}
+        for i in range(reps):
+            order = [("answer", a, w_a), ("ref", b, w_r)] if i % 2 == 0 else [("ref", b, w_r), ("answer", a, w_a)]
+            for t in tests:
+                for who, argv, w in order:
+                    r = J.judge_test(meta, t, argv, w)
+                    if r["score"] > 0:
+                        runs[who].setdefault(t["name"], []).append((r["cpu"], r.get("rss_kb", 0)))
+    finally:
+        shutil.rmtree(w_a, ignore_errors=True)
+        shutil.rmtree(w_r, ignore_errors=True)
+    ok = [t["name"] for t in tests if len(runs["answer"].get(t["name"], [])) == reps and len(runs["ref"].get(t["name"], [])) == reps]
+    med = lambda who, n, j: statistics.median(x[j] for x in runs[who][n])  # noqa: E731
+    return {n: {"a_cpu": med("answer", n, 0), "r_cpu": med("ref", n, 0), "a_rss": med("answer", n, 1),
+                "r_rss": med("ref", n, 1)} for n in ok}
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("run_dir")
+    ap.add_argument("--reps", type=int, default=5)
+    ap.add_argument("--max-tests", type=int, default=20)
+    ap.add_argument("--workers", type=int, default=int(os.environ.get("LADDER_CORES", "64")))
     a = ap.parse_args()
-    judged = {}
+    os.environ["LADDER_CORES"] = str(a.workers)
+    judged, answers = {}, {}
     for l in open(os.path.join(a.run_dir, "judge.jsonl")):
         r = json.loads(l)
         judged[r["q"]] = r
-    bases = {}
-    out = []
-    for q, r in sorted(judged.items()):
-        if not r["solved"]:
-            continue
+    for l in open(os.path.join(a.run_dir, "answers.jsonl")):
+        r = json.loads(l)
+        answers[r["q"]] = r
+    bases = {lang: baseline(lang) for lang in ("python", "cpp")}
+
+    def one(q):
+        r = judged[q]
         meta = L.load_meta(r["pid"])
         lang = meta["lang"]
-        if lang not in bases:
-            bases[lang] = baseline(lang)
+        rec = {"q": q, "pid": r["pid"], "tier": r["tier"], "subset": r.get("subset"), "lang": lang}
+        ref = (meta.get("ref") or {}).get(lang)
+        if not ref:
+            rec["time"] = rec["space"] = {"class": "no reference"}
+            return rec
         b_cpu, b_rss = bases[lang]
+        names = pick_tests(ref, b_cpu, a.max_tests)
+        if len(names) < MIN_POINTS:
+            rec["time"] = {"class": "not measurable", "n": len(names)}
+            rec["space"] = {"class": "not measurable", "n": len(names)}
+            return rec
+        code = answers[q]["code"]
+        ref_code = open(os.path.join(L.PROBLEMS, r["pid"], "ref", ref["file"])).read()
+        m = measure(meta, code, ref_code, lang, names, a.reps)
+        if not m:
+            rec["time"] = rec["space"] = {"class": "not measurable", "n": 0}
+            return rec
+        ns = sorted(m, key=lambda n: m[n]["r_cpu"])
         tdir = os.path.join(L.PROBLEMS, r["pid"], "tests")
-        sizes = {t["name"]: os.path.getsize(os.path.join(tdir, t["in"])) for t in meta["tests"]}
-        ref = (meta.get("ref") or {}).get(lang) or {}
-        cpu = {t["name"]: t["cpu"] for t in r["tests"]}
-        rss = {t["name"]: t.get("rss_kb", 0) for t in r["tests"]}
-        rec = {"q": q, "pid": r["pid"], "tier": r["tier"], "subset": r.get("subset"), "lang": lang,
-               "ref_file": ref.get("file"),
-               "time": compare(sizes, cpu, ref.get("cpu"), b_cpu, MIN_CPU),
-               "space": compare(sizes, rss, ref.get("rss"), b_rss, MIN_RSS_KB)}
-        out.append(rec)
+        sizes = [os.path.getsize(os.path.join(tdir, next(t["in"] for t in meta["tests"] if t["name"] == n))) for n in ns]
+        rec["time"] = relative([m[n]["r_cpu"] for n in ns], [m[n]["a_cpu"] for n in ns], b_cpu, MIN_CPU, sizes)
+        rec["space"] = relative([m[n]["r_rss"] for n in ns], [m[n]["a_rss"] for n in ns], b_rss, MIN_RSS_KB, sizes)
+        rec["tests"] = {n: m[n] for n in ns}
+        rec["ref_file"] = ref["file"]
+        return rec
+
+    todo = sorted(q for q, r in judged.items() if r["solved"] and q in answers)
+    with concurrent.futures.ThreadPoolExecutor(max(1, a.workers // 4)) as ex:
+        out = list(ex.map(one, todo))
     with open(os.path.join(a.run_dir, "complexity.jsonl"), "w") as f:
         for rec in out:
             f.write(json.dumps(rec) + "\n")

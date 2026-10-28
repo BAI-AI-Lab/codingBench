@@ -449,7 +449,8 @@ def calibrate(pid, workers=8):
 
 def manifest(out, l5=30):
     """All USACO problems that are verified and need no special checker, EGOI/IOI 2026, and a fixed L5 subset:
-    l5 FrontierCS problems spread over the tags (every k-th problem of each tag, by id)."""
+    l5 FrontierCS problems spread over the tags (every k-th problem of each tag, by id; the v1.1 problems carry no
+    tag, so this is every k-th problem by id)."""
     metas = [json.load(open(f)) for f in glob.glob(os.path.join(L.PROBLEMS, "*", "meta.json"))]
     tiers = {t: [] for t in L.TIERS}
     skipped = {}

@@ -58,13 +58,20 @@ def failure(r):
 def load(run_dir, prices=None):
     info = json.load(open(os.path.join(run_dir, "run.json")))
     judged = {r["q"]: r for r in jl(os.path.join(run_dir, "judge.jsonl"))}
+    last = {}
+    for r in jl(os.path.join(run_dir, "answers.jsonl")):
+        last[r["q"]] = r
+    # samples the API never answered (retries used up, out of balance): not the model's failure, left out of every
+    # rate and counted separately
+    unanswered = sorted(q for q, r in last.items() if r.get("finish") == "error")
+    judged = {q: r for q, r in judged.items() if q not in unanswered}
     perf = {r["q"]: r for r in jl(os.path.join(run_dir, "perf.jsonl"))}
     quality = {r["q"]: r for r in jl(os.path.join(run_dir, "quality.jsonl"))}
     complexity = {r["q"]: r for r in jl(os.path.join(run_dir, "complexity.jsonl"))}
     calls = jl(os.path.join(run_dir, "usage.jsonl"))
     metas = {r["pid"]: L.load_meta(r["pid"]) for r in judged.values()}
     return {"dir": run_dir, "model": info["model"], "info": info, "judged": judged, "perf": perf, "quality": quality,
-            "complexity": complexity,
+            "complexity": complexity, "unanswered": unanswered,
             "calls": calls, "metas": metas, "prices": prices}
 
 
@@ -136,8 +143,8 @@ def quality_stats(run):
 
 
 def complexity_stats(run):
-    """Per tier and kind (time, space): answers per class (better / same / worse / not measurable), the median
-    growth exponent of the answers and of the official solutions, and the answers that grow more slowly."""
+    """Per tier and kind (time, space): answers per class and the median growth exponent k relative to the
+    official solution (see tools/ladder_complexity.py), plus the answers that grow more slowly (for review)."""
     out = {}
     for t in L.TIERS:
         rows = [r for r in run["complexity"].values() if r["tier"] == t]
@@ -145,11 +152,9 @@ def complexity_stats(run):
             continue
         d = {}
         for kind in ("time", "space"):
-            cls = collections.Counter(r[kind]["class"] for r in rows)
-            ks = [r[kind]["answer"]["k"] for r in rows if "answer" in r[kind]]
-            kr = [r[kind]["ref"]["k"] for r in rows if "ref" in r[kind]]
-            d[kind] = {"classes": dict(cls), "k_median": statistics.median(ks) if ks else None,
-                       "k_ref_median": statistics.median(kr) if kr else None,
+            ks = [r[kind]["k"] for r in rows if r[kind].get("class") in ("better", "same", "worse")]
+            d[kind] = {"classes": dict(collections.Counter(r[kind]["class"] for r in rows)),
+                       "k_median": statistics.median(ks) if ks else None,
                        "better": sorted(r["q"] for r in rows if r[kind]["class"] == "better")}
         out[t] = d
     return out
@@ -158,7 +163,7 @@ def complexity_stats(run):
 def analyze(run):
     rs = list(run["judged"].values())
     metas = run["metas"]
-    s = {"model": run["model"], "tiers": {}, "subsets": {}}
+    s = {"model": run["model"], "tiers": {}, "subsets": {}, "unanswered": run.get("unanswered", [])}
     for t in L.TIERS:
         sel = [r for r in rs if r["tier"] == t]
         if sel:
@@ -213,11 +218,13 @@ CRITERIA = [  # (dimension, metric, how it is computed, direction)
      "只对解出的答案、且官方解在某个测试点上至少需要 0.05 秒 CPU 的题：取官方解最慢的 3 个测试点，答案与官方解交替各运行 3 次取中位数，"
      "$r$ = 答案 CPU 时间 ÷ 官方解 CPU 时间（取官方解最慢的那个测试点）；各档报告 $r$ 的几何平均和题数。同语言比较。", "↓"),
     ("效率", "内存倍数", "解出的答案在所有测试点上的峰值内存 ÷ 官方解的峰值内存，各档取几何平均。", "↓"),
-    ("复杂度", "增长幂次 $k$ 与 $\\Delta k$",
-     "以测试点输入字节数为规模 $x$，CPU 时间（或峰值内存）扣除空程序开销为 $y$，在 $y$ 高于噪声下限（10 ms / 2 MB）的测试点上拟合 "
-     "$\\log y = a + k\\log x$；在答案与官方解都可测的测试点上拟合 $\\log(y_{\\text{答案}}/y_{\\text{官方}})$ 对 $\\log x$ 的斜率 $\\Delta k$。"
-     "$\\Delta k \\le -0.3$ 为更优（增长慢于官方解，列出供人工复核），$|\\Delta k| < 0.3$ 为相同，$\\Delta k \\ge 0.3$ 为更差；"
-     "输入大小变化不足 8 倍或可测测试点少于 4 个记为不可测。时间、空间分别判定。", ""),
+    ("复杂度", "相对官方解的增长幂次 $k$",
+     "官方测试不是按规模排列的序列（USACO 里耗时较长的测试点大多都是最大规模），所以以官方解自己的工作量为横轴：在官方解至少需要 2 ms CPU"
+     "（扣除空程序）的测试点上（最多 20 个，均匀覆盖其耗时范围），答案与官方解交替各运行 5 次取中位数，拟合 "
+     "$\\log y_{\\text{答案}} = a + k \\log y_{\\text{官方}}$。若官方解为 $\\Theta(f(n))$、答案为 $\\Theta(f(n)^k)$，$k$ 即该指数。"
+     "$R^2 \\ge 0.8$ 时：$k \\le 0.75$ 为更优（列出供人工复核），$0.75 < k < 1.33$ 为同阶，$k \\ge 1.33$ 为更差；$R^2 < 0.8$ 为不确定；"
+     "可用测试点少于 4 个或官方耗时跨度不足 4 倍为不可测。空间同理（峰值内存，至少高于空程序 1 MB）。"
+     "这些测试点的输入大小跨度达到 8 倍时，另报两者按输入大小的增长幂次。", ""),
     ("失败类型", "每份未解出答案的主要原因",
      "按顺序取第一个成立的：无代码、编译错误、答案错误、运行错误、超内存、超时、部分分（部分测试点得分）；"
      "宽时限下解出但官方时限下没有全部通过的记为“只在官方时限下超时”。", ""),
@@ -256,6 +263,10 @@ def criteria_tex():
 def md_report(stats, date):
     models = [s["model"] for s in stats]
     L_ = [f"# 阶梯代码评测报告（{date}）", ""] + criteria_md()
+    for s in stats:
+        if s["unanswered"]:
+            L_ += [f"- {s['model']}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
+                   + "、".join(s["unanswered"]), ""]
     L_ += ["## 各档正确率", "", "| 档位 | 指标 | " + " | ".join(models) + " |", "|---|---|" + "---:|" * len(models)]
     for t in L.TIERS:
         if not any(t in s["tiers"] for s in stats):
@@ -276,8 +287,8 @@ def md_report(stats, date):
             L_.append(f"| {TIER_NAME[t]}：CPU 时间倍数（几何平均）↓ | " + " | ".join(
                 f"{f1(s['tiers'].get(t, {}).get('perf_geo'), 2, '×')}（{s['tiers'].get(t, {}).get('perf_n', 0)} 份答案）" for s in stats) + " |")
     L_ += ["", "## 时间与空间复杂度（相对官方解，同一批官方测试）", "",
-           "按输入大小拟合增长幂次 k（log 时间或内存 对 log 输入大小的斜率，扣除空程序开销），与官方解比较："
-           "更优 = 增长慢于官方解（dk ≤ -0.3，可能是更好或更新颖的解法），相同 = |dk| < 0.3，更差 = dk ≥ 0.3。", "",
+           "k = 答案耗时（或内存）相对官方解耗时（或内存）的增长幂次：k ≤ 0.75 更优（增长慢于官方解，可能是更好或更新颖的解法），"
+           "0.75 < k < 1.33 同阶，k ≥ 1.33 更差；拟合 R² < 0.8 记为不确定。方法见上表“复杂度”一行。", "",
            "| 档位 | 维度 | " + " | ".join(models) + " |", "|---|---|" + "---:|" * len(models)]
     for t in L.TIERS:
         for kind, kname in (("time", "时间"), ("space", "空间")):
@@ -288,8 +299,7 @@ def md_report(stats, date):
                 if not c:
                     return "–"
                 k = c["classes"]
-                return (f"更优 {k.get('better', 0)} / 相同 {k.get('same', 0)} / 更差 {k.get('worse', 0)} / 不可测 "
-                        f"{k.get('not measurable', 0)}；k 中位数 {f1(c['k_median'], 2)}（官方 {f1(c['k_ref_median'], 2)}）")
+                return " / ".join(f"{name} {k.get(key, 0)}" for key, name in (('better', '更优'), ('same', '同阶'), ('worse', '更差'), ('uncertain', '不确定'), ('not measurable', '不可测'), ('no reference', '无官方解'))) + f"；k 中位数 {f1(c['k_median'], 2)}"
             L_.append(f"| {TIER_NAME[t]} | {kname} | " + " | ".join(cell(s) for s in stats) + " |")
     nov = [(s["model"], t, kind, q) for s in stats for t, d in s["complexity"].items() for kind in ("time", "space")
            for q in d[kind]["better"]]
@@ -359,6 +369,10 @@ def tex_report(stats, date):
              rf"{{\small {date} \quad L1--L4：USACO 2024--26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道}}",
              r"\end{center}"]
     parts.append(criteria_tex())
+    for s in stats:
+        if s["unanswered"]:
+            parts.append(f"{tex(s['model'])}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
+                         + "、".join(tex(q) for q in s["unanswered"]) + "。")
     parts.append(r"\section{各档正确率}")
     rows = []
     for t in L.TIERS:
@@ -384,9 +398,8 @@ def tex_report(stats, date):
         parts.append(tex_table(["档位"] + models, prow, spec))
     if any(s["complexity"] for s in stats):
         parts.append(r"\section{时间与空间复杂度}")
-        parts.append("在官方测试上按输入大小拟合增长幂次 $k$（log 时间或内存对 log 输入大小的斜率，扣除空程序开销），"
-                     "与官方解在同一批测试点上比较：更优 = 增长慢于官方解（$\\Delta k \\le -0.3$，可能是更好或更新颖的解法），"
-                     "相同 = $|\\Delta k| < 0.3$，更差 = $\\Delta k \\ge 0.3$；输入规模变化不足 8 倍或可测测试点少于 4 个的记为不可测。")
+        parts.append("$k$ 为答案耗时（或内存）相对官方解的增长幂次：$k \\le 0.75$ 更优（增长慢于官方解，可能是更好或更新颖的解法），"
+                     "$0.75 < k < 1.33$ 同阶，$k \\ge 1.33$ 更差，拟合 $R^2 < 0.8$ 记为不确定；方法见“评测维度与打分标准”。")
         crow = []
         for t in L.TIERS:
             for kind, kname in (("time", "时间"), ("space", "空间")):
@@ -397,8 +410,8 @@ def tex_report(stats, date):
                     if not c:
                         return "–"
                     k = c["classes"]
-                    return f"{k.get('better', 0)}/{k.get('same', 0)}/{k.get('worse', 0)}/{k.get('not measurable', 0)}"
-                crow.append([f"{TIER_NAME[t]}：{kname}（更优/相同/更差/不可测）"] + [c2(s) for s in stats])
+                    return "/".join(str(k.get(key, 0)) for key, _ in (('better', '更优'), ('same', '同阶'), ('worse', '更差'), ('uncertain', '不确定'), ('not measurable', '不可测'), ('no reference', '无官方解'))) + f"，k={f1(c['k_median'], 2)}"
+                crow.append([f"{TIER_NAME[t]}：{kname}（更优/同阶/更差/不确定/不可测/无官方解）"] + [c2(s) for s in stats])
         parts.append(tex_table(["档位"] + models, crow, spec))
         nov = [(s["model"], q, k) for s in stats for t, d in s["complexity"].items() for k in ("time", "space") for q in d[k]["better"]]
         parts.append(("增长慢于官方解、值得人工复核的答案：" + "；".join(f"{tex(m)} {tex(q)}（{'时间' if k == 'time' else '空间'}）"

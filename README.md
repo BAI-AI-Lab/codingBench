@@ -66,7 +66,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 | L2 中等 | USACO 银组（21 题） | Python | 每个测试点等分 |
 | L3 困难 | USACO 金组（21 题）+ EGOI 2026（8 题） | C++ | USACO 按测试点；EGOI 按子任务（子任务内取最低） |
 | L4 顶尖 | USACO 铂金组（21 题）+ IOI 2026（批处理题） | C++ | USACO 按测试点；IOI 按子任务 |
-| L5 开放式 | FrontierCS 算法赛道（固定抽 30 题，按类别均匀取） | C++17 | 官方 checker 给 0–100 的连续分（达到参考解 60 分，超过有对数加分） |
+| L5 开放式 | FrontierCS 算法赛道（固定抽 30 题，按题号均匀取；题库没有类别标签） | C++17 | 官方 checker 给 0–100 的连续分（达到参考解 60 分，超过有对数加分） |
 
 - 题目、测试数据和官方题解全部来自官方发布（USACO 官网、egoi-org/egoi-2026、ioi/task-archive、FrontierCS 仓库），钉在固定的 commit；下载清单是 `samples/ladder_download.tsv.gz`，由 `tools/ladder_sources.py` 生成。AtCoder 从 2024-12 起不再公开测试数据，LeetCode 测试不公开，所以没有用。
 - 判题在本机进行，不用 Docker：答案以 `bench` 用户运行，经一个小的 `python -I -S` 启动器设置内存、栈、CPU、输出大小上限并绑核，CPU 时间和峰值内存取自子进程的 rusage。每个测试点只跑一次，时限放宽到官方的 `LADDER_LENIENT` 倍（默认 5 倍）；按 CPU 时间同时得出“宽时限”（算法对不对）和“官方时限”（够不够快）两种判定。USACO 按空白分隔的 token 比对，EGOI/IOI 用官方 checker 和 grader，FrontierCS 用官方 testlib checker/interactor（规则照搬它的 judge_engine.js）。

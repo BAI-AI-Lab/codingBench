@@ -4,6 +4,7 @@ then generation against tests/mock_openai.py, judging, performance re-runs and t
   python tests/test_ladder.py          # needs g++, and openai + httpx for the end-to-end part
 """
 import json
+import math
 import os
 import shutil
 import socket
@@ -137,18 +138,21 @@ def main():
           "extract_code picks the block of the language")
 
     import ladder_complexity as C
-    sizes = {str(i): 1000 * 2 ** i for i in range(6)}           # 1 KB .. 32 KB inputs
-    ref = {n: 0.02 + 1e-5 * x for n, x in sizes.items()}       # linear, plus the 0.02 s startup
-    quad = {n: 0.02 + 1e-9 * x * x for n, x in sizes.items()}
-    root = {n: 0.02 + 2e-3 * x ** 0.5 for n, x in sizes.items()}
-    half = {n: 0.02 + 0.5e-5 * x for n, x in sizes.items()}
-    check(C.compare(sizes, quad, ref, 0.02, 0.001)["class"] == "worse", "complexity: n^2 against n -> worse")
-    check(C.compare(sizes, half, ref, 0.02, 0.001)["class"] == "same", "complexity: half the time, same growth -> same")
-    check(C.compare(sizes, root, ref, 0.02, 0.001)["class"] == "better", "complexity: sqrt(n) against n -> better")
-    r = C.compare(sizes, quad, ref, 0.02, 0.001)
-    check(abs(r["answer"]["k"] - 2) < 0.05 and abs(r["ref"]["k"] - 1) < 0.05, "complexity: fitted exponents 2 and 1")
-    narrow = {n: 1000 + int(n) for n in sizes}                # inputs of nearly the same size
-    check(C.compare(narrow, quad, ref, 0.02, 0.001)["class"] == "not measurable", "complexity: no size spread -> not measurable")
+    ref = [0.002 * 2 ** i for i in range(6)]                    # official CPU 2 ms .. 64 ms (+ 0 startup)
+    quad = [x * x * 1000 for x in ref]                         # all above the 1 ms floor
+    root = [math.sqrt(x) / 10 for x in ref]
+    half = [x / 2 for x in ref]
+    check(C.relative(ref, quad, 0.0, 0.001)["class"] == "worse", "complexity: answer ~ official^2 -> worse")
+    check(C.relative(ref, half, 0.0, 0.001)["class"] == "same", "complexity: half the time, same growth -> same")
+    check(C.relative(ref, root, 0.0, 0.001)["class"] == "better", "complexity: answer ~ sqrt(official) -> better")
+    check(abs(C.relative(ref, quad, 0.0, 0.001)["k"] - 2) < 0.01, "complexity: fitted exponent 2")
+    noisy = [y * f for y, f in zip(half, (1, 9, 0.2, 7, 0.1, 3))]
+    check(C.relative(ref, noisy, 0.0, 0.001)["class"] == "uncertain", "complexity: no power law -> uncertain")
+    check(C.relative([0.010, 0.011, 0.012, 0.013], half[:4], 0.0, 0.001)["class"] == "not measurable",
+          "complexity: official times within 4x -> not measurable")
+    sz = [1000 * 2 ** i for i in range(6)]
+    r = C.relative(ref, quad, 0.0, 0.001, sz)
+    check(abs(r["k_size_ref"] - 1) < 0.01 and abs(r["k_size_answer"] - 2) < 0.01, "complexity: input-size exponents 1 and 2")
 
     try:
         import openai  # noqa: F401
@@ -192,7 +196,13 @@ def main():
         check(os.path.exists(os.path.join(run, "complexity.jsonl")), "complexity written")
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
                         os.path.join(run, "report")], env=env, check=True)
+        with open(os.path.join(run, "answers.jsonl"), "a") as f:  # an L3 sample the API never answered
+            f.write(json.dumps({"q": "t-cms#0", "pid": "t-cms", "k": 0, "tier": "L3", "lang": "cpp", "code": "",
+                                "finish": "error", "code_hash": "y"}) + "\n")
+        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
+                        os.path.join(run, "report")], env=env, check=True)
         rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
+        check(rep["unanswered"] == ["t-cms#0"] and rep["tiers"]["L3"]["samples"] == 1, "report: unanswered sample left out")
         check(rep["tiers"]["L1"]["pass1"] == 100 and rep["tiers"]["L1"]["samples"] == 2, "report: L1 pass@1 100 over 2 samples")
         check(os.path.exists(os.path.join(run, "report", "main.tex")), "report: LaTeX written")
     finally:
