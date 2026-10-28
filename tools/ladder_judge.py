@@ -124,7 +124,7 @@ def judge_test(meta, t, argv, work, lenient=None):
             r = L.run(argv, inp, out, work, run_tl, ml, core=core)
             if r["verdict"] != "ok":
                 rec = {"verdict": r["verdict"], "score": 0.0}
-            elif j["kind"] == "tokens":
+            elif j["kind"] == "tokens" or (j["kind"] == "grader" and not j.get("checker")):
                 ok = L.tokens_equal(out, ans)
                 rec = {"verdict": "ok" if ok else "WA", "score": 1.0 if ok else 0.0}
             else:

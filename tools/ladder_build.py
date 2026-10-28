@@ -559,6 +559,7 @@ def main():
     ap.add_argument("--sources", default="usaco,egoi2026,ioi2026,frontiercs")
     ap.add_argument("--only", default="")
     ap.add_argument("--calibrate", action="store_true")
+    ap.add_argument("--missing", action="store_true", help="with --calibrate: only problems not calibrated yet")
     ap.add_argument("--manifest")
     ap.add_argument("--l5", type=int, default=30)
     ap.add_argument("--workers", type=int, default=32)
@@ -569,11 +570,23 @@ def main():
     if a.calibrate:
         def wanted(p):
             m = json.load(open(os.path.join(p, "meta.json")))
+            st = os.path.join(p, "statement.md")
+            if m["judge"]["kind"] == "communication" or not os.path.exists(st) or not open(st).read().strip():
+                return False  # left out of the problem list anyway (see manifest)
+            if a.missing and "calibration" in m:
+                return False
             return m.get("ref_candidates") or (m["judge"]["kind"] in ("checker", "testlib") and not m["judge"].get("interactor"))
         pids = sorted(only or [os.path.basename(p) for p in glob.glob(os.path.join(L.PROBLEMS, "*")) if wanted(p)])
         per = max(1, a.workers // 4)
+
+        def safe(p):  # one broken problem must not stop the others
+            try:
+                return calibrate(p, per)
+            except Exception as e:  # noqa: BLE001
+                return p, {}, {"calibration error": repr(e)[:300]}
+        print(f"calibrating {len(pids)} problems")
         with concurrent.futures.ThreadPoolExecutor(4) as ex:
-            for pid, best, bad in ex.map(lambda p: calibrate(p, per), pids):
+            for pid, best, bad in ex.map(safe, pids):
                 print(pid, "reference:", best or "NONE", ("failed: " + json.dumps(bad)) if bad else "")
                 sys.stdout.flush()
         return
