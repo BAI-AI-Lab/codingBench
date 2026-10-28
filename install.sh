@@ -7,7 +7,9 @@ source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/env.sh"
 cd $CB
 t() { echo "[$(date +%T)] $*"; }
 if [ "${1:-}" = --ladder ]; then  # only the ladder test set: generation/judge env and the static-quality env
-  command -v uv >/dev/null || { t "uv"; curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=$CB/.local/bin UV_NO_MODIFY_PATH=1 sh >/dev/null; }
+  # HOME/XDG_CONFIG_HOME explicitly: sudo may keep the calling user's, and the installer writes a receipt there
+  command -v uv >/dev/null || { t "uv"; curl -LsSf https://astral.sh/uv/install.sh | env HOME=$CB XDG_CONFIG_HOME=$CB/.config \
+    UV_INSTALL_DIR=$CB/.local/bin UV_NO_MODIFY_PATH=1 sh >/dev/null; }
   export PATH=$CB/.local/bin:$PATH
   mkdir -p venvs data/ladder runs
   t "python"; uv python install 3.12 2>&1 | tail -1
