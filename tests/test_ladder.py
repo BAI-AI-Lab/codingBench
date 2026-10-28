@@ -140,7 +140,7 @@ def main():
     import ladder_complexity as C
     ref = [0.002 * 2 ** i for i in range(6)]                    # official CPU 2 ms .. 64 ms (+ 0 startup)
     quad = [x * x * 1000 for x in ref]                         # all above the 1 ms floor
-    root = [math.sqrt(x) / 10 for x in ref]
+    root = [math.sqrt(x) / 20 for x in ref]                    # also 2x+ faster on the heaviest tests
     half = [x / 2 for x in ref]
     check(C.relative(ref, quad, 0.0, 0.001)["class"] == "worse", "complexity: answer ~ official^2 -> worse")
     check(C.relative(ref, half, 0.0, 0.001)["class"] == "same", "complexity: half the time, same growth -> same")
@@ -150,6 +150,8 @@ def main():
     check(C.relative(ref, noisy, 0.0, 0.001)["class"] == "uncertain", "complexity: no power law -> uncertain")
     check(C.relative([0.010, 0.011, 0.012, 0.013], half[:4], 0.0, 0.001)["class"] == "not measurable",
           "complexity: official times within 4x -> not measurable")
+    setup = [0.05 + x * 0.9 for x in ref]                      # a fixed 50 ms cost bends the slope, not faster at the top
+    check(C.relative(ref, setup, 0.0, 0.001)["class"] == "uncertain", "complexity: fixed cost, no gain on heavy tests -> uncertain")
     sz = [1000 * 2 ** i for i in range(6)]
     r = C.relative(ref, quad, 0.0, 0.001, sz)
     check(abs(r["k_size_ref"] - 1) < 0.01 and abs(r["k_size_answer"] - 2) < 0.01, "complexity: input-size exponents 1 and 2")

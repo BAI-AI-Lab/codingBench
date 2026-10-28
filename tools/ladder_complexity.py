@@ -9,11 +9,13 @@ own work: on every test where the official solution needs at least 2 ms of CPU b
 interleaved on pinned cores, and the medians count. With x = official CPU and y = answer CPU (startup subtracted),
 the slope k of log y = a + k log x says how the answer's cost grows with the official solution's: if the official
 solution is Theta(f(n)) and the answer is Theta(f(n)^k), k is that exponent.
-  better      k <= 0.75 and R^2 >= 0.8   (grows more slowly than the official solution: a candidate for a better or
-                                          novel algorithm, listed for manual review)
+  better      k <= 0.75, R^2 >= 0.8, and on the official solution's 3 heaviest tests the answer is at least 2x faster
+              (grows more slowly than the official solution: a candidate for a better or novel algorithm, listed
+              for manual review)
   same        0.75 < k < 1.33 and R^2 >= 0.8
-  worse       k >= 1.33 and R^2 >= 0.8   (asymptotically worse, even if it passed the limits)
-  uncertain   R^2 < 0.8                  (the points do not follow one power law; no verdict)
+  worse       k >= 1.33, R^2 >= 0.8, and at least 2x slower on those tests (asymptotically worse, even if it passed)
+  uncertain   R^2 < 0.8, or a slope the heaviest tests contradict: a fixed cost in one program (e.g. setting up
+              large arrays) bends the log-log line, so a low or high k alone is not trusted
   not measurable  fewer than 4 such tests, or their official CPU times span less than 4x
 Space is classed the same way with peak memory (at least 1 MB above an empty program). Where the input sizes of those
 tests do span at least 8x, the input-size exponents of both programs are reported too (k_size).
@@ -31,6 +33,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import ladder_lib as L  # noqa: E402
 
 BETTER, WORSE, MIN_R2 = 0.75, 1.33, 0.8
+TOP_TESTS, TOP_FACTOR = 3, 2.0  # a better / worse verdict needs this factor on the official solution's heaviest tests
 MIN_CPU = 0.002      # s above the empty program
 MIN_RSS_KB = 1024    # KB above the empty program
 MIN_SPAN = 4.0       # largest / smallest official value among the fitted tests
@@ -51,10 +54,14 @@ def fit(xs, ys):
     return k, (1 - res / ss) if ss > 0 else 1.0
 
 
-def classify(k, r2):
+def classify(k, r2, top_ratio):
     if r2 is None or r2 < MIN_R2:
         return "uncertain"
-    return "better" if k <= BETTER else "worse" if k >= WORSE else "same"
+    if k <= BETTER:
+        return "better" if top_ratio <= 1 / TOP_FACTOR else "uncertain"
+    if k >= WORSE:
+        return "worse" if top_ratio >= TOP_FACTOR else "uncertain"
+    return "same"
 
 
 def relative(xs, ys, base, floor, sizes=None):
@@ -64,8 +71,10 @@ def relative(xs, ys, base, floor, sizes=None):
     if len(pts) < MIN_POINTS or max(p[0] for p in pts) / min(p[0] for p in pts) < MIN_SPAN:
         return {"class": "not measurable", "n": len(pts)}
     k, r2 = fit([p[0] for p in pts], [p[1] for p in pts])
-    out = {"k": round(k, 3), "r2": round(r2, 3), "n": len(pts), "class": classify(k, r2),
-           "ratio_median": round(statistics.median(p[1] / p[0] for p in pts), 3)}
+    top = sorted(pts, key=lambda p: p[0])[-TOP_TESTS:]
+    top_ratio = statistics.median(p[1] / p[0] for p in top)
+    out = {"k": round(k, 3), "r2": round(r2, 3), "n": len(pts), "class": classify(k, r2, top_ratio),
+           "ratio_median": round(statistics.median(p[1] / p[0] for p in pts), 3), "top_ratio": round(top_ratio, 3)}
     if sizes and all(p[2] for p in pts) and max(p[2] for p in pts) / min(p[2] for p in pts) >= SIZE_SPAN:
         out["k_size_answer"] = round(fit([p[2] for p in pts], [p[1] for p in pts])[0], 3)
         out["k_size_ref"] = round(fit([p[2] for p in pts], [p[0] for p in pts])[0], 3)
@@ -132,6 +141,7 @@ def main():
     ap.add_argument("--reps", type=int, default=5)
     ap.add_argument("--max-tests", type=int, default=20)
     ap.add_argument("--workers", type=int, default=int(os.environ.get("LADDER_CORES", "64")))
+    ap.add_argument("--reuse", action="store_true", help="re-class from the medians already in complexity.jsonl")
     a = ap.parse_args()
     os.environ["LADDER_CORES"] = str(a.workers)
     judged, answers = {}, {}
@@ -142,6 +152,9 @@ def main():
         r = json.loads(l)
         answers[r["q"]] = r
     bases = {lang: baseline(lang) for lang in ("python", "cpp")}
+    old = {}
+    if a.reuse and os.path.exists(os.path.join(a.run_dir, "complexity.jsonl")):
+        old = {r["q"]: r for r in map(json.loads, open(os.path.join(a.run_dir, "complexity.jsonl")))}
 
     def one(q):
         r = judged[q]
@@ -158,9 +171,12 @@ def main():
             rec["time"] = {"class": "not measurable", "n": len(names)}
             rec["space"] = {"class": "not measurable", "n": len(names)}
             return rec
-        code = answers[q]["code"]
-        ref_code = open(os.path.join(L.PROBLEMS, r["pid"], "ref", ref["file"])).read()
-        m = measure(meta, code, ref_code, lang, names, a.reps)
+        if q in old and old[q].get("tests"):
+            m = old[q]["tests"]
+        else:
+            code = answers[q]["code"]
+            ref_code = open(os.path.join(L.PROBLEMS, r["pid"], "ref", ref["file"])).read()
+            m = measure(meta, code, ref_code, lang, names, a.reps)
         if not m:
             rec["time"] = rec["space"] = {"class": "not measurable", "n": 0}
             return rec
