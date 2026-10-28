@@ -29,6 +29,7 @@
 #                          # report; run dir runs/<model>/ladder-<full|smoke>
 #   cb ladder-judge <run dir>     # (re-)judge a ladder run; cb ladder-report <run dir>... [--out dir] compares runs
 #   cb ladder-data [--status]     # download the sources (resumable) / show progress; cb ladder-build [--calibrate]
+#   cb ladder-fetch [--verify]    # the same download for fast links (parallel, every file checked)
 #
 # Optional: MAX_TOKENS (default 16384; must fit the model's context; "none" = send no limit, LiveCodeBench only), WORKERS (parallel requests, default 16),
 #           LCB_RELEASE (default release_v6), LCB_START (only problems released on/after this date, e.g. 2025-01-01),
@@ -44,7 +45,7 @@
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LADDER_N,LADDER_TIMEOUT,LADDER_OMIT,LADDER_LENIENT,LADDER_CORES,LADDER_RATE,TEMPERATURE,RETRIES,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CB_POST,CRUX_MAX_TOKENS,PRICE_IN,PRICE_HIT,PRICE_OUT,PRICE_OFF_IN,PRICE_OFF_HIT,PRICE_OFF_OUT,PEAK_HOURS_UTC,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
+KEEP=MODEL,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LADDER_N,LADDER_TIMEOUT,LADDER_OMIT,LADDER_LENIENT,LADDER_CORES,LADDER_RATE,LADDER_LIST,TEMPERATURE,RETRIES,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CB_POST,CRUX_MAX_TOKENS,PRICE_IN,PRICE_HIT,PRICE_OUT,PRICE_OFF_IN,PRICE_OFF_HIT,PRICE_OFF_OUT,PEAK_HOURS_UTC,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -81,9 +82,10 @@ post() {  # every evaluation also gets its re-judged score, latency and cost, st
   echo "=== post-processing done  $(date +%T)"
 }
 
-[ $# -ge 1 ] || { sed -n 2,45p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
+[ $# -ge 1 ] || { sed -n 2,46p "$0" | sed 's/^# \{0,1\}//'; exit 1; }
 [ "$1" = summary ] && { summary; exit; }
-LPY=$CB/venvs/livecodebench/bin/python   # Python 3.11 with openai, httpx, PyYAML; also the judge's Python for answers
+LPY=$CB/venvs/ladder/bin/python   # Python with openai, httpx, PyYAML; also the judge's Python for answers
+[ -x "$LPY" ] || LPY=$CB/venvs/livecodebench/bin/python   # the lab server: the livecodebench env has all of it
 ladder_post() {  # judge, performance, static quality, report of one ladder run
   local d=$1 sonar=()
   [ -n "${SONAR_URL:-}" ] && sonar=(--sonar)
@@ -103,6 +105,8 @@ case "$1" in
     [ -f $L/download.tsv ] || zcat $CB/samples/ladder_download.tsv.gz > $L/download.tsv
     cd $L && nohup nice -n 10 bash $CB/tools/ladder_download.sh $L/download.tsv $L/raw "${2:-6}" >> $L/download.log 2>&1 &
     echo "downloading in the background (log $L/download.log); cb ladder-data --status"; exit ;;
+  ladder-fetch)   # fast links: parallel, verified download (or --verify a copy, e.g. one copied from a drive)
+    exec $LPY -I $CB/tools/ladder_fetch.py "${LADDER_LIST:-$CB/samples/ladder_download.tsv.gz}" $CB/data/ladder/raw "${@:2}" ;;
   ladder-build) exec $LPY $CB/tools/ladder_build.py "${@:2}" ;;
   ladder-judge)
     [ -n "${2:-}" ] || { echo "usage: cb ladder-judge <run dir> [--workers N] [--perf-reps 3]" >&2; exit 1; }

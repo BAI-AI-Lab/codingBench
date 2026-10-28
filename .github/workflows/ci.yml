@@ -49,6 +49,23 @@ jobs:
       - name: Ladder pipeline (synthetic problems, native judge, mock endpoint)
         run: python tests/test_ladder.py
 
+  workstation:   # deploy/wsl_setup.sh end to end on Ubuntu (what WSL2 runs) with two USACO problems and a mock model
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup (packages, user bench, envs, data, build, calibration, problem list)
+        run: |
+          zcat samples/ladder_download.tsv.gz | grep -E "usaco/(1443|1541)/|usaco/pages/" | gzip > /tmp/part.tsv.gz
+          sudo env LADDER_LIST=/tmp/part.tsv.gz CB=/opt/code_bench bash deploy/wsl_setup.sh
+          test -f /opt/code_bench/data/ladder/ladder.json
+      - name: cb ladder --smoke against the mock endpoint
+        run: |
+          CB=/opt/code_bench /opt/code_bench/venvs/ladder/bin/python tests/mock_openai.py --port 18999 &
+          sleep 3
+          MODEL=mock OPENAI_BASE_URL=http://127.0.0.1:18999/v1 OPENAI_API_KEY=x cb ladder --smoke
+          sudo test -f /opt/code_bench/runs/mock/ladder-smoke/report/report.md
+          sudo grep -q '"solved": true' /opt/code_bench/runs/mock/ladder-smoke/judge.jsonl
+
   secrets:
     runs-on: ubuntu-latest
     steps:

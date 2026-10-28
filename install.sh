@@ -1,10 +1,25 @@
 #!/bin/bash
 # Install the benchmark code, Python envs and data. Run as user bench:  sudo -u bench -H bash <install dir>/install.sh
+# (--ladder: only the ladder test set's two envs, e.g. on a workstation; see deploy/wsl_setup.sh)
 # One venv per benchmark under $CB/venvs; safe to re-run.
 set -e
 source "$(dirname "$(readlink -f "${BASH_SOURCE[0]}")")/env.sh"
 cd $CB
 t() { echo "[$(date +%T)] $*"; }
+if [ "${1:-}" = --ladder ]; then  # only the ladder test set: generation/judge env and the static-quality env
+  command -v uv >/dev/null || { t "uv"; curl -LsSf https://astral.sh/uv/install.sh | env UV_INSTALL_DIR=$CB/.local/bin UV_NO_MODIFY_PATH=1 sh >/dev/null; }
+  export PATH=$CB/.local/bin:$PATH
+  mkdir -p venvs data/ladder runs
+  t "python"; uv python install 3.12 2>&1 | tail -1
+  t "ladder venv (generation, judge, report)"
+  uv venv -q --allow-existing -p 3.12 venvs/ladder
+  VIRTUAL_ENV=$CB/venvs/ladder uv pip install -q "openai>=1.40" httpx pyyaml
+  t "quality venv (static code quality, the pinned versions of arXiv:2610.19167)"
+  uv venv -q --allow-existing -p 3.12 venvs/quality
+  VIRTUAL_ENV=$CB/venvs/quality uv pip install -q pylint==3.3.5 radon==6.0.1
+  t "LADDER INSTALL DONE"
+  exit 0
+fi
 t "repos (pinned to the commits this was tested with)"
 mkdir -p src venvs data runs
 for r in bigcode-project/bigcodebench@09dd993 LiveCodeBench/LiveCodeBench@28fef95 facebookresearch/cruxeval@190faf1; do

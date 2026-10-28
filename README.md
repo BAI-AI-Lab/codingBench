@@ -78,6 +78,7 @@ LiveCodeBench 自带的判题程序会误判：它模拟的 `sys.stdin.buffer.re
 
 ```bash
 cb ladder-data              # 后台下载题目数据（可断点续传，约 4.7 GB）；cb ladder-data --status 看进度
+cb ladder-fetch             # 网络快的机器上用这个：并行下载并逐个校验（git sha1、zip CRC），--verify 只校验
 cb ladder-build             # 把下载的数据整理成题目；再 cb ladder-build --calibrate 判官方解、选性能对照
 cb ladder-build --manifest $CB/data/ladder/ladder.json   # 写出题目清单（只有编号、档位、日期、时限）；核对后复制成仓库里的 samples/ladder.json
 export MODEL=... OPENAI_BASE_URL=... OPENAI_API_KEY=...
@@ -86,6 +87,18 @@ cb ladder                   # 全量：生成 → 判题 → 性能复测 → �
 cb progress <模型>/ladder-full --watch 30         # 跑的过程中看进度（同 LiveCodeBench）
 cb ladder-report <运行A> <运行B> --out <目录>     # 多个模型放在一份报告里对比；有 xelatex 就直接出 PDF
 ```
+
+**在 Windows 工作站上运行（WSL2）**：判题要用 Linux 的进程和资源限制，所以在 Windows 上用 WSL2 的 Ubuntu（x86 机器即可，不需要 GPU）。在 PowerShell 里 `wsl --install -d Ubuntu`，重启后进入 Ubuntu：
+
+```bash
+git clone git@github.com:BAI-AI-Lab/codingBench.git && cd codingBench   # 先在 WSL 里配好 GitHub 的 SSH key
+sudo bash deploy/wsl_setup.sh                                  # 装编译器和两个 Python 环境，下载并校验题目数据，建库，判官方解
+# 数据已经在 U 盘/移动硬盘上（tools/ladder_fetch.py 下载过）：sudo bash deploy/wsl_setup.sh --data /mnt/e/codingBench_ladder/raw
+export MODEL=deepseek-flash OPENAI_BASE_URL=https://api.deepseek.com/v1 OPENAI_API_KEY=sk-...
+cb ladder --smoke && cb ladder                                 # 报告在 /opt/code_bench/runs/<模型>/ladder-full/report/
+```
+
+安装目录默认是 `/opt/code_bench`（`CB=... sudo -E bash deploy/wsl_setup.sh` 可改），布局和实验室服务器相同：脚本归 root，模型写的代码以无权限用户 `bench` 运行。注意 WSL 默认把 Windows 磁盘挂在 `/mnt/c` 等处，`bench` 用户能读到上面的文件；不放心的话在 `/etc/wsl.conf` 里关掉 automount。PyPI 用默认源（`$CB/mirrors` 写的是 `global`）。报告的 PDF 需要 `sudo apt install texlive-xetex texlive-lang-chinese`，排版会直接用 Windows 自带的 Times New Roman 和楷体（`/mnt/c/Windows/Fonts`）；也可以把报告目录拷到 Mac 上运行 `bash build.sh`。SonarQube 需要 Docker（Docker Desktop 打开 WSL 集成后可用 `deploy/sonarqube.sh start`，用 `SONAR_DIR` 指定数据目录）；不开就只出 Pylint 和 Radon。
 
 可选的环境变量：`LADDER_N`（每档采样次数，默认 `L1=1,L2=1,L3=3,L4=3,L5=1`）、`MAX_TOKENS`（默认不设上限）、`WORKERS`、`STREAM`、`LADDER_TIMEOUT`（同 `LCB_TIMEOUT`）、`LADDER_OMIT`（同 `LCB_OMIT`）、`TEMPERATURE`（默认 0.2）、`LADDER_LENIENT`、`LADDER_CORES`（判题用的核数，默认 64）、`PRICE_*`（算费用）。中途断了直接重跑同一条命令，已经答过的不再请求。报告的 PDF 用 Times New Roman 和楷体排版，服务器上没有 xelatex 和这两种字体，把报告目录拷到 Mac 上运行 `bash build.sh` 即可。`tests/test_ladder.py` 用合成题和 `tests/mock_openai.py`（假的模型接口，回答官方解）把整条管路测一遍，CI 里也跑。
 
