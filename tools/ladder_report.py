@@ -72,9 +72,18 @@ def load(run_dir, prices=None):
     # the run's sample list, to tell a partial run (paused, not finished, judge not run yet) from a complete one
     pj = os.path.join(run_dir, "problems.json")
     planned = {p["q"]: p["difficulty"] for p in json.load(open(pj))} if os.path.exists(pj) else {}
+    # problems taken out of the problem list after the run (found not judgeable): their answers are left out, listed
+    man = info.get("manifest")
+    dropped = []
+    if man and os.path.exists(man):
+        listed = {p for v in json.load(open(man))["tiers"].values() for p in v}
+        dropped = sorted({r["pid"] for r in last.values()} - listed)
+        judged = {q: r for q, r in judged.items() if r["pid"] in listed}
+        planned = {q: t for q, t in planned.items() if q.split("#")[0] in listed}
+        unanswered = [q for q in unanswered if q.split("#")[0] in listed]
     metas = {r["pid"]: L.load_meta(r["pid"]) for r in judged.values()}
     return {"dir": run_dir, "model": info["model"], "info": info, "judged": judged, "perf": perf, "quality": quality,
-            "complexity": complexity, "unanswered": unanswered, "planned": planned,
+            "complexity": complexity, "unanswered": unanswered, "planned": planned, "dropped": dropped,
             "calls": calls, "metas": metas, "prices": prices}
 
 
@@ -167,7 +176,8 @@ def complexity_stats(run):
 def analyze(run):
     rs = list(run["judged"].values())
     metas = run["metas"]
-    s = {"model": run["model"], "tiers": {}, "subsets": {}, "unanswered": run.get("unanswered", [])}
+    s = {"model": run["model"], "tiers": {}, "subsets": {}, "unanswered": run.get("unanswered", []),
+         "dropped": run.get("dropped", [])}
     for t in L.TIERS:
         sel = [r for r in rs if r["tier"] == t]
         if sel:
@@ -275,6 +285,9 @@ def md_report(stats, date):
         if s["unanswered"]:
             L_ += [f"- {s['model']}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
                    + "、".join(s["unanswered"]), ""]
+        if s["dropped"]:
+            L_ += [f"- {s['model']}：{len(s['dropped'])} 道题在运行后从题单中剔除（当前判题程序无法正确评测），其答案不计入："
+                   + "、".join(s["dropped"]), ""]
         if s["pending"]:
             L_ += [f"- {s['model']}：部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，"
                    "不计入任何比率（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()), ""]
@@ -393,6 +406,9 @@ def tex_report(stats, date):
         if s["unanswered"]:
             parts.append(f"{tex(s['model'])}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
                          + "、".join(tex(q) for q in s["unanswered"]) + "。")
+        if s["dropped"]:
+            parts.append(f"{tex(s['model'])}：{len(s['dropped'])} 道题在运行后从题单中剔除（当前判题程序无法正确评测），其答案不计入："
+                         + "、".join(tex(p) for p in s["dropped"]) + "。")
         if s["pending"]:
             parts.append(f"{tex(s['model'])}：部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，"
                          "不计入任何比率（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()) + "。")

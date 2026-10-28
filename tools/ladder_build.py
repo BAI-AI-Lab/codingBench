@@ -240,7 +240,11 @@ def build_egoi(only=None):
         title = (re.search(r"^# (.*)$", text, re.M) or [0, name])[1]
         chk = os.path.join(tdir, "check", "checker.cpp")
         judge = {"kind": "tokens"}
-        if os.path.exists(chk):
+        if any(os.path.exists(os.path.join(tdir, "check", f)) for f in ("manager", "manager.cpp", "controller", "controller.cpp")):
+            # interactive: a CMS manager (seatingplan) or EGOI's controller that runs the contestant as several
+            # processes (census); their expected outputs are empty, so token comparison would fail every answer
+            judge = {"kind": "communication", "task_type": "Communication"}
+        elif os.path.exists(chk):
             cdir = os.path.join(d, "checker")
             os.makedirs(cdir, exist_ok=True)
             copy_resolved(chk, os.path.join(cdir, "checker.cpp"))
@@ -525,8 +529,11 @@ def manifest(out, l5=30):
         if m["source"] == "frontiercs":
             continue
         why = ("no official solution passes our tests" if m.get("verified") is False else
-               "communication task (manager + several processes): not supported by the native judge yet"
+               "interactive or communication task (manager/controller program): not supported by the native judge yet"
                if m["judge"]["kind"] == "communication" else
+               "expected outputs are all empty, nothing to compare against"
+               if m["judge"]["kind"] == "tokens" and m["tests"] and all(
+                   os.path.getsize(os.path.join(L.PROBLEMS, m["pid"], "tests", t["out"])) == 0 for t in m["tests"]) else
                "multiple valid answers, no checker" if m.get("multi_answer") and m["judge"]["kind"] == "tokens" else
                "statement missing" if not os.path.exists(os.path.join(L.PROBLEMS, m["pid"], "statement.md"))
                or not open(os.path.join(L.PROBLEMS, m["pid"], "statement.md")).read().strip() else None)

@@ -209,12 +209,21 @@ def main():
         check(os.path.exists(os.path.join(run, "report", "main.tex")), "report: LaTeX written")
         check(rep["pending"] == {}, "report: a finished run has no pending samples")
         plist = json.load(open(os.path.join(run, "problems.json")))
-        json.dump(plist + [{"q": "t-later#0", "difficulty": "L5"}], open(os.path.join(run, "problems.json"), "w"))
+        json.dump(plist + [{"q": "t-testlib#1", "difficulty": "L5"}], open(os.path.join(run, "problems.json"), "w"))
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
                         os.path.join(run, "report")], env=env, check=True)
         rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
         check(sum(p - d for d, p in rep["pending"].values()) == 1 and "部分结果" in open(os.path.join(run, "report", "report.md")).read(),
               "report: a sample not generated yet is flagged as a partial result")
+        mpath = os.path.join(CB, "samples", "ladder.json")
+        man = json.load(open(mpath))
+        man["tiers"]["L3"] = ["t-sum-cpp"]  # t-cms taken out of the list after the run
+        json.dump(man, open(mpath, "w"))
+        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
+                        os.path.join(run, "report")], env=env, check=True)
+        rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
+        check(rep["dropped"] == ["t-cms"] and "t-cms" not in rep["per_problem"] and rep["unanswered"] == [],
+              "report: a problem dropped from the list after the run is left out and listed")
     finally:
         mock.terminate()
     shutil.rmtree(CB, ignore_errors=True)
