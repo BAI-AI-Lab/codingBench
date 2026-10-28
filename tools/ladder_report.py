@@ -69,9 +69,12 @@ def load(run_dir, prices=None):
     quality = {r["q"]: r for r in jl(os.path.join(run_dir, "quality.jsonl"))}
     complexity = {r["q"]: r for r in jl(os.path.join(run_dir, "complexity.jsonl"))}
     calls = jl(os.path.join(run_dir, "usage.jsonl"))
+    # the run's sample list, to tell a partial run (paused, not finished, judge not run yet) from a complete one
+    pj = os.path.join(run_dir, "problems.json")
+    planned = {p["q"]: p["difficulty"] for p in json.load(open(pj))} if os.path.exists(pj) else {}
     metas = {r["pid"]: L.load_meta(r["pid"]) for r in judged.values()}
     return {"dir": run_dir, "model": info["model"], "info": info, "judged": judged, "perf": perf, "quality": quality,
-            "complexity": complexity, "unanswered": unanswered,
+            "complexity": complexity, "unanswered": unanswered, "planned": planned,
             "calls": calls, "metas": metas, "prices": prices}
 
 
@@ -173,6 +176,9 @@ def analyze(run):
         for sub in sorted({r["subset"] for r in rs if r["tier"] == t}):
             sel = [r for r in rs if r["tier"] == t and r["subset"] == sub]
             s["subsets"][f"{t}|{sub}"] = tier_stats(sel, metas, run["perf"])
+    plan = collections.Counter(t for q, t in run.get("planned", {}).items() if q not in s["unanswered"])
+    done = collections.Counter(r["tier"] for r in rs)
+    s["pending"] = {t: [done[t], plan[t]] for t in L.TIERS if plan[t] > done[t]}  # tier: [judged, planned]
     s["complexity"] = complexity_stats(run)
     s["usage"] = usage_stats(run, {p: m["tier"] for p, m in metas.items()})
     s["quality"] = quality_stats(run)
@@ -269,6 +275,9 @@ def md_report(stats, date):
         if s["unanswered"]:
             L_ += [f"- {s['model']}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
                    + "、".join(s["unanswered"]), ""]
+        if s["pending"]:
+            L_ += [f"- {s['model']}：部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，"
+                   "不计入任何比率（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()), ""]
     L_ += ["## 各档正确率", "", "| 档位 | 指标 | " + " | ".join(models) + " |", "|---|---|" + "---:|" * len(models)]
     for t in L.TIERS:
         if not any(t in s["tiers"] for s in stats):
@@ -384,6 +393,9 @@ def tex_report(stats, date):
         if s["unanswered"]:
             parts.append(f"{tex(s['model'])}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
                          + "、".join(tex(q) for q in s["unanswered"]) + "。")
+        if s["pending"]:
+            parts.append(f"{tex(s['model'])}：部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，"
+                         "不计入任何比率（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()) + "。")
     parts.append(r"\section{各档正确率}")
     rows = []
     for t in L.TIERS:

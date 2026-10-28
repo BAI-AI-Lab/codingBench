@@ -207,6 +207,14 @@ def main():
         check(rep["unanswered"] == ["t-cms#0"] and rep["tiers"]["L3"]["samples"] == 1, "report: unanswered sample left out")
         check(rep["tiers"]["L1"]["pass1"] == 100 and rep["tiers"]["L1"]["samples"] == 2, "report: L1 pass@1 100 over 2 samples")
         check(os.path.exists(os.path.join(run, "report", "main.tex")), "report: LaTeX written")
+        check(rep["pending"] == {}, "report: a finished run has no pending samples")
+        plist = json.load(open(os.path.join(run, "problems.json")))
+        json.dump(plist + [{"q": "t-later#0", "difficulty": "L5"}], open(os.path.join(run, "problems.json"), "w"))
+        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
+                        os.path.join(run, "report")], env=env, check=True)
+        rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
+        check(sum(p - d for d, p in rep["pending"].values()) == 1 and "部分结果" in open(os.path.join(run, "report", "report.md")).read(),
+              "report: a sample not generated yet is flagged as a partial result")
     finally:
         mock.terminate()
     shutil.rmtree(CB, ignore_errors=True)
