@@ -119,7 +119,8 @@ def judge_test(meta, t, argv, work, lenient=None):
                       interactor=[ib, "in.txt", "tout.txt", "ans.txt"])
             msg = open(err, errors="replace").read()[-2000:] if os.path.exists(err) else ""
             score = L.interactor_score(r.get("int_status", 0), msg) if r["verdict"] == "ok" else 0.0
-            rec = {"verdict": r["verdict"] if r["verdict"] != "ok" else ("ok" if score >= 1 else "WA"), "score": score}
+            rec = {"verdict": r["verdict"] if r["verdict"] != "ok" else
+                   ("ok" if score >= 1 - 1e-9 else ("partial" if score > 0 else "WA")), "score": score}  # as for checkers
         else:
             r = L.run(argv, inp, out, work, run_tl, ml, core=core)
             if r["verdict"] != "ok":
