@@ -26,12 +26,36 @@ _cores = None
 _lock = threading.Lock()
 
 
+def cpu_quota():
+    """CPUs a container's cgroup actually allows (cgroup v2 cpu.max or v1 cfs quota), rounded up; None = no quota.
+    nproc and the affinity mask show the host's cores, e.g. 96 on a box that may use half of one."""
+    import math
+    try:
+        q, p = open("/sys/fs/cgroup/cpu.max").read().split()[:2]
+        if q != "max":
+            return max(1, math.ceil(int(q) / int(p)))
+    except (OSError, ValueError):
+        pass
+    try:
+        q = int(open("/sys/fs/cgroup/cpu/cpu.cfs_quota_us").read())
+        p = int(open("/sys/fs/cgroup/cpu/cpu.cfs_period_us").read())
+        if q > 0:
+            return max(1, math.ceil(q / p))
+    except (OSError, ValueError):
+        pass
+    return None
+
+
 def cores(n):
-    """A pool of the n highest cores of this process's affinity mask (each test run holds one), or None slots."""
+    """A pool of the n highest cores of this process's affinity mask (each test run holds one), or None slots; never
+    more than the cgroup CPU quota, so runs do not share a core and stretch past their wall-clock limit."""
     global _cores
     with _lock:
         if _cores is None:
             avail = sorted(os.sched_getaffinity(0)) if hasattr(os, "sched_getaffinity") else []
+            q = cpu_quota()
+            if q:
+                n = min(n, q)
             _cores = queue.Queue()
             for c in (avail[-n:] if avail else [None] * n):
                 _cores.put(c)
