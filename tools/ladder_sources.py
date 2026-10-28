@@ -3,8 +3,10 @@
   python tools/ladder_sources.py [--out samples/ladder_download.tsv.gz]      # needs fast access to usaco.org and GitHub
 
 Run it where the internet is fast (the server's link is slow); the list is committed, and cb ladder-data downloads
-it on the server with tools/ladder_download.sh (resumable). Lines: url, path under data/ladder/raw, size (-1 = unknown),
-in the order USACO Bronze -> Platinum, EGOI 2026, IOI 2026, FrontierCS. Set GITHUB_TOKEN to avoid API rate limits.
+it on the server with tools/ladder_download.sh (resumable), or tools/ladder_fetch.py downloads it anywhere (e.g. a
+laptop with a fast link) and rsync pushes it. Lines: url, path under data/ladder/raw, size (-1 = unknown), git blob
+sha1 of GitHub files (empty for USACO), in the order USACO Bronze -> Platinum, EGOI 2026, IOI 2026, FrontierCS.
+Set GITHUB_TOKEN to avoid API rate limits.
 To add a contest or a new USACO season: add it here, re-run, commit, then cb ladder-data and cb ladder-build.
 """
 import argparse
@@ -51,14 +53,14 @@ def main():
     for page in USACO_PAGES:
         url = f"https://usaco.org/index.php?page={page}"
         h = get(url).read().decode("utf-8", "replace")
-        rows["bronze"].append((url, f"usaco/pages/{page}.html", -1))
+        rows["bronze"].append((url, f"usaco/pages/{page}.html", -1, ""))
         for m in re.finditer(r"cpid=(\d+)'>View problem</a>.*?href='(current/data/[^']+\.zip)'.*?href='(current/data/sol_[^']+\.html)'", h, re.S):
             cpid, z, sol = m.groups()
             div = re.search(r"_(bronze|silver|gold|platinum)_", z).group(1)
             size = int(get("https://usaco.org/" + z, "HEAD").headers.get("Content-Length", -1))
-            rows[div] += [(f"https://usaco.org/index.php?page=viewproblem2&cpid={cpid}", f"usaco/{cpid}/problem.html", -1),
-                          (f"https://usaco.org/{sol}", f"usaco/{cpid}/solution.html", -1),
-                          (f"https://usaco.org/{z}", f"usaco/{cpid}/tests.zip", size)]
+            rows[div] += [(f"https://usaco.org/index.php?page=viewproblem2&cpid={cpid}", f"usaco/{cpid}/problem.html", -1, ""),
+                          (f"https://usaco.org/{sol}", f"usaco/{cpid}/solution.html", -1, ""),
+                          (f"https://usaco.org/{z}", f"usaco/{cpid}/tests.zip", size, "")]
         time.sleep(1)
     out = [r for d in DIVISIONS for r in rows[d]]
     for name, (repo, sha, prefix) in REPOS.items():
@@ -69,11 +71,11 @@ def main():
             p = x["path"]
             if x["type"] != "blob" or not p.startswith(prefix) or not keep(name, p[len(prefix):]):
                 continue
-            out.append((f"https://raw.githubusercontent.com/{repo}/{sha}/{p}", f"{name}/{p[len(prefix):]}", x["size"]))
+            out.append((f"https://raw.githubusercontent.com/{repo}/{sha}/{p}", f"{name}/{p[len(prefix):]}", x["size"], x["sha"]))
     with gzip.open(a.out, "wt") as f:
-        for u, d, s in out:
-            f.write(f"{u}\t{d}\t{s}\n")
-    total = sum(max(s, 0) for *_, s in out)
+        for u, d, s, h in out:
+            f.write(f"{u}\t{d}\t{s}\t{h}\n")
+    total = sum(max(r[2], 0) for r in out)
     print(f"{a.out}: {len(out)} files, {total / 1e6:.0f} MB")
 
 
