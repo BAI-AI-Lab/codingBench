@@ -44,6 +44,7 @@ sudo bash deploy/wsl_setup.sh                                     # 装软件和
 
 ```bash
 export MODEL=deepseek-flash OPENAI_BASE_URL=https://api.deepseek.com OPENAI_API_KEY=sk-...
+export MODEL_NAME="DeepSeek Flash V4.1-1017"                # 报告标题里写的模型全名（不设就用 MODEL）
 export PRICE_IN=0.3 PRICE_HIT=0.006 PRICE_OUT=1.2          # 可选：每百万 token 单价（美元），报告里算费用
 cb ladder --smoke                                          # 每档只跑第一题、采样 1 次，确认接口和格式（几分钟）
 cb ladder                                                  # 全量：生成 → 判题 → 性能复测 → 复杂度 → 静态质量 → 报告

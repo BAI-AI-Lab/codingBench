@@ -164,7 +164,7 @@ def main():
     index = [{"q": f"{p}#{k}", "title": metas[p]["title"], "platform": metas[p]["source"], "difficulty": metas[p]["tier"],
               "content": stmts[p][:4000]} for p, k in jobs]
     json.dump(index, open(os.path.join(a.out, "problems.json"), "w"), ensure_ascii=False)
-    json.dump({"model": model, "manifest": a.manifest, "tiers": tiers, "n": n_of, "smoke": a.smoke,
+    json.dump({"model": model, "name": os.environ.get("MODEL_NAME") or model, "manifest": a.manifest, "tiers": tiers, "n": n_of, "smoke": a.smoke,
                "temperature": a.temperature, "max_tokens": a.max_tokens, "started": time.time()},
               open(os.path.join(a.out, "run.json"), "w"), indent=1)
     have = {}

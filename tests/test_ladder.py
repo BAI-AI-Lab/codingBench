@@ -3,6 +3,7 @@ then generation against tests/mock_openai.py, judging, performance re-runs and t
 
   python tests/test_ladder.py          # needs g++, and openai + httpx for the end-to-end part
 """
+import datetime
 import json
 import math
 import os
@@ -213,8 +214,12 @@ def main():
             f.write(json.dumps({"q": "t-cms#0", "pid": "t-cms", "k": 0, "tier": "L3", "lang": "cpp", "code": "",
                                 "finish": "error", "code_hash": "y"}) + "\n")
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
-                        os.path.join(run, "report")], env=env, check=True)
+                        os.path.join(run, "report"), "--names", "mock=Mock Model 1.0-1017"], env=env, check=True)
         rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
+        md = open(os.path.join(run, "report", "report.md")).read()
+        check(rep["model"] == "Mock Model 1.0-1017" and md.rstrip().endswith(f"由 Albert Huang 创建于 {datetime.date.today()}")
+              and "Mock Model 1.0-1017" in open(os.path.join(run, "report", "main.tex")).read(),
+              "report: full model name, and the last line names the author and date")
         check(rep["unanswered"] == ["t-cms#0"] and rep["tiers"]["L3"]["samples"] == 1, "report: unanswered sample left out")
         check(rep["tiers"]["L1"]["pass1"] == 100 and rep["tiers"]["L1"]["samples"] == 2, "report: L1 pass@1 100 over 2 samples")
         check(os.path.exists(os.path.join(run, "report", "main.tex")), "report: LaTeX written")

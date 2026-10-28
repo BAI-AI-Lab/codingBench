@@ -16,6 +16,7 @@ import datetime
 import json
 import math
 import os
+import re
 import shutil
 import statistics
 import subprocess
@@ -40,8 +41,11 @@ def geo(xs):
     return math.exp(statistics.mean(map(math.log, xs))) if xs else None
 
 
-def failure(r):
-    """The main reason an answer is not solved (lenient), or "slow" if it is solved but not under the official limit."""
+def failure(r, continuous=False):
+    """The main reason an answer is not solved (lenient), or "slow" if it is solved but not under the official limit.
+    On a continuously scored problem (FrontierCS) any score above 0 is "partial"; only a 0 gets a reason."""
+    if continuous and not r["solved"] and r["score"] > 0:
+        return "partial"
     if r["solved"]:
         return None if r["strict_solved"] else "slow"
     v = r.get("verdicts") or {}
@@ -55,7 +59,7 @@ def failure(r):
     return "partial"
 
 
-def load(run_dir, prices=None):
+def load(run_dir, prices=None, names=None):
     info = json.load(open(os.path.join(run_dir, "run.json")))
     judged = {r["q"]: r for r in jl(os.path.join(run_dir, "judge.jsonl"))}
     last = {}
@@ -82,7 +86,9 @@ def load(run_dir, prices=None):
         planned = {q: t for q, t in planned.items() if q.split("#")[0] in listed}
         unanswered = [q for q in unanswered if q.split("#")[0] in listed]
     metas = {r["pid"]: L.load_meta(r["pid"]) for r in judged.values()}
-    return {"dir": run_dir, "model": info["model"], "info": info, "judged": judged, "perf": perf, "quality": quality,
+    # the model's full name for the report (--names, else MODEL_NAME at generation time), the API id otherwise
+    name = (names or {}).get(info["model"]) or info.get("name") or info["model"]
+    return {"dir": run_dir, "model": info["model"], "name": name, "info": info, "judged": judged, "perf": perf, "quality": quality,
             "complexity": complexity, "unanswered": unanswered, "planned": planned, "dropped": dropped,
             "calls": calls, "metas": metas, "prices": prices}
 
@@ -91,7 +97,7 @@ def tier_stats(rs, metas, perf):
     by_pid = collections.defaultdict(list)
     for r in rs:
         by_pid[r["pid"]].append(r)
-    fails = collections.Counter(failure(r) for r in rs)
+    fails = collections.Counter(failure(r, metas[r["pid"]]["scoring"].get("type") == "mean") for r in rs)
     fails.pop(None, None)
     ratios = [perf[r["q"]]["ratio"] for r in rs if r["q"] in perf]
     mem = []
@@ -100,7 +106,9 @@ def tier_stats(rs, metas, perf):
         if r["solved"] and ref and ref.get("rss_kb"):
             mem.append(r["max_rss_kb"] / ref["rss_kb"])
     n = len(rs)
-    return {"problems": len(by_pid), "samples": n,
+    # FrontierCS scores 0-100 against a reference: no answer "solves" an open problem, so pass@k does not apply
+    cont = bool(by_pid) and all(metas[p]["scoring"].get("type") == "mean" for p in by_pid)
+    return {"problems": len(by_pid), "samples": n, "continuous": cont,
             "pass1": 100 * sum(r["solved"] for r in rs) / n if n else None,
             "pass1_strict": 100 * sum(r["strict_solved"] for r in rs) / n if n else None,
             "score": statistics.mean(r["score"] for r in rs) if n else None,
@@ -123,13 +131,16 @@ def usage_stats(run, tier_of):
     out["latency"] = U.stats(lat)
     out["ttft"] = U.stats(ttft)
     out["span_h"] = (max(c["end"] for c in calls) - min(c["start"] for c in calls)) / 3600 if calls else 0
-    per_tier = collections.defaultdict(lambda: {"completion": 0, "calls": 0, "cost": 0.0})
+    per_tier = collections.defaultdict(lambda: {"completion": 0, "calls": 0, "cost": 0.0, "lat": []})
     for c in ok:
-        t = tier_of.get(c["q"].split("#")[0])
+        t = tier_of.get(c["q"].split("#")[0])  # None: a problem taken out of the list after the run
         per_tier[t]["completion"] += U.tokens(c.get("usage"))[2]
         per_tier[t]["calls"] += 1
+        per_tier[t]["lat"].append(c["end"] - c["start"])
         if run["prices"]:
             per_tier[t]["cost"] += U.call_cost(c, run["prices"])
+    for d in per_tier.values():
+        d["latency_median"] = statistics.median(d.pop("lat")) if d["lat"] else None
     out["per_tier"] = dict(per_tier)
     out["cost"] = sum(U.call_cost(c, run["prices"]) for c in calls) if run["prices"] else None
     return out
@@ -138,7 +149,9 @@ def usage_stats(run, tier_of):
 def quality_stats(run):
     rows = list(run["quality"].values())
     out = {}
-    for name, sel in (("all", rows), ("correct", [r for r in rows if r.get("solved")])):
+    groups = [("all", rows), ("correct", [r for r in rows if r.get("solved")])]
+    groups += [(f"correct|{t}", [r for r in rows if r.get("solved") and r.get("tier") == t]) for t in L.TIERS]
+    for name, sel in groups:
         ok = [r for r in sel if r.get("pylint") and r.get("radon")]
         if not ok:
             out[name] = None
@@ -176,7 +189,7 @@ def complexity_stats(run):
 def analyze(run):
     rs = list(run["judged"].values())
     metas = run["metas"]
-    s = {"model": run["model"], "tiers": {}, "subsets": {}, "unanswered": run.get("unanswered", []),
+    s = {"model": run.get("name") or run["model"], "model_id": run["model"], "tiers": {}, "subsets": {}, "unanswered": run.get("unanswered", []),
          "dropped": run.get("dropped", [])}
     for t in L.TIERS:
         sel = [r for r in rs if r["tier"] == t]
@@ -195,11 +208,13 @@ def analyze(run):
     s["per_problem"] = {}
     for pid in sorted(metas):
         v = [r for r in rs if r["pid"] == pid]
+        cont = metas[pid]["scoring"].get("type") == "mean"
         s["per_problem"][pid] = {"tier": metas[pid]["tier"], "title": metas[pid]["title"], "subset": metas[pid]["subset"],
+                                 "continuous": metas[pid]["scoring"].get("type") == "mean",
                                  "solved": sum(r["solved"] for r in v), "n": len(v),
                                  "score": statistics.mean(r["score"] for r in v),
-                                 "fail": collections.Counter(failure(r) for r in v if failure(r)).most_common(1)[0][0]
-                                 if any(failure(r) for r in v) else None}
+                                 "fail": collections.Counter(failure(r, cont) for r in v if failure(r, cont)).most_common(1)[0][0]
+                                 if any(failure(r, cont) for r in v) else None}
     return s
 
 
@@ -245,7 +260,7 @@ CRITERIA = [  # (dimension, metric, how it is computed, direction)
      "这些测试点的输入大小跨度达到 8 倍时，另报两者按输入大小的增长幂次。", ""),
     ("失败类型", "每份未解出答案的主要原因",
      "按顺序取第一个成立的：无代码、编译错误、答案错误、运行错误、超内存、超时、部分分（部分测试点得分）；"
-     "宽时限下解出但官方时限下没有全部通过的记为“只在官方时限下超时”。", ""),
+     "宽时限下解出但官方时限下没有全部通过的记为“只在官方时限下超时”。FrontierCS 为连续分，得分大于 0 的答案记为部分分，只有 0 分的答案按上面的顺序找原因。", ""),
     ("静态质量", "Pylint、Radon、SonarQube（只限 L1–L2 的 Python 答案）",
      "按 arXiv:2610.19167 的口径与版本：Pylint 3.3.5 默认配置的问题数（C/R/W/E）与 0–10 分，Radon 6.0.1 的圈复杂度（所有条目之和）、"
      "可维护性指数 MI、SLOC，SonarQube 10.4 的可维护性/可靠性/安全问题数；报告正确答案的每份平均与每百行 SLOC 的问题数。", "见表头"),
@@ -272,86 +287,229 @@ def criteria_md():
 
 def criteria_tex():
     rows = [r"\section{评测维度与打分标准}", NO_TOTAL,
-            r"{\small\begin{longtable}{@{}p{1.6cm}p{2.6cm}p{10.3cm}p{0.9cm}@{}}", r"\toprule 维度 & 指标 & 计算方法 & 方向 \\ \midrule \endhead"]
+            r"{\small\begin{longtable}{@{}p{1.6cm}p{2.6cm}p{9.9cm}p{1.2cm}@{}}", r"\toprule 维度 & 指标 & 计算方法 & 方向 \\ \midrule \endhead"]
     rows += [f"{d} & {m} & {how} & {arrow} \\\\" for d, m, how, arrow in CRITERIA]
     rows += [r"\bottomrule", r"\end{longtable}}"]
     return "\n".join(rows)
 
 
-def md_report(stats, date):
-    models = [s["model"] for s in stats]
-    L_ = [f"# 阶梯代码评测报告（{date}）", ""] + criteria_md()
+NA = "不适用"
+SUBSET_NAME = {"2026": "2026 新题（EGOI / IOI）"}
+CPLX = (("better", "更优"), ("same", "同阶"), ("worse", "更差"), ("uncertain", "不确定"), ("not measurable", "不可测"),
+        ("no reference", "无官方解"))
+
+
+def table(head, rows, align, groups=None, tex_spec=None):
+    """A table for both renderers: head = column names, groups = [(label, span), ...] over them (label "" = none),
+    align = one l/r per column; tex_spec overrides the LaTeX column spec (e.g. wrapping p{} columns)."""
+    return {"head": head, "rows": rows, "align": align, "groups": groups, "tex_spec": tex_spec}
+
+
+def notes(stats):
+    multi = len(stats) > 1
+    out = []
     for s in stats:
+        who = f"{s['model']}：" if multi else ""
         if s["unanswered"]:
-            L_ += [f"- {s['model']}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
-                   + "、".join(s["unanswered"]), ""]
+            out.append(f"{who}{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
+                       + "、".join(s["unanswered"]) + "。")
         if s["dropped"]:
-            L_ += [f"- {s['model']}：{len(s['dropped'])} 道题在运行后从题单中剔除（当前判题程序无法正确评测），其答案不计入："
-                   + "、".join(s["dropped"]), ""]
+            out.append(f"{who}{len(s['dropped'])} 道题在运行后从题单中剔除（当前判题程序无法正确评测），其答案不计入："
+                       + "、".join(s["dropped"]) + "。")
         if s["pending"]:
-            L_ += [f"- {s['model']}：部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，"
-                   "不计入任何比率（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()), ""]
-    L_ += ["## 各档正确率", "", "| 档位 | 指标 | " + " | ".join(models) + " |", "|---|---|" + "---:|" * len(models)]
-    for t in L.TIERS:
-        if not any(t in s["tiers"] for s in stats):
-            continue
-        for key, name in (("pass1", "pass@1（宽时限）↑"), ("pass1_strict", "pass@1（官方时限）↑"),
-                          ("score", "平均得分（宽时限）↑"), ("score_strict", "平均得分（官方时限）↑"), ("passn", "pass@n ↑")):
-            vals = [f1(s["tiers"].get(t, {}).get(key)) for s in stats]
-            L_.append(f"| {TIER_NAME[t]} | {name} | " + " | ".join(vals) + " |")
-    L_ += ["", "## 2026 新题与 USACO 对照（泄露检查）", ""]
-    if not any(k.endswith("|2026") for s in stats for k in s["subsets"]):
-        L_ += ["本次评测还没有 2026 年的 EGOI/IOI 题，下表只是 USACO 两个赛季之间的对照（2025-26 赛季的题更新）。", ""]
-    L_ += ["| 档位 / 子集 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
-    keys = sorted({k for s in stats for k in s["subsets"]})
-    for k in keys:
-        L_.append(f"| {k.replace('|', ' / ')}（pass@1 / 得分）↑ | " + " | ".join(
-            f"{f1(s['subsets'].get(k, {}).get('pass1'))} / {f1(s['subsets'].get(k, {}).get('score'))}" for s in stats) + " |")
-    L_ += ["", "## 代码性能（相对官方解，同语言）", "", "| 档位 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
-    for t in L.TIERS:
-        if any(s["tiers"].get(t, {}).get("perf_n") for s in stats):
-            L_.append(f"| {TIER_NAME[t]}：CPU 时间倍数（几何平均）↓ | " + " | ".join(
-                f"{f1(s['tiers'].get(t, {}).get('perf_geo'), 2, '×')}（{s['tiers'].get(t, {}).get('perf_n', 0)} 份答案）" for s in stats) + " |")
-    L_ += ["", "## 时间与空间复杂度（相对官方解，同一批官方测试）", "",
-           "k = 答案耗时（或内存）相对官方解耗时（或内存）的增长幂次：k ≤ 0.75 且在官方解最重的测试点上至少快 2 倍为更优（可能是更好或更新颖的解法），"
-           "0.75 < k < 1.33 同阶，k ≥ 1.33 且至少慢 2 倍为更差；其余为不确定。方法见上表“复杂度”一行。", "",
-           "| 档位 | 维度 | " + " | ".join(models) + " |", "|---|---|" + "---:|" * len(models)]
-    for t in L.TIERS:
-        for kind, kname in (("time", "时间"), ("space", "空间")):
-            if not any(s["complexity"].get(t) for s in stats):
-                continue
-            def cell(s):
-                c = (s["complexity"].get(t) or {}).get(kind)
-                if not c:
-                    return "–"
-                k = c["classes"]
-                return " / ".join(f"{name} {k.get(key, 0)}" for key, name in (('better', '更优'), ('same', '同阶'), ('worse', '更差'), ('uncertain', '不确定'), ('not measurable', '不可测'), ('no reference', '无官方解'))) + f"；k 中位数 {f1(c['k_median'], 2)}"
-            L_.append(f"| {TIER_NAME[t]} | {kname} | " + " | ".join(cell(s) for s in stats) + " |")
-    nov = [(s["model"], t, kind, q) for s in stats for t, d in s["complexity"].items() for kind in ("time", "space")
-           for q in d[kind]["better"]]
-    L_ += [""] + ([f"- 增长慢于官方解、值得人工复核的答案：" + "；".join(f"{m} {q}（{'时间' if k == 'time' else '空间'}）"
-                                                        for m, t, k, q in nov)] if nov else ["- 没有增长慢于官方解的答案。"])
-    L_ += ["", "## 失败类型（答案数）", ""]
+            out.append(f"{who}部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，不计入任何比率"
+                       "（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()) + "。")
+    return out
+
+
+def sections(stats):
+    """The report body as data: [(title, [block, ...]), ...]; a block is a paragraph (str), a sub-heading
+    ("h", text) or a table. Every table has the difficulty tiers as rows (one row per model and tier when several
+    models are compared) and the metrics as columns."""
+    multi = len(stats) > 1
+    mh, ma = (["模型"], "l") if multi else ([], "")
+    mc = lambda s: [s["model"]] if multi else []  # noqa: E731
+    by_tier = lambda: [(t, s, s["tiers"][t]) for t in L.TIERS for s in stats if t in s["tiers"]]  # noqa: E731
+    out = []
+
+    rows = []
+    for t, s, st in by_tier():
+        na = (lambda x: NA) if st["continuous"] else f1
+        rows.append([TIER_NAME[t]] + mc(s) + [str(st["problems"]), str(st["samples"]), na(st["pass1"]), na(st["pass1_strict"]),
+                     f1(st["score"]), f1(st["score_strict"]), na(st["passn"]) if st["n_per_problem"] > 1 else "–"])
+    body = [table(["档位"] + mh + ["题数", "采样数", "宽时限", "官方时限", "宽时限", "官方时限", "pass@n ↑"], rows,
+                  "l" + ma + "rrrrrrr", [("", 3 + len(mh)), ("pass@1 ↑", 2), ("平均得分 ↑", 2), ("", 1)])]
+    many = sorted({(t, st["n_per_problem"]) for t, _, st in by_tier() if st["n_per_problem"] > 1})
+    note = ["宽时限 = 官方时限的 5 倍，看算法对不对；官方时限看能否像人类选手一样在时限内通过。"]
+    if many:
+        note.append("pass@n = 每题多次采样中至少解出一次的题目比例（" + "、".join(f"{t} 每题 {n} 次" for t, n in many)
+                    + "）；每题只采样 1 次的档记“–”。")
+    if any(st["continuous"] for _, _, st in by_tier()):
+        note.append("L5 按 0–100 连续计分（达到官方参考解约 60 分，超过越多分越高），没有“解出”一说，pass@1 记为“不适用”，只看平均得分。")
+    out.append(("各档正确率", body + ["".join(note)]))
+
+    keys = sorted({k for s in stats for k in s["subsets"]}, key=lambda k: (k.split("|")[0], k.split("|")[1] != "2026", k))
+    if keys:
+        rows = []
+        for k in keys:
+            for s in stats:
+                st = s["subsets"].get(k)
+                if st:
+                    t, sub = k.split("|")
+                    rows.append([TIER_NAME[t], SUBSET_NAME.get(sub, sub)] + mc(s) + [str(st["problems"]), str(st["samples"]),
+                                                                                  f1(st["pass1"]), f1(st["score"])])
+        text = ["同一档内 2026 年新题与 USACO 旧题分开统计（宽时限）。难度相当而新题明显更差时，旧题成绩可能受训练数据泄露抬高；只作提示，不作结论。"]
+        if not any(k.endswith("|2026") for k in keys):
+            text.append("本次评测还没有 2026 年的 EGOI/IOI 题，下表只是 USACO 两个赛季之间的对照（2025-26 赛季的题更新）。")
+        out.append(("2026 新题与 USACO 旧题对照", text + [table(["档位", "子集"] + mh + ["题数", "采样数", "pass@1 ↑", "平均得分 ↑"],
+                                                                rows, "ll" + ma + "rrrr")]))
+
+    rows = [[TIER_NAME[t]] + mc(s) + [str(st["perf_n"]), f1(st["perf_geo"], 2, "×"), str(st["perf_faster"]), str(st["perf_2x"]),
+                                      f1(st["mem_geo"], 2, "×")] for t, s, st in by_tier() if st["perf_n"]]
+    if rows:
+        out.append(("代码性能（相对官方解，同语言）", [
+            "只比较解出的答案：在官方解最慢的 3 个测试点上与官方解交替各运行 3 次取中位数，倍数 = 答案 ÷ 官方解，各档取几何平均；"
+            "小于 1 表示比官方解快。EGOI、FrontierCS 没有官方解，不参与。",
+            table(["档位"] + mh + ["比较的答案数", "CPU 时间倍数 ↓", "快于官方解（份）", "慢 2 倍以上（份）", "峰值内存倍数 ↓"],
+                  rows, "l" + ma + "rrrrr")]))
+
+    if any(s["complexity"] for s in stats):
+        body = ["k 为答案耗时（或峰值内存）相对官方解的增长幂次：k ≤ 0.75 且在官方解最重的测试点上至少快 2 倍为更优（可能是更好或更新颖的解法），"
+                "0.75 < k < 1.33 为同阶，k ≥ 1.33 且至少慢 2 倍为更差，其余为不确定；方法见“评测维度与打分标准”。"]
+        for kind, kname in (("time", "时间复杂度"), ("space", "空间复杂度")):
+            rows = []
+            for t in L.TIERS:
+                for s in stats:
+                    c = (s["complexity"].get(t) or {}).get(kind)
+                    if c:
+                        rows.append([TIER_NAME[t]] + mc(s) + [str(c["classes"].get(key, 0)) for key, _ in CPLX] + [f1(c["k_median"], 2)])
+            body += [("h", kname), table(["档位"] + mh + [name for _, name in CPLX] + ["k 中位数"], rows, "l" + ma + "r" * (len(CPLX) + 1),
+                                  [("", 1 + len(mh)), ("答案数", len(CPLX)), ("", 1)])]
+        nov = [[TIER_NAME[t]] + mc(s) + [q, "时间" if k == "time" else "空间"] for s in stats for t, d in s["complexity"].items()
+               for k in ("time", "space") for q in d[k]["better"]]
+        body += ([("h", "增长慢于官方解、值得人工复核的答案"), table(["档位"] + mh + ["答案", "维度"], nov, "l" + ma + "ll")] if nov
+                 else ["没有增长慢于官方解的答案。"])
+        out.append(("时间与空间复杂度（相对官方解）", body))
+
+    keys = [k for k in FAIL_ORDER if k != "slow" and any(st["fails"].get(k) for _, _, st in by_tier())]
+    rows = [[TIER_NAME[t]] + mc(s) + [str(st["samples"]), str(sum(v for k, v in st["fails"].items() if k != "slow"))]
+            + [str(st["fails"].get(k, 0)) for k in keys] + [str(st["fails"].get("slow", 0))] for t, s, st in by_tier()]
+    text = "每份答案只记一个主要原因（判定顺序见“评测维度与打分标准”）。“只在官方时限下超时”的答案在宽时限下是解出的，单列。"
+    if any(st["continuous"] for _, _, st in by_tier()):
+        text += "L5 是连续分，拿到分的答案都记为“部分分”，这一档主要看得 0 分的原因。"
+    out.append(("失败类型（答案数）", [text, table(
+        ["档位"] + mh + ["答案数", "未解出"] + [FAIL_NAME[k] for k in keys] + ["只在官方时限下超时"], rows,
+        "l" + ma + "r" * (len(keys) + 3), [("", 3 + len(mh)), ("未解出的主要原因", len(keys)), ("", 1)])]))
+
+    if any((s["quality"] or {}).get("correct") for s in stats):
+        rows = []
+        for t in L.TIERS + ("合计",):
+            for s in stats:
+                q = s["quality"].get("correct" if t == "合计" else f"correct|{t}")
+                if q:
+                    rows.append([TIER_NAME.get(t, t)] + mc(s) + [str(q["n"]), f1(q["pylint_issues"], 2), f1(q["pylint_score"], 2),
+                                 f1(q["issues_per_100sloc"], 2), f1(q["cc"], 2), f1(q["mi"], 1), f1(q["sloc"], 1)])
+        body = ["只统计解出的 Python 答案（L1、L2），每份答案的平均值；工具与版本按 arXiv:2610.19167。",
+                table(["档位"] + mh + ["答案数", "问题数 ↓", "得分 ↑", "每百行问题数 ↓", "圈复杂度 ↓", "可维护性 MI ↑", "SLOC"], rows,
+                      "l" + ma + "rrrrrrr", [("", 2 + len(mh)), ("Pylint", 3), ("Radon", 3)])]
+        if any((s["quality"]["correct"] or {}).get("sonar_maintainability") is not None for s in stats if s["quality"].get("correct")):
+            rows = [[TIER_NAME.get(t, t)] + mc(s) + [f1(q[f"sonar_{k}"], 2) for k in ("maintainability", "reliability", "security")]
+                    for t in L.TIERS + ("合计",) for s in stats
+                    for q in [s["quality"].get("correct" if t == "合计" else f"correct|{t}")] if q]
+            body += [table(["档位"] + mh + ["可维护性问题 ↓", "可靠性问题 ↓", "安全问题 ↓"], rows, "l" + ma + "rrr",
+                           [("", 1 + len(mh)), ("SonarQube 10.4", 3)])]
+        else:
+            body.append("SonarQube 需要 Docker，这次评测的机器上没有，未测。")
+        out.append(("静态质量（L1–L2，Python）", body))
+
+    rows = []
+    for t in L.TIERS + (None, "合计"):
+        for s in stats:
+            u = s["usage"]
+            if t == "合计":
+                d = {"calls": u["calls"], "completion": u["completion"], "latency_median": (u["latency"] or {}).get("median"),
+                     "cost": u["cost"]}
+            else:
+                d = u["per_tier"].get(t) or u["per_tier"].get("null" if t is None else t)
+                if not d:
+                    continue
+            cost = "–" if s["usage"]["cost"] is None else f"${d['cost']:.2f}"
+            rows.append([TIER_NAME.get(t, t) if t else "已剔除的题"] + mc(s) + [str(d["calls"]), U.fmt_tok(d["completion"]),
+                         U.fmt_tok(d["completion"] / d["calls"]) if d["calls"] else "–", f1(d.get("latency_median"), 0, " s"), cost])
+    out.append(("用量与费用", [
+        "调用数只计拿到回答的调用；输出 token 含思考过程；延迟为一次调用从发出到收完的时间；费用按每次调用开始时的分时单价计算。",
+        table(["档位"] + mh + ["调用数", "输出 token ↓", "每次输出 token ↓", "延迟中位数 ↓", "费用 ↓"], rows, "l" + ma + "rrrrr")]))
+
+    body = []
     for s in stats:
-        L_.append(f"- {s['model']}：" + "；".join(f"{TIER_NAME[t]} " + "，".join(f"{FAIL_NAME[k]} {v}" for k, v in sorted(
-            st["fails"].items(), key=lambda kv: FAIL_ORDER.index(kv[0]))) for t, st in s["tiers"].items() if st["fails"]))
-    L_ += ["", "## 静态质量（L1–L2 Python，正确答案）", "", "| 指标 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
-    for key, name in (("pylint_issues", "Pylint 问题数 ↓"), ("pylint_score", "Pylint 分 ↑"), ("cc", "圈复杂度 CC ↓"),
-                      ("mi", "可维护性 MI ↑"), ("sloc", "SLOC"), ("issues_per_100sloc", "每百行问题数 ↓"),
-                      ("sonar_maintainability", "SonarQube 可维护性问题 ↓"), ("sonar_reliability", "SonarQube 可靠性问题 ↓"),
-                      ("sonar_security", "SonarQube 安全问题 ↓")):
-        L_.append(f"| {name} | " + " | ".join(f1((s["quality"].get("correct") or {}).get(key), 2) for s in stats) + " |")
-    L_ += ["", "## 用量与费用", "", "| 指标 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
-    L_.append("| 有效调用数 | " + " | ".join(str(s["usage"]["calls"]) for s in stats) + " |")
-    L_.append("| 输出 token ↓ | " + " | ".join(U.fmt_tok(s["usage"]["completion"]) for s in stats) + " |")
-    L_.append("| 延迟中位数 ↓ | " + " | ".join(f1((s["usage"]["latency"] or {}).get("median"), 0, " s") for s in stats) + " |")
-    L_.append("| 费用 ↓ | " + " | ".join("–" if s["usage"]["cost"] is None else f"${s['usage']['cost']:.2f}" for s in stats) + " |")
-    L_ += ["", "## 逐题结果", ""]
-    for s in stats:
-        L_ += [f"### {s['model']}", "", "| 题目 | 档 | 子集 | 解出 / 采样 | 平均得分 | 主要失败 |", "|---|---|---|---:|---:|---|"]
-        for pid, p in s["per_problem"].items():
-            L_.append(f"| {pid} {p['title']} | {p['tier']} | {p['subset']} | {p['solved']}/{p['n']} | {p['score']:.1f} | {FAIL_NAME.get(p['fail'], '')} |")
-        L_.append("")
+        if multi:
+            body.append(("h", s["model"]))
+        natural = lambda pid: [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", pid)]  # noqa: E731  fcs-6 before fcs-58
+        order = sorted(s["per_problem"].items(), key=lambda kv: (L.TIERS.index(kv[1]["tier"]), natural(kv[0])))
+        body.append(table(["题目", "名称", "档位", "子集", "解出 / 采样", "平均得分 ↑", "主要失败"],
+                          [[pid, p["title"], p["tier"], p["subset"].replace("USACO ", "").replace("FrontierCS", "–"),
+                            "–" if p["continuous"] else f"{p['solved']}/{p['n']}", f"{p['score']:.1f}",
+                            FAIL_NAME.get(p["fail"], "") if not (p["continuous"] and p["fail"] == "partial") else ""]
+                           for pid, p in order], "llllrrl", tex_spec=r"@{}l>{\raggedright\arraybackslash}p{3.4cm}llrr>{\raggedright\arraybackslash}p{3.1cm}@{}"))
+    out.append(("逐题结果", body))
+    return out
+
+
+def _flat_head(t):
+    """Markdown has no grouped headers: "pass@1 ↑" over "宽时限" becomes "pass@1 宽时限 ↑", "Pylint" over "得分 ↑"
+    becomes "Pylint 得分 ↑"; descriptive groups ("答案数", "…原因") are dropped."""
+    labels = []
+    for label, span in t["groups"] or [("", len(t["head"]))]:
+        labels += [label] * span
+    out = []
+    for g, h in zip(labels, t["head"]):
+        if not g or g == "答案数" or g.endswith("原因"):
+            out.append(h)
+        else:
+            arrow = g[-1] if g[-1] in "↑↓" else ""
+            out.append(f"{g.rstrip(' ↑↓')} {h}" + (f" {arrow}" if arrow and arrow not in h else ""))
+    return out
+
+
+def md_table(t):
+    head = _flat_head(t)
+    return "\n".join(["| " + " | ".join(head) + " |", "|" + "|".join("---:" if a == "r" else "---" for a in t["align"]) + "|"]
+                     + ["| " + " | ".join(r) + " |" for r in t["rows"]])
+
+
+def tex_table(t, long=False):
+    groups = ""
+    if t["groups"]:
+        cells, rules, col = [], [], 1
+        for label, span in t["groups"]:
+            if label:
+                cells.append(rf"\multicolumn{{{span}}}{{c}}{{{tex(label)}}}")
+                rules.append(rf"\cmidrule(lr){{{col}-{col + span - 1}}}")
+            else:
+                cells += [""] * span
+            col += span
+        groups = " & ".join(cells) + r" \\ " + " ".join(rules) + "\n"
+    head = groups + " & ".join(tex(h) for h in t["head"]) + r" \\"
+    rows = [" & ".join(tex(c) for c in r) + r" \\" for r in t["rows"]]
+    if long:  # page-breaking (the per-problem list); a longtable cannot be scaled, so it gets p{} columns instead
+        return "\n".join([r"{\footnotesize\setlength{\tabcolsep}{4pt}\begin{longtable}{" + (t["tex_spec"] or t["align"]) + "}", r"\toprule", head, r"\midrule\endhead"] + rows
+                         + [r"\bottomrule", r"\end{longtable}}"])
+    return "\n".join([r"\begin{center}\small", r"\resizebox{\ifdim\width>\linewidth\linewidth\else\width\fi}{!}{%",
+                      r"\begin{tabular}{" + (t["tex_spec"] or t["align"]) + "}", r"\toprule", head, r"\midrule"] + rows
+                     + [r"\bottomrule", r"\end{tabular}}", r"\end{center}"])
+
+
+def md_report(stats, date, author=None):
+    names = " / ".join(s["model"] for s in stats)
+    L_ = [f"# 阶梯代码评测报告：{names}", "", f"{date}　L1–L4：USACO 2024–26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道", ""]
+    L_ += [f"- {n}" for n in notes(stats)] + ([""] if notes(stats) else [])
+    L_ += criteria_md()
+    for title, blocks in sections(stats):
+        L_ += [f"## {title}", ""]
+        for b in blocks:
+            L_ += [md_table(b) if isinstance(b, dict) else f"### {b[1]}" if isinstance(b, tuple) else b, ""]
+    if author:
+        L_ += ["---", "", f"由 {author} 创建于 {date}"]
     return "\n".join(L_) + "\n"
 
 
@@ -372,7 +530,7 @@ PREAMBLE = r"""\documentclass[11pt,a4paper,fontset=none]{ctexart}
     \setCJKmonofont{simkai.ttf}[Path=\WinFonts]}{%
   \setCJKmainfont{FandolKai}\setCJKsansfont{FandolKai}\setCJKmonofont{FandolKai}}}}
 \usepackage{amsmath}
-\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{booktabs,tabularx,longtable,array,graphicx}
 \usepackage{enumitem}
 \usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
@@ -387,104 +545,25 @@ PREAMBLE = r"""\documentclass[11pt,a4paper,fontset=none]{ctexart}
 """
 
 
-def tex_table(header, rows, spec):
-    out = [r"\begin{center}\small", rf"\begin{{tabular}}{{{spec}}}", r"\toprule", " & ".join(header) + r" \\", r"\midrule"]
-    out += [" & ".join(r) + r" \\" for r in rows]
-    out += [r"\bottomrule", r"\end{tabular}", r"\end{center}"]
-    return "\n".join(out)
-
-
-def tex_report(stats, date):
-    models = [tex(s["model"]) for s in stats]
-    spec = "l" + "r" * len(models)
+def tex_report(stats, date, author=None):
+    names = " / ".join(tex(s["model"]) for s in stats)
     parts = [PREAMBLE.replace("__DATE__", date), r"\begin{document}", r"\begin{center}",
-             r"{\LARGE\bfseries 阶梯代码评测报告}\\[0.4em]", rf"{{\large {' / '.join(models)}}}\\[0.3em]",
-             rf"{{\small {date} \quad L1--L4：USACO 2024--26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道}}",
-             r"\end{center}"]
+             r"{\LARGE\bfseries 阶梯代码评测报告}\\[0.5em]", rf"{{\Large {names}}}\\[0.4em]",
+             rf"{{\small {date} \quad L1--L4：USACO 2024--26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道}}", r"\end{center}"]
+    if notes(stats):
+        parts += [r"\begin{itemize}"] + [rf"\item {tex(n)}" for n in notes(stats)] + [r"\end{itemize}"]
     parts.append(criteria_tex())
-    for s in stats:
-        if s["unanswered"]:
-            parts.append(f"{tex(s['model'])}：{len(s['unanswered'])} 个采样因接口错误（重试用完或余额不足）没有拿到回答，不计入任何比率："
-                         + "、".join(tex(q) for q in s["unanswered"]) + "。")
-        if s["dropped"]:
-            parts.append(f"{tex(s['model'])}：{len(s['dropped'])} 道题在运行后从题单中剔除（当前判题程序无法正确评测），其答案不计入："
-                         + "、".join(tex(p) for p in s["dropped"]) + "。")
-        if s["pending"]:
-            parts.append(f"{tex(s['model'])}：部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，"
-                         "不计入任何比率（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()) + "。")
-    parts.append(r"\section{各档正确率}")
-    rows = []
-    for t in L.TIERS:
-        if not any(t in s["tiers"] for s in stats):
-            continue
-        for key, name in (("pass1", "pass@1 宽时限 ↑"), ("pass1_strict", "pass@1 官方时限 ↑"), ("score", "得分 宽时限 ↑"),
-                          ("score_strict", "得分 官方时限 ↑")):
-            rows.append([f"{TIER_NAME[t]}：{name}"] + [f1(s["tiers"].get(t, {}).get(key)) for s in stats])
-        if any(s["tiers"].get(t, {}).get("n_per_problem", 1) > 1 for s in stats):
-            rows.append([f"{TIER_NAME[t]}：pass@n ↑"] + [f1(s["tiers"].get(t, {}).get("passn")) for s in stats])
-    parts.append(tex_table(["档位与指标"] + models, rows, spec))
-    if any(s["subsets"] for s in stats):
-        parts.append(r"\section{2026 新题与 USACO 对照}")
-        parts.append("同一档内，2026 年的新题（EGOI、IOI）与 USACO 旧题的 pass@1 / 平均得分。新题明显更低而难度相当时，旧题成绩可能受训练数据泄露抬高。")
-        if not any(k.endswith("|2026") for s in stats for k in s["subsets"]):
-            parts.append("本次评测还没有 2026 年的 EGOI/IOI 题，下表只是 USACO 两个赛季之间的对照（2025--26 赛季的题更新）。")
-        keys = sorted({k for s in stats for k in s["subsets"]})
-        parts.append(tex_table(["档位 / 子集"] + models, [[tex(k.replace("|", " / "))] + [
-            f"{f1(s['subsets'].get(k, {}).get('pass1'))} / {f1(s['subsets'].get(k, {}).get('score'))}" for s in stats] for k in keys], spec))
-    prow = [[f"{TIER_NAME[t]} ↓"] + [f"{f1(s['tiers'].get(t, {}).get('perf_geo'), 2, '×')} ({s['tiers'].get(t, {}).get('perf_n', 0)})"
-                                      for s in stats] for t in L.TIERS if any(s["tiers"].get(t, {}).get("perf_n") for s in stats)]
-    if prow:
-        parts.append(r"\section{代码性能}")
-        parts.append("解出的答案在官方解最慢的 3 个测试点上与官方解交替各跑 3 次取中位数；表中为答案 CPU 时间 ÷ 官方解（几何平均，括号内为答案份数）。")
-        parts.append(tex_table(["档位"] + models, prow, spec))
-    if any(s["complexity"] for s in stats):
-        parts.append(r"\section{时间与空间复杂度}")
-        parts.append("$k$ 为答案耗时（或内存）相对官方解的增长幂次：$k \\le 0.75$ 且在官方解最重的测试点上至少快 2 倍为更优（可能是更好或更新颖的解法），"
-                     "$0.75 < k < 1.33$ 同阶，$k \\ge 1.33$ 且至少慢 2 倍为更差，其余为不确定；方法见“评测维度与打分标准”。")
-        crow = []
-        for t in L.TIERS:
-            for kind, kname in (("time", "时间"), ("space", "空间")):
-                if not any((s["complexity"].get(t) or {}).get(kind) for s in stats):
-                    continue
-                def c2(s):
-                    c = (s["complexity"].get(t) or {}).get(kind)
-                    if not c:
-                        return "–"
-                    k = c["classes"]
-                    return "/".join(str(k.get(key, 0)) for key, _ in (('better', '更优'), ('same', '同阶'), ('worse', '更差'), ('uncertain', '不确定'), ('not measurable', '不可测'), ('no reference', '无官方解'))) + f"，k={f1(c['k_median'], 2)}"
-                crow.append([f"{TIER_NAME[t]}：{kname}（更优/同阶/更差/不确定/不可测/无官方解）"] + [c2(s) for s in stats])
-        parts.append(tex_table(["档位"] + models, crow, spec))
-        nov = [(s["model"], q, k) for s in stats for t, d in s["complexity"].items() for k in ("time", "space") for q in d[k]["better"]]
-        parts.append(("增长慢于官方解、值得人工复核的答案：" + "；".join(f"{tex(m)} {tex(q)}（{'时间' if k == 'time' else '空间'}）"
-                                                         for m, q, k in nov) + "。") if nov else "没有增长慢于官方解的答案。")
-    parts.append(r"\section{失败类型}")
-    frows = []
-    for t in L.TIERS:
-        for k in FAIL_ORDER:
-            vals = [str(s["tiers"].get(t, {}).get("fails", {}).get(k, 0)) for s in stats]
-            if any(v != "0" for v in vals):
-                frows.append([f"{TIER_NAME[t]}：{FAIL_NAME[k]}"] + vals)
-    parts.append(tex_table(["档位与类型"] + models, frows or [["无"] + [""] * len(models)], spec))
-    if any(s["quality"].get("correct") for s in stats):
-        parts.append(r"\section{静态质量（L1--L2，Python）}")
-        qrows = [[name] + [f1((s["quality"].get("correct") or {}).get(key), 2) for s in stats] for key, name in (
-            ("pylint_issues", "Pylint 问题数 ↓"), ("pylint_score", "Pylint 分 ↑"), ("cc", "圈复杂度 CC ↓"), ("mi", "可维护性 MI ↑"),
-            ("sloc", "SLOC"), ("issues_per_100sloc", "每百行问题数 ↓"), ("sonar_maintainability", "SonarQube 可维护性 ↓"),
-            ("sonar_reliability", "SonarQube 可靠性 ↓"), ("sonar_security", "SonarQube 安全 ↓"))]
-        parts.append(tex_table(["指标（正确答案）"] + models, qrows, spec))
-    parts.append(r"\section{用量与费用}")
-    urows = [["有效调用数"] + [str(s["usage"]["calls"]) for s in stats],
-             ["输出 token ↓"] + [U.fmt_tok(s["usage"]["completion"]) for s in stats],
-             ["延迟中位数 ↓"] + [f1((s["usage"]["latency"] or {}).get("median"), 0, " s") for s in stats],
-             ["费用 ↓"] + ["–" if s["usage"]["cost"] is None else f"\\${s['usage']['cost']:.2f}" for s in stats]]
-    parts.append(tex_table(["指标"] + models, urows, spec))
-    parts.append(r"\section{逐题结果}")
-    for s in stats:
-        parts.append(rf"\subsection*{{{tex(s['model'])}}}")
-        parts += [r"{\small\begin{longtable}{llrrl}", r"\toprule 题目 & 档 & 解出/采样 & 得分 & 主要失败 \\ \midrule \endhead"]
-        parts += [rf"{tex(pid)} {tex(p['title'])} & {p['tier']} & {p['solved']}/{p['n']} & {p['score']:.1f} & {tex(FAIL_NAME.get(p['fail'], ''))} \\"
-                  for pid, p in s["per_problem"].items()]
-        parts += [r"\bottomrule", r"\end{longtable}}"]
+    for title, blocks in sections(stats):
+        parts.append(rf"\section{{{tex(title)}}}")
+        for b in blocks:
+            if isinstance(b, dict):
+                parts.append(tex_table(b, long=b["head"][0] == "题目"))
+            elif isinstance(b, tuple):
+                parts.append(rf"\subsection*{{{tex(b[1])}}}")
+            else:
+                parts.append(tex(b))
+    if author:
+        parts.append(rf"\par\vspace{{2em}}\begin{{flushright}}由 {tex(author)} 创建于 {date}\end{{flushright}}")
     parts.append(r"\end{document}")
     return "\n".join(parts) + "\n"
 
@@ -495,6 +574,9 @@ def main():
     ap.add_argument("--out", required=True)
     ap.add_argument("--date", default=datetime.date.today().isoformat())
     ap.add_argument("--prices", default="", help="model=in,hit,out;model2=... (per 1M tokens)")
+    ap.add_argument("--names", default="", help="model=full name;model2=... (shown in the report instead of the API id)")
+    ap.add_argument("--author", default=os.environ.get("REPORT_AUTHOR", "Albert Huang"),
+                    help="the last line reads: 由 <author> 创建于 <date>")
     a = ap.parse_args()
     per = {}
     for x in filter(None, a.prices.split(";")):
@@ -511,13 +593,13 @@ def main():
             env["peak_hours"] = [tuple(map(int, r.split("-"))) for r in os.environ.get("PEAK_HOURS_UTC", "1-4,6-10").split(",") if r]
     stats = []
     for d in a.runs:
-        run = load(d)
+        run = load(d, names=dict(x.split("=", 1) for x in filter(None, a.names.split(";"))))
         run["prices"] = per.get(run["model"], env)
         stats.append(analyze(run))
     os.makedirs(a.out, exist_ok=True)
     json.dump(stats, open(os.path.join(a.out, "report.json"), "w"), indent=1, ensure_ascii=False)
-    open(os.path.join(a.out, "report.md"), "w").write(md_report(stats, a.date))
-    open(os.path.join(a.out, "main.tex"), "w").write(tex_report(stats, a.date))
+    open(os.path.join(a.out, "report.md"), "w").write(md_report(stats, a.date, a.author))
+    open(os.path.join(a.out, "main.tex"), "w").write(tex_report(stats, a.date, a.author))
     open(os.path.join(a.out, "build.sh"), "w").write("#!/bin/bash\n# PDF of this report (xelatex with ctex; Times New Roman + Kaiti on the Mac)\n"
                                                     "cd \"$(dirname \"$0\")\" && xelatex -interaction=nonstopmode main.tex >/dev/null && "
                                                     "xelatex -interaction=nonstopmode main.tex >/dev/null && echo \"$(pwd)/main.pdf\"\n")
