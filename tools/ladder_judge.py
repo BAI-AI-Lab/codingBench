@@ -113,10 +113,11 @@ def judge_test(meta, t, argv, work, lenient=None):
             ib, log = _compile_once(meta, "interactor", [j["interactor"]], "interactor")
             if not ib:
                 return {"name": t["name"], "verdict": "JE", "score": 0.0, "cpu": 0.0, "msg": log[-300:]}
-            shutil.copy(inp, os.path.join(work, "in.txt"))
-            shutil.copy(ans, os.path.join(work, "ans.txt"))
-            r = L.run(argv, None, None, work, run_tl, ml, core=core, stderr=err,
-                      interactor=[ib, "in.txt", "tout.txt", "ans.txt"])
+            # file names per test: the tests of one answer run in parallel in the same work dir
+            tin, tout, tans = (f"{t['name']}.{x}.txt" for x in ("in", "tout", "ans"))
+            shutil.copy(inp, os.path.join(work, tin))
+            shutil.copy(ans, os.path.join(work, tans))
+            r = L.run(argv, None, None, work, run_tl, ml, core=core, stderr=err, interactor=[ib, tin, tout, tans])
             msg = open(err, errors="replace").read()[-2000:] if os.path.exists(err) else ""
             score = L.interactor_score(r.get("int_status", 0), msg) if r["verdict"] == "ok" else 0.0
             rec = {"verdict": r["verdict"] if r["verdict"] != "ok" else

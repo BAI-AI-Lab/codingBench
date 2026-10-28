@@ -44,11 +44,11 @@ int main(int argc, char** argv) {  // chk <input> <output> <answer>, testlib's e
     puts("wrong answer"); return 1; }
 '''
 INTERACTOR = r'''#include <cstdio>
-int main(int argc, char** argv) {  // interactor <in> <tout> <ans>: sends n, expects 2n back
-    long long n; FILE* f = fopen(argv[1], "r"); fscanf(f, "%lld", &n);
+int main(int argc, char** argv) {  // interactor <in> <tout> <ans>: sends n, expects 2n back, which the answer file holds
+    long long n, e; FILE* f = fopen(argv[1], "r"); fscanf(f, "%lld", &n); FILE* g = fopen(argv[3], "r"); fscanf(g, "%lld", &e);
     printf("%lld\n", n); fflush(stdout);
     long long r; if (scanf("%lld", &r) != 1) { fprintf(stderr, "no reply\n"); return 1; }
-    if (r == 2 * n) { fprintf(stderr, "ok Ratio: 1\n"); return 0; }
+    if (r == 2 * n && r == e) { fprintf(stderr, "ok Ratio: 1\n"); return 0; }
     fprintf(stderr, "wrong Ratio: 0\n"); return 1; }
 '''
 DOUBLE_CPP = "#include <cstdio>\nint main(){long long n; scanf(\"%lld\",&n); printf(\"%lld\\n\",2*n); fflush(stdout);}\n"
@@ -129,6 +129,11 @@ def main():
     check(r["solved"] and r["score"] == 100, "interactive: right protocol solves")
     r = J.judge_code(p5, DOUBLE_CPP.replace("2*n", "3*n"), "cpp", workers=2)
     check(r["score"] == 0, "interactive: wrong replies score 0")
+    p6 = problem("t-inter-many", "L5", "cpp", {"kind": "testlib", "checker": "chk.cc", "interactor": "interactor.cc"},
+                 [(f"{i}\n", f"{2 * i}\n") for i in range(1, 17)], scoring={"type": "mean"},
+                 files={"interactor.cc": INTERACTOR})
+    check(all(J.judge_code(p6, DOUBLE_CPP, "cpp", workers=8)["score"] == 100 for _ in range(3)),
+          "interactive: 16 tests in parallel each get their own input and answer files")
 
     problem("t-comm", "L3", "cpp", {"kind": "communication", "task_type": "Communication"}, sums)
 
