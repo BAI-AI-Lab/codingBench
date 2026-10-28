@@ -227,10 +227,22 @@ def main():
             r = json.loads(l)
             done[(r["q"], r.get("code_hash"))] = r
     todo = [r for r in last.values() if (r["q"], r.get("code_hash")) not in done]
-    print(f"{len(last)} answers, {len(todo)} to judge")
+    # answers to problems found not judgeable after the run started (interactive / communication tasks, which
+    # the problem list now leaves out): skipped
+    skip = [r for r in todo if L.load_meta(r["pid"])["judge"]["kind"] == "communication"]
+    todo = [r for r in todo if r not in skip]
+    print(f"{len(last)} answers, {len(todo)} to judge"
+          + (f", {len(skip)} to communication tasks skipped (not supported)" if skip else ""))
     per_answer = max(1, a.workers // 8)
 
     def one(r):
+        try:
+            return judge_one(r)
+        except Exception as e:  # one broken problem does not stop the rest; it stays unjudged and is retried next time
+            print(f"{r['q']}: judge error {e!r}", flush=True)
+            return None
+
+    def judge_one(r):
         meta = L.load_meta(r["pid"])
         if not r.get("code"):
             res = {"pid": r["pid"], "score": 0.0, "solved": False, "strict_score": 0.0, "strict_solved": False,
@@ -244,6 +256,8 @@ def main():
 
     with open(out, "a") as f, concurrent.futures.ThreadPoolExecutor(8) as ex:
         for res in ex.map(one, todo):
+            if res is None:
+                continue
             f.write(json.dumps(res) + "\n")
             f.flush()
             print(f"{res['q']:<28} {res['tier']} score {res['score']:6.1f} strict {res['strict_score']:6.1f} "

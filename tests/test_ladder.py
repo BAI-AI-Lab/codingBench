@@ -130,6 +130,8 @@ def main():
     r = J.judge_code(p5, DOUBLE_CPP.replace("2*n", "3*n"), "cpp", workers=2)
     check(r["score"] == 0, "interactive: wrong replies score 0")
 
+    problem("t-comm", "L3", "cpp", {"kind": "communication", "task_type": "Communication"}, sums)
+
     import ladder_build as B
     for pid in ("t-sum-py", "t-sum-cpp"):
         B.calibrate(pid, workers=3)
@@ -189,9 +191,13 @@ def main():
         subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", run], env=env, check=True)
         check(len([json.loads(l) for l in open(os.path.join(run, "usage.jsonl"))]) == len(calls),
               "re-run: a failed sample with an answer in the usage log is recovered, not asked again")
+        with open(os.path.join(run, "answers.jsonl"), "a") as f:  # an answer to a task found not judgeable later
+            f.write(json.dumps({"q": "t-comm#0", "pid": "t-comm", "k": 0, "tier": "L3", "lang": "cpp",
+                                "code": "int main() {}", "finish": "stop", "code_hash": "z"}) + "\n")
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_judge.py"), run, "--workers", "4",
                         "--perf-reps", "1", "--min-ref-cpu", "0"], env=env, check=True)
         judged = {json.loads(l)["q"]: json.loads(l) for l in open(os.path.join(run, "judge.jsonl"))}
+        check("t-comm#0" not in judged, "judge: an answer to a communication task is skipped, the rest judged")
         check(judged["t-sum-py#0"]["solved"] and judged["t-sum-cpp#0"]["solved"], "judge: reference answers solve")
         check(os.path.exists(os.path.join(run, "perf.jsonl")), "perf re-runs written")
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_complexity.py"), run], env=env, check=True)
@@ -222,7 +228,7 @@ def main():
         subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, "--out",
                         os.path.join(run, "report")], env=env, check=True)
         rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
-        check(rep["dropped"] == ["t-cms"] and "t-cms" not in rep["per_problem"] and rep["unanswered"] == [],
+        check(rep["dropped"] == ["t-cms", "t-comm"] and "t-cms" not in rep["per_problem"] and rep["unanswered"] == [],
               "report: a problem dropped from the list after the run is left out and listed")
     finally:
         mock.terminate()
