@@ -11,7 +11,8 @@ for the whole answer, 1800), LADDER_OMIT (request fields to leave out, e.g. Kimi
 Writes, like cb livecodebench does: problems.json (what cb progress shows), usage.jsonl (one line per API call: times,
 first-token times, tokens, finish reason, answer or error; same fields as lcb_run.py, so cb progress / cb usage read
 it), and answers.jsonl (q = <pid>#<sample>, the extracted code). A re-run skips samples that already have an
-answer in usage.jsonl, so an interrupted run resumes without repeating paid calls.
+answer in usage.jsonl, so an interrupted run resumes without repeating paid calls. To pause cleanly, touch
+<run dir>/STOP: no new request starts, the ones in flight finish and are kept, and the run exits with status 4.
 """
 import argparse
 import concurrent.futures
@@ -193,8 +194,12 @@ def main():
     todo = [(p, k) for p, k in jobs if f"{p}#{k}" not in done]
     print(f"{len(jobs)} samples, {len(jobs) - len(todo)} already answered, {len(todo)} to ask {model}")
 
+    stop_file = os.path.join(a.out, "STOP")  # touch <run dir>/STOP: no new requests, the ones in flight finish
+
     def one(job):
         p, k = job
+        if os.path.exists(stop_file):
+            return p, k, None
         system, user = L.prompt(metas[p], stmts[p])
         messages = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": user}]
         rec = None
@@ -211,12 +216,18 @@ def main():
 
     with concurrent.futures.ThreadPoolExecutor(int(os.environ.get("WORKERS", "16"))) as ex:
         for p, k, rec in ex.map(one, todo):
+            if rec is None:
+                continue
             u = rec.get("usage") or {}
             print(f"{p}#{k:<3} {metas[p]['tier']} finish={rec.get('finish', ['?'])[0]} "
                   f"out_tokens={u.get('completion_tokens', '-')} {time.strftime('%H:%M:%S')}", flush=True)
     if _broke:
         print("STOPPED: the API account is out of balance; answered samples are kept, re-run to continue")
         sys.exit(3)
+    if os.path.exists(stop_file):
+        os.remove(stop_file)
+        print("PAUSED (STOP file): answered samples are kept, re-run to continue")
+        sys.exit(4)
 
 
 if __name__ == "__main__":

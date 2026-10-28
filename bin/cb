@@ -124,6 +124,7 @@ case "$1" in
     d=$CB/runs/${MODEL//\//_}/ladder-$tag; mkdir -p "$d"
     echo "=== ladder ($tag) model=$MODEL  $(date +%F\ %T)"
     rc=0; LADDER_PYTHON=$LPY $LPY $CB/bin/ladder_run.py --out "$d" "${@:2}" || rc=$?   # 3 = out of balance
+    [ $rc = 4 ] && { echo "=== ladder PAUSED: re-run the same command to continue"; exit 4; }
     [ $rc = 0 ] || [ $rc = 3 ] || { echo "=== ladder generation FAILED (exit $rc)" >&2; exit $rc; }
     [ "${CB_POST:-1}" = 0 ] || LADDER_PYTHON=$LPY ladder_post "$d"
     exit $rc ;;
