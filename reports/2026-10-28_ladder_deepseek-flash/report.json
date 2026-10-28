@@ -1,0 +1,897 @@
+[
+ {
+  "model": "deepseek-flash",
+  "tiers": {
+   "L1": {
+    "problems": 18,
+    "samples": 18,
+    "pass1": 100.0,
+    "pass1_strict": 94.44444444444444,
+    "score": 100.0,
+    "score_strict": 97.00855555555556,
+    "passn": 100.0,
+    "n_per_problem": 1,
+    "fails": {
+     "slow": 1
+    },
+    "perf_n": 11,
+    "perf_geo": 0.5404736923580673,
+    "perf_faster": 10,
+    "perf_2x": 1,
+    "mem_geo": 0.958504828423971
+   },
+   "L2": {
+    "problems": 19,
+    "samples": 19,
+    "pass1": 94.73684210526316,
+    "pass1_strict": 94.73684210526316,
+    "score": 95.21531578947368,
+    "score_strict": 95.21531578947368,
+    "passn": 94.73684210526316,
+    "n_per_problem": 1,
+    "fails": {
+     "WA": 1
+    },
+    "perf_n": 7,
+    "perf_geo": 0.9305746197192034,
+    "perf_faster": 5,
+    "perf_2x": 1,
+    "mem_geo": 1.254987473854089
+   },
+   "L3": {
+    "problems": 20,
+    "samples": 60,
+    "pass1": 96.66666666666667,
+    "pass1_strict": 96.66666666666667,
+    "score": 97.78571666666667,
+    "score_strict": 97.78571666666667,
+    "passn": 100.0,
+    "n_per_problem": 3,
+    "fails": {
+     "WA": 2
+    },
+    "perf_n": 52,
+    "perf_geo": 0.6298372133796379,
+    "perf_faster": 42,
+    "perf_2x": 5,
+    "mem_geo": 0.9525752077012674
+   },
+   "L4": {
+    "problems": 8,
+    "samples": 24,
+    "pass1": 70.83333333333333,
+    "pass1_strict": 70.83333333333333,
+    "score": 75.297625,
+    "score_strict": 75.297625,
+    "passn": 87.5,
+    "n_per_problem": 3,
+    "fails": {
+     "WA": 4,
+     "no code": 1,
+     "CE": 1,
+     "RE": 1
+    },
+    "perf_n": 14,
+    "perf_geo": 1.1007048198935268,
+    "perf_faster": 8,
+    "perf_2x": 3,
+    "mem_geo": 0.8930561170896462
+   }
+  },
+  "subsets": {
+   "L3|USACO 2024-25": {
+    "problems": 12,
+    "samples": 36,
+    "pass1": 97.22222222222223,
+    "pass1_strict": 97.22222222222223,
+    "score": 98.88888888888889,
+    "score_strict": 98.88888888888889,
+    "passn": 100.0,
+    "n_per_problem": 3,
+    "fails": {
+     "WA": 1
+    },
+    "perf_n": 29,
+    "perf_geo": 0.5361147037057401,
+    "perf_faster": 25,
+    "perf_2x": 3,
+    "mem_geo": 0.926347500218833
+   },
+   "L3|USACO 2025-26": {
+    "problems": 8,
+    "samples": 24,
+    "pass1": 95.83333333333333,
+    "pass1_strict": 95.83333333333333,
+    "score": 96.13095833333334,
+    "score_strict": 96.13095833333334,
+    "passn": 100.0,
+    "n_per_problem": 3,
+    "fails": {
+     "WA": 1
+    },
+    "perf_n": 23,
+    "perf_geo": 0.7717064230876246,
+    "perf_faster": 17,
+    "perf_2x": 2,
+    "mem_geo": 0.9939187391740808
+   },
+   "L4|USACO 2024-25": {
+    "problems": 8,
+    "samples": 24,
+    "pass1": 70.83333333333333,
+    "pass1_strict": 70.83333333333333,
+    "score": 75.297625,
+    "score_strict": 75.297625,
+    "passn": 87.5,
+    "n_per_problem": 3,
+    "fails": {
+     "WA": 4,
+     "no code": 1,
+     "CE": 1,
+     "RE": 1
+    },
+    "perf_n": 14,
+    "perf_geo": 1.1007048198935268,
+    "perf_faster": 8,
+    "perf_2x": 3,
+    "mem_geo": 0.8930561170896462
+   }
+  },
+  "unanswered": [],
+  "complexity": {
+   "L1": {
+    "time": {
+     "classes": {
+      "same": 8,
+      "better": 1,
+      "no reference": 6,
+      "uncertain": 3
+     },
+     "k_median": 0.926,
+     "better": [
+      "usaco-1444#0"
+     ]
+    },
+    "space": {
+     "classes": {
+      "not measurable": 9,
+      "uncertain": 2,
+      "same": 1,
+      "no reference": 6
+     },
+     "k_median": 0.958,
+     "better": []
+    }
+   },
+   "L2": {
+    "time": {
+     "classes": {
+      "same": 7,
+      "no reference": 10,
+      "better": 1
+     },
+     "k_median": 0.9545,
+     "better": [
+      "usaco-1496#0"
+     ]
+    },
+    "space": {
+     "classes": {
+      "same": 3,
+      "not measurable": 5,
+      "no reference": 10
+     },
+     "k_median": 0.994,
+     "better": []
+    }
+   },
+   "L3": {
+    "time": {
+     "classes": {
+      "uncertain": 5,
+      "same": 29,
+      "not measurable": 18,
+      "better": 5,
+      "worse": 1
+     },
+     "k_median": 0.99,
+     "better": [
+      "usaco-1498#1",
+      "usaco-1498#2",
+      "usaco-1521#1",
+      "usaco-1521#2",
+      "usaco-1547#0"
+     ]
+    },
+    "space": {
+     "classes": {
+      "not measurable": 49,
+      "uncertain": 9
+     },
+     "k_median": null,
+     "better": []
+    }
+   },
+   "L4": {
+    "time": {
+     "classes": {
+      "not measurable": 9,
+      "same": 4,
+      "uncertain": 1,
+      "no reference": 3
+     },
+     "k_median": 1.0779999999999998,
+     "better": []
+    },
+    "space": {
+     "classes": {
+      "same": 1,
+      "uncertain": 1,
+      "not measurable": 12,
+      "no reference": 3
+     },
+     "k_median": 1.3,
+     "better": []
+    }
+   }
+  },
+  "usage": {
+   "calls": 182,
+   "errors": 61,
+   "prompt": 109698,
+   "completion": 4340272,
+   "reasoning": 4223020,
+   "latency": {
+    "n": 121,
+    "mean": 234.45358635177297,
+    "median": 150.17835545539856,
+    "p90": 509.1678476333618,
+    "max": 1178.173817396164
+   },
+   "ttft": {
+    "n": 121,
+    "mean": 11.520596480566608,
+    "median": 6.76950216293335,
+    "p90": 29.369118690490723,
+    "max": 57.91606783866882
+   },
+   "span_h": 3.6307532121737798,
+   "per_tier": {
+    "L1": {
+     "completion": 184931,
+     "calls": 18,
+     "cost": 0.11336295000000002
+    },
+    "L2": {
+     "completion": 620288,
+     "calls": 19,
+     "cost": 0.37472252400000006
+    },
+    "L3": {
+     "completion": 1837436,
+     "calls": 60,
+     "cost": 1.1065723259999996
+    },
+    "L4": {
+     "completion": 1697617,
+     "calls": 24,
+     "cost": 1.020110823
+    }
+   },
+   "cost": 2.614768623
+  },
+  "quality": {
+   "all": {
+    "n": 37,
+    "pylint_issues": 9,
+    "pylint_score": 8.562702702702703,
+    "cc": 17.18918918918919,
+    "mi": 48.842729347711995,
+    "sloc": 63.86486486486486,
+    "issues_per_100sloc": 14.092255607278883,
+    "sonar_maintainability": 1.5135135135135136,
+    "sonar_reliability": 0,
+    "sonar_security": 0
+   },
+   "correct": {
+    "n": 36,
+    "pylint_issues": 9.11111111111111,
+    "pylint_score": 8.552222222222222,
+    "cc": 17.555555555555557,
+    "mi": 48.58648294442991,
+    "sloc": 64.19444444444444,
+    "issues_per_100sloc": 14.192990047598443,
+    "sonar_maintainability": 1.5277777777777777,
+    "sonar_reliability": 0,
+    "sonar_security": 0
+   }
+  },
+  "per_problem": {
+   "usaco-1443": {
+    "tier": "L1",
+    "title": "Roundabout Rounding",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1444": {
+    "tier": "L1",
+    "title": "Farmer John's Cheese Block",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1445": {
+    "tier": "L1",
+    "title": "It's Mooin' Time",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1446": {
+    "tier": "L2",
+    "title": "Cake Game",
+    "subset": "USACO 2024-25",
+    "solved": 0,
+    "n": 1,
+    "score": 9.091,
+    "fail": "WA"
+   },
+   "usaco-1447": {
+    "tier": "L2",
+    "title": "Deforestation",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1448": {
+    "tier": "L2",
+    "title": "2D Conveyor Belt",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1449": {
+    "tier": "L3",
+    "title": "Cowdependence",
+    "subset": "USACO 2024-25",
+    "solved": 2,
+    "n": 3,
+    "score": 86.66666666666667,
+    "fail": "WA"
+   },
+   "usaco-1450": {
+    "tier": "L3",
+    "title": "Interstellar Intervals",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1451": {
+    "tier": "L3",
+    "title": "Job Completion",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1452": {
+    "tier": "L4",
+    "title": "All Pairs Similarity",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1453": {
+    "tier": "L4",
+    "title": "It's Mooin' Time",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1454": {
+    "tier": "L4",
+    "title": "Maximize Minimum Difference",
+    "subset": "USACO 2024-25",
+    "solved": 0,
+    "n": 3,
+    "score": 10.0,
+    "fail": "WA"
+   },
+   "usaco-1467": {
+    "tier": "L1",
+    "title": "Astral Superposition",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1468": {
+    "tier": "L1",
+    "title": "It's Mooin' Time II",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1469": {
+    "tier": "L1",
+    "title": "Cow Checkups",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": "slow"
+   },
+   "usaco-1470": {
+    "tier": "L2",
+    "title": "Cow Checkups",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1471": {
+    "tier": "L2",
+    "title": "Farmer John's Favorite Operation",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1472": {
+    "tier": "L2",
+    "title": "Table Recovery",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1473": {
+    "tier": "L3",
+    "title": "Median Heap",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1474": {
+    "tier": "L3",
+    "title": "Reachable Pairs",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1475": {
+    "tier": "L3",
+    "title": "Photo Op",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1476": {
+    "tier": "L4",
+    "title": "DFS Order",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1477": {
+    "tier": "L4",
+    "title": "Shock Wave",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 3,
+    "score": 35.714333333333336,
+    "fail": "CE"
+   },
+   "usaco-1491": {
+    "tier": "L1",
+    "title": "Reflection",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1492": {
+    "tier": "L1",
+    "title": "Making Mexes",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1493": {
+    "tier": "L1",
+    "title": "Printing Sequences",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1494": {
+    "tier": "L2",
+    "title": "The Best Lineup",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1495": {
+    "tier": "L2",
+    "title": "Vocabulary Quiz",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1496": {
+    "tier": "L2",
+    "title": "Transforming Pairs",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1497": {
+    "tier": "L3",
+    "title": "Bessie's Function",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1498": {
+    "tier": "L3",
+    "title": "The Best Subsequence",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1499": {
+    "tier": "L3",
+    "title": "Friendship Editing",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1502": {
+    "tier": "L4",
+    "title": "True or False Test",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1515": {
+    "tier": "L1",
+    "title": "Hoof Paper Scissors Minus One",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1516": {
+    "tier": "L1",
+    "title": "More Cow Photos",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1517": {
+    "tier": "L1",
+    "title": "It's Mooin' Time III",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1519": {
+    "tier": "L2",
+    "title": "Compatible Pairs",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1520": {
+    "tier": "L2",
+    "title": "Ski Slope",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1521": {
+    "tier": "L3",
+    "title": "Moo Decomposition",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1522": {
+    "tier": "L3",
+    "title": "Election Queries",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1523": {
+    "tier": "L3",
+    "title": "OohMoo Milk",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1525": {
+    "tier": "L4",
+    "title": "Lazy Sort",
+    "subset": "USACO 2024-25",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1526": {
+    "tier": "L4",
+    "title": "Package Pickup",
+    "subset": "USACO 2024-25",
+    "solved": 1,
+    "n": 3,
+    "score": 56.666666666666664,
+    "fail": "RE"
+   },
+   "usaco-1539": {
+    "tier": "L1",
+    "title": "Chip Exchange",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1541": {
+    "tier": "L1",
+    "title": "Photoshoot",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1542": {
+    "tier": "L2",
+    "title": "Lineup Queries",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1543": {
+    "tier": "L2",
+    "title": "Mooclear Reactor",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1544": {
+    "tier": "L2",
+    "title": "Sliding Window Summation",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1545": {
+    "tier": "L3",
+    "title": "COW Traversals",
+    "subset": "USACO 2025-26",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1546": {
+    "tier": "L3",
+    "title": "Milk Buckets",
+    "subset": "USACO 2025-26",
+    "solved": 2,
+    "n": 3,
+    "score": 69.04766666666667,
+    "fail": "WA"
+   },
+   "usaco-1547": {
+    "tier": "L3",
+    "title": "Supervision",
+    "subset": "USACO 2025-26",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1564": {
+    "tier": "L1",
+    "title": "Moo Hunt",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1565": {
+    "tier": "L1",
+    "title": "Purchasing Milk",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1567": {
+    "tier": "L2",
+    "title": "Declining Invitations",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1568": {
+    "tier": "L2",
+    "title": "Farmer John Loves Rotations",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1569": {
+    "tier": "L3",
+    "title": "Balancing the Barns",
+    "subset": "USACO 2025-26",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1570": {
+    "tier": "L3",
+    "title": "Lexicographically Smallest Path",
+    "subset": "USACO 2025-26",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1571": {
+    "tier": "L3",
+    "title": "The Chase",
+    "subset": "USACO 2025-26",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1587": {
+    "tier": "L1",
+    "title": "Make All Distinct",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1588": {
+    "tier": "L1",
+    "title": "Strange Function",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1590": {
+    "tier": "L2",
+    "title": "Clash!",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1591": {
+    "tier": "L2",
+    "title": "Milk Buckets",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1592": {
+    "tier": "L2",
+    "title": "Point Elimination",
+    "subset": "USACO 2025-26",
+    "solved": 1,
+    "n": 1,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1593": {
+    "tier": "L3",
+    "title": "Good Cyclic Shifts",
+    "subset": "USACO 2025-26",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   },
+   "usaco-1595": {
+    "tier": "L3",
+    "title": "Random Tree Generation",
+    "subset": "USACO 2025-26",
+    "solved": 3,
+    "n": 3,
+    "score": 100.0,
+    "fail": null
+   }
+  }
+ }
+]

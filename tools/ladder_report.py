@@ -138,7 +138,8 @@ def quality_stats(run):
                      "cc": m(lambda r: r["radon"]["complexity"]), "mi": m(lambda r: r["radon"]["mi"]),
                      "sloc": m(lambda r: r["radon"]["sloc"]),
                      "issues_per_100sloc": 100 * sum(r["pylint"]["total"] for r in ok) / sl,
-                     "sonar_maint": statistics.mean(r["sonar"]["maintainability"] for r in ok) if all(r.get("sonar") for r in ok) else None}
+                     **{f"sonar_{q}": (statistics.mean(r["sonar"][q] for r in ok) if all(r.get("sonar") for r in ok) else None)
+                        for q in ("maintainability", "reliability", "security")}}
     return out
 
 
@@ -276,8 +277,10 @@ def md_report(stats, date):
                           ("score", "平均得分（宽时限）↑"), ("score_strict", "平均得分（官方时限）↑"), ("passn", "pass@n ↑")):
             vals = [f1(s["tiers"].get(t, {}).get(key)) for s in stats]
             L_.append(f"| {TIER_NAME[t]} | {name} | " + " | ".join(vals) + " |")
-    L_ += ["", "## 2026 新题与 USACO 对照（泄露检查）", "", "| 档位 / 子集 | " + " | ".join(models) + " |",
-           "|---|" + "---:|" * len(models)]
+    L_ += ["", "## 2026 新题与 USACO 对照（泄露检查）", ""]
+    if not any(k.endswith("|2026") for s in stats for k in s["subsets"]):
+        L_ += ["本次评测还没有 2026 年的 EGOI/IOI 题，下表只是 USACO 两个赛季之间的对照（2025-26 赛季的题更新）。", ""]
+    L_ += ["| 档位 / 子集 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
     keys = sorted({k for s in stats for k in s["subsets"]})
     for k in keys:
         L_.append(f"| {k.replace('|', ' / ')}（pass@1 / 得分）↑ | " + " | ".join(
@@ -312,7 +315,9 @@ def md_report(stats, date):
             st["fails"].items(), key=lambda kv: FAIL_ORDER.index(kv[0]))) for t, st in s["tiers"].items() if st["fails"]))
     L_ += ["", "## 静态质量（L1–L2 Python，正确答案）", "", "| 指标 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
     for key, name in (("pylint_issues", "Pylint 问题数 ↓"), ("pylint_score", "Pylint 分 ↑"), ("cc", "圈复杂度 CC ↓"),
-                      ("mi", "可维护性 MI ↑"), ("sloc", "SLOC"), ("issues_per_100sloc", "每百行问题数 ↓")):
+                      ("mi", "可维护性 MI ↑"), ("sloc", "SLOC"), ("issues_per_100sloc", "每百行问题数 ↓"),
+                      ("sonar_maintainability", "SonarQube 可维护性问题 ↓"), ("sonar_reliability", "SonarQube 可靠性问题 ↓"),
+                      ("sonar_security", "SonarQube 安全问题 ↓")):
         L_.append(f"| {name} | " + " | ".join(f1((s["quality"].get("correct") or {}).get(key), 2) for s in stats) + " |")
     L_ += ["", "## 用量与费用", "", "| 指标 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
     L_.append("| 调用数（出错） | " + " | ".join(f"{s['usage']['calls']}（{s['usage']['errors']}）" for s in stats) + " |")
@@ -388,6 +393,8 @@ def tex_report(stats, date):
     if any(s["subsets"] for s in stats):
         parts.append(r"\section{2026 新题与 USACO 对照}")
         parts.append("同一档内，2026 年的新题（EGOI、IOI）与 USACO 旧题的 pass@1 / 平均得分。新题明显更低而难度相当时，旧题成绩可能受训练数据泄露抬高。")
+        if not any(k.endswith("|2026") for s in stats for k in s["subsets"]):
+            parts.append("本次评测还没有 2026 年的 EGOI/IOI 题，下表只是 USACO 两个赛季之间的对照（2025--26 赛季的题更新）。")
         keys = sorted({k for s in stats for k in s["subsets"]})
         parts.append(tex_table(["档位 / 子集"] + models, [[tex(k.replace("|", " / "))] + [
             f"{f1(s['subsets'].get(k, {}).get('pass1'))} / {f1(s['subsets'].get(k, {}).get('score'))}" for s in stats] for k in keys], spec))
@@ -429,7 +436,8 @@ def tex_report(stats, date):
         parts.append(r"\section{静态质量（L1--L2，Python）}")
         qrows = [[name] + [f1((s["quality"].get("correct") or {}).get(key), 2) for s in stats] for key, name in (
             ("pylint_issues", "Pylint 问题数 ↓"), ("pylint_score", "Pylint 分 ↑"), ("cc", "圈复杂度 CC ↓"), ("mi", "可维护性 MI ↑"),
-            ("sloc", "SLOC"), ("issues_per_100sloc", "每百行问题数 ↓"))]
+            ("sloc", "SLOC"), ("issues_per_100sloc", "每百行问题数 ↓"), ("sonar_maintainability", "SonarQube 可维护性 ↓"),
+            ("sonar_reliability", "SonarQube 可靠性 ↓"), ("sonar_security", "SonarQube 安全 ↓"))]
         parts.append(tex_table(["指标（正确答案）"] + models, qrows, spec))
     parts.append(r"\section{用量与费用}")
     urows = [["调用（出错）"] + [f"{s['usage']['calls']} ({s['usage']['errors']})" for s in stats],
