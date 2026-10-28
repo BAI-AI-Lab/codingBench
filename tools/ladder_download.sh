@@ -2,7 +2,7 @@
 # Resumable bulk download for the ladder test set: ladder_download.sh <list.tsv> <dest dir> [parallel]
 # list.tsv: url<TAB>relative path<TAB>size in bytes (-1 = unknown)[<TAB>git blob sha1, checked by ladder_fetch.py --verify]. Files already complete are skipped, partial
 # ones resume (curl -C -), stalls (<100 B/s for 2 min) are retried with back-off, so it can be killed and re-run
-# at any time. Meant for the server's slow inbound link: run it under nohup and check with --status.
+# at any time. Meant for slow links: run it under nohup and check with --status.
 # LADDER_RATE=25k caps every connection (curl --limit-rate), e.g. to leave room for API streams during a run.
 set -u
 list=$1; dest=$2; par=${3:-6}

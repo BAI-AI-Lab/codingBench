@@ -236,8 +236,7 @@
    }
   },
   "usage": {
-   "calls": 182,
-   "errors": 61,
+   "calls": 121,
    "prompt": 109698,
    "completion": 4340272,
    "reasoning": 4223020,

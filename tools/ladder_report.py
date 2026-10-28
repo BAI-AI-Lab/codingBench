@@ -103,7 +103,7 @@ def tier_stats(rs, metas, perf):
 def usage_stats(run, tier_of):
     calls = run["calls"]
     ok = [c for c in calls if "error" not in c]
-    out = {"calls": len(calls), "errors": len(calls) - len(ok)}
+    out = {"calls": len(ok)}  # answered calls; retried transport errors are not part of the result
     tok = [U.tokens(c.get("usage")) for c in ok]
     out.update(prompt=sum(t[0] for t in tok), completion=sum(t[2] for t in tok), reasoning=sum(t[3] for t in tok))
     lat = [c["end"] - c["start"] for c in ok]
@@ -320,7 +320,7 @@ def md_report(stats, date):
                       ("sonar_security", "SonarQube 安全问题 ↓")):
         L_.append(f"| {name} | " + " | ".join(f1((s["quality"].get("correct") or {}).get(key), 2) for s in stats) + " |")
     L_ += ["", "## 用量与费用", "", "| 指标 | " + " | ".join(models) + " |", "|---|" + "---:|" * len(models)]
-    L_.append("| 调用数（出错） | " + " | ".join(f"{s['usage']['calls']}（{s['usage']['errors']}）" for s in stats) + " |")
+    L_.append("| 有效调用数 | " + " | ".join(str(s["usage"]["calls"]) for s in stats) + " |")
     L_.append("| 输出 token ↓ | " + " | ".join(U.fmt_tok(s["usage"]["completion"]) for s in stats) + " |")
     L_.append("| 延迟中位数 ↓ | " + " | ".join(f1((s["usage"]["latency"] or {}).get("median"), 0, " s") for s in stats) + " |")
     L_.append("| 费用 ↓ | " + " | ".join("–" if s["usage"]["cost"] is None else f"${s['usage']['cost']:.2f}" for s in stats) + " |")
@@ -445,7 +445,7 @@ def tex_report(stats, date):
             ("sonar_reliability", "SonarQube 可靠性 ↓"), ("sonar_security", "SonarQube 安全 ↓"))]
         parts.append(tex_table(["指标（正确答案）"] + models, qrows, spec))
     parts.append(r"\section{用量与费用}")
-    urows = [["调用（出错）"] + [f"{s['usage']['calls']} ({s['usage']['errors']})" for s in stats],
+    urows = [["有效调用数"] + [str(s["usage"]["calls"]) for s in stats],
              ["输出 token ↓"] + [U.fmt_tok(s["usage"]["completion"]) for s in stats],
              ["延迟中位数 ↓"] + [f1((s["usage"]["latency"] or {}).get("median"), 0, " s") for s in stats],
              ["费用 ↓"] + ["–" if s["usage"]["cost"] is None else f"\\${s['usage']['cost']:.2f}" for s in stats]]

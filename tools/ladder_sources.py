@@ -2,7 +2,7 @@
 
   python tools/ladder_sources.py [--out samples/ladder_download.tsv.gz]      # needs fast access to usaco.org and GitHub
 
-Run it where the internet is fast (the server's link is slow); the list is committed, and cb ladder-data downloads
+Run it where the internet is fast; the list is committed, and cb ladder-data downloads
 it on the server with tools/ladder_download.sh (resumable), or tools/ladder_fetch.py downloads it anywhere (e.g. a
 laptop with a fast link) and rsync pushes it. Lines: url, path under data/ladder/raw, size (-1 = unknown), git blob
 sha1 of GitHub files (empty for USACO), in the order USACO Bronze -> Platinum, EGOI 2026, IOI 2026, FrontierCS.

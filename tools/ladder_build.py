@@ -32,6 +32,26 @@ MULTI_ANSWER = re.compile(r"(?i)(if there are (multiple|many|several)[^.]{0,80}(
                           r"(answer|solution|sequence|assignment|construction|arrangement)|any of them)")
 
 
+def resolve_link(path):
+    """A git symlink downloaded file by file (raw.githubusercontent.com) arrives as a one-line file holding the
+    relative target, e.g. "../../../common/checker.cpp" (EGOI 2026 does this for shared checkers): follow it."""
+    for _ in range(5):
+        if os.path.getsize(path) > 512:
+            return path
+        text = open(path, errors="replace").read().strip()
+        if "\n" in text or not re.fullmatch(r"[\w./-]+", text):
+            return path
+        target = os.path.normpath(os.path.join(os.path.dirname(path), text))
+        if not os.path.isfile(target) or target == path:
+            return path
+        path = target
+    return path
+
+
+def copy_resolved(src, dst):
+    shutil.copy(resolve_link(src), dst)
+
+
 def write_problem(pid, meta, statement, tests_src=None):
     d = os.path.join(L.PROBLEMS, pid)
     os.makedirs(d, exist_ok=True)
@@ -223,9 +243,9 @@ def build_egoi(only=None):
         if os.path.exists(chk):
             cdir = os.path.join(d, "checker")
             os.makedirs(cdir, exist_ok=True)
-            shutil.copy(chk, os.path.join(cdir, "checker.cpp"))
+            copy_resolved(chk, os.path.join(cdir, "checker.cpp"))
             for h in glob.glob(os.path.join(tdir, "check", "*.h")) + glob.glob(os.path.join(root, "common", "*.h")):
-                shutil.copy(h, cdir)
+                copy_resolved(h, os.path.join(cdir, os.path.basename(h)))
             judge = {"kind": "checker", "convention": "cms", "source": "checker/checker.cpp"}
         refs = []
         os.makedirs(os.path.join(d, "ref"), exist_ok=True)
@@ -295,8 +315,12 @@ def build_ioi(only=None):
         gdir = os.path.join(d, "checker")
         shutil.rmtree(gdir, ignore_errors=True)
         shutil.copytree(os.path.join(tdir, "graders"), gdir, ignore=shutil.ignore_patterns(".DS_Store", "manager"))
+        for f in glob.glob(os.path.join(gdir, "*")):
+            r = resolve_link(f)
+            if r != f:
+                shutil.copy(r, f)
         for f in glob.glob(os.path.join(tdir, "checker", "*")):
-            shutil.copy(f, gdir)
+            copy_resolved(f, os.path.join(gdir, os.path.basename(f)))
         header = [os.path.basename(h) for h in glob.glob(os.path.join(gdir, "*.h")) if os.path.basename(h) != "testlib.h"]
         judge = {"kind": "grader" if ttype in ("Batch", "BatchAndOutput") else "communication", "task_type": ttype,
                  "processes": nproc, "header": header[0] if header else f"{name}.h",
@@ -415,6 +439,42 @@ def build_frontiercs(only=None):
 
 # ---------------------------------------------------------------- calibration: official solutions on every test
 
+def checker_selftest(meta, n=3):
+    """For problems without official solutions (EGOI 2026 publishes none): the official checker must give the
+    official answer full marks and an empty output none (CMS checkers); a FrontierCS testlib checker (whose .ans
+    files need not be a contestant output) must compile, end with a testlib exit code and give an empty output 0."""
+    import ladder_judge as J
+    j = meta["judge"]
+    if j["kind"] not in ("checker", "testlib") or j.get("interactor"):
+        return None
+    src = [j["checker"]] if j["kind"] == "testlib" else [os.path.basename(j.get("source") or j.get("checker"))]
+    cb, log = J._compile_once(meta, "checker", src, "checker")
+    if not cb:
+        return {"ok": False, "why": "checker does not compile: " + log[-300:]}
+    d = os.path.join(L.PROBLEMS, meta["pid"])
+    work = L.tmpdir("chk_selftest_")
+    try:
+        empty = os.path.join(work, "empty.txt")
+        open(empty, "w").close()
+        res = []
+        for t in meta["tests"][:n]:
+            inp, ans = os.path.join(d, "tests", t["in"]), os.path.join(d, "tests", t["out"])
+            if j["kind"] == "checker":
+                full, _ = L.run_checker("cms", cb, inp, ans, ans, work)
+                none, _ = L.run_checker("cms", cb, inp, empty, ans, work)
+                res.append(full >= 1 - 1e-9 and none == 0)
+            else:
+                import subprocess
+                p = subprocess.run([cb, inp, empty, ans], capture_output=True, text=True, cwd=work, timeout=60)
+                # a testlib exit code (0 ok, 1 wa, 2 pe, 3 fail, 7 points; many FrontierCS checkers FAIL on an
+                # empty output, which the official judge also scores 0), and an empty output never scores
+                score = L.interactor_score(p.returncode << 8, p.stdout + p.stderr) if p.returncode in (0, 7) else 0.0
+                res.append(p.returncode in (0, 1, 2, 3, 7) and score == 0)
+        return {"ok": bool(res) and all(res), "tests": len(res)}
+    finally:
+        shutil.rmtree(work, ignore_errors=True)
+
+
 def calibrate(pid, workers=8):
     """Judge every reference candidate of a problem; keep those that pass every test (lenient limit), record their
     CPU times, and pick the fastest per language as the reference for the performance ratios."""
@@ -437,6 +497,13 @@ def calibrate(pid, workers=8):
         if r["solved"] and (r["lang"] not in best or r["max_cpu"] < res[best[r["lang"]]]["max_cpu"]):
             best[r["lang"]] = f
     meta["calibration"] = res
+    if not meta.get("ref_candidates"):
+        st = checker_selftest(meta)
+        if st is not None:
+            meta["checker_selftest"] = st
+            meta["verified"] = st["ok"]
+            json.dump(meta, open(os.path.join(d, "meta.json"), "w"), indent=1, ensure_ascii=False)
+            return pid, {}, {} if st["ok"] else {"checker self-test": st}
     meta["ref"] = {lang: dict(file=f, **{k: res[f][k] for k in ("max_cpu", "total_cpu", "rss_kb", "cpu", "rss", "strict_solved")})
                    for lang, f in best.items()}
     meta["verified"] = bool(best) or not meta.get("ref_candidates")
@@ -461,7 +528,8 @@ def manifest(out, l5=30):
                "communication task (manager + several processes): not supported by the native judge yet"
                if m["judge"]["kind"] == "communication" else
                "multiple valid answers, no checker" if m.get("multi_answer") and m["judge"]["kind"] == "tokens" else
-               "statement missing" if not open(os.path.join(L.PROBLEMS, m["pid"], "statement.md")).read().strip() else None)
+               "statement missing" if not os.path.exists(os.path.join(L.PROBLEMS, m["pid"], "statement.md"))
+               or not open(os.path.join(L.PROBLEMS, m["pid"], "statement.md")).read().strip() else None)
         if why:
             skipped[m["pid"]] = why
         else:
@@ -499,12 +567,15 @@ def main():
     if a.manifest:
         return manifest(a.manifest, a.l5)
     if a.calibrate:
-        pids = sorted(only or [os.path.basename(p) for p in glob.glob(os.path.join(L.PROBLEMS, "*"))
-                               if json.load(open(os.path.join(p, "meta.json"))).get("ref_candidates")])
+        def wanted(p):
+            m = json.load(open(os.path.join(p, "meta.json")))
+            return m.get("ref_candidates") or (m["judge"]["kind"] in ("checker", "testlib") and not m["judge"].get("interactor"))
+        pids = sorted(only or [os.path.basename(p) for p in glob.glob(os.path.join(L.PROBLEMS, "*")) if wanted(p)])
         per = max(1, a.workers // 4)
         with concurrent.futures.ThreadPoolExecutor(4) as ex:
             for pid, best, bad in ex.map(lambda p: calibrate(p, per), pids):
                 print(pid, "reference:", best or "NONE", ("failed: " + json.dumps(bad)) if bad else "")
+                sys.stdout.flush()
         return
     for s in a.sources.split(","):
         {"usaco": build_usaco, "egoi2026": build_egoi, "ioi2026": build_ioi, "frontiercs": build_frontiercs}[s](only)

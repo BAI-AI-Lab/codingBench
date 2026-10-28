@@ -117,7 +117,7 @@ cb ladder --smoke && cb ladder                                 # 报告在 /opt/
 - `samples/`：固定的题目清单；`samples/ladder.json`、`samples/ladder_download.tsv.gz`：阶梯测试集的题目清单和下载清单
 - `bin/ladder_run.py`、`tools/ladder_*.py`：阶梯测试集的生成、建库、判题、静态质量和报告；`tests/test_ladder.py`、`tests/mock_openai.py`：它的测试
 - `deploy/setup.sh`：安装和更新（只在仓库里）
-- `reports/`：跑过的评测报告（例如 `2026-10-19_lcb_newest100.md`：DeepSeek-V4.1-Flash 对比 Qwen2.5-3B）
+- `reports/`：跑过的评测报告（`2026-10-23_lcb35_kimi_deepseek`：LiveCodeBench 最新 35 题；`2026-10-27_ladder_design`：阶梯测试集的设计说明；`2026-10-28_ladder_deepseek-flash`：阶梯测试集的第一轮评测）
 - 结果网站：https://bai-ai-lab.github.io/coding-eval/（公开仓库 `BAI-AI-Lab/coding-eval`）。由 `reports/2026-10-23_lcb35_kimi_deepseek/site.py` 生成：在放好 `runs/` 的报告目录里运行 `python site.py <coding-eval 的检出目录>`（需要 pygments），然后在该目录提交并推送
 - `SURVEY.md`：选这几个 benchmark 时调研过的约 45 个代码 benchmark（会议、获奖级别、怎么跑、国内能不能下）
 - `src/`：三个官方仓库（`install.sh` 拉取，钉在测过的 commit 上）
@@ -125,3 +125,7 @@ cb ladder --smoke && cb ladder                                 # 报告在 /opt/
 - `data/code_generation_lite/`：LiveCodeBench 的题目（从 OpenCompass 的阿里云镜像下载，sha256 和 HF 官方一致）
 - `data/ladder/`：阶梯测试集的原始下载（`raw/`）和整理好的题目（`problems/`，题面和测试数据只在服务器上，不进仓库）
 - `runs/`：结果
+
+## 许可证
+
+代码以 MIT 许可证发布（见 `LICENSE`）。评测用的题目、测试数据和官方题解不在仓库里，下载自各自的官方来源，版权归原作者所有：USACO、EGOI 2026、IOI 2026（CC BY 4.0）、FrontierCS（MIT）。

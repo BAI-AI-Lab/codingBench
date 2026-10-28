@@ -2,7 +2,7 @@
 # source this as the bench user: shared settings for every code benchmark
 CB="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 export CB
-# Package and model mirrors in China (the lab server's link); a file $CB/mirrors containing "global" (written by
+# Package and model mirrors in China (the default); a file $CB/mirrors containing "global" (written by
 # deploy/wsl_setup.sh) uses the default PyPI / Hugging Face instead.
 if [ "$(cat "$CB/mirrors" 2>/dev/null)" != global ]; then
   export UV_INDEX_URL=https://mirrors.bfsu.edu.cn/pypi/web/simple
