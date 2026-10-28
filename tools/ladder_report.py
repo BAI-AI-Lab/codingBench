@@ -305,6 +305,29 @@ def table(head, rows, align, groups=None, tex_spec=None):
     return {"head": head, "rows": rows, "align": align, "groups": groups, "tex_spec": tex_spec}
 
 
+def intro(stats, db):
+    """First section: what each model is, what changed since its previous version, its highlights (samples/models.json)."""
+    blocks = []
+    for st in stats:
+        m = db.get(st["model_id"])
+        if not m:
+            continue
+        blocks.append(("h", m.get("name") or st["model"]))
+        facts = [(k, m[f]) for k, f in (("厂商", "vendor"), ("发布", "released"), ("权重与许可", "weights"), ("架构", "architecture"),
+                                         ("价格", "price"), ("本次调用", "access")) if m.get(f)]
+        blocks.append(table(["项目", "内容"], [[k, v] for k, v in facts], "ll", tex_spec=r"@{}p{2.2cm}>{\raggedright\arraybackslash}p{13.6cm}@{}"))
+        if m.get("updates"):
+            blocks += ["相较上一版的更新：", ("ul", m["updates"])]
+        if m.get("highlights"):
+            blocks += ["亮点：", ("ul", m["highlights"])]
+        if m.get("sources"):
+            blocks.append(("links", m["sources"]))
+    if not blocks:
+        return []
+    return [("模型简介", ["各模型的发布信息、相较上一版的更新与亮点，整理自厂商公告与模型卡；标注“厂商自报”的分数未经独立复现，"
+                        "与本报告的测评结果不是同一口径。"] + blocks)]
+
+
 def notes(stats):
     multi = len(stats) > 1
     out = []
@@ -499,15 +522,29 @@ def tex_table(t, long=False):
                      + [r"\bottomrule", r"\end{tabular}}", r"\end{center}"])
 
 
-def md_report(stats, date, author=None):
+def md_block(b):
+    if isinstance(b, dict):
+        return md_table(b)
+    if isinstance(b, tuple):
+        kind, x = b
+        if kind == "h":
+            return f"### {x}"
+        if kind == "ul":
+            return "\n".join(f"- {i}" for i in x)
+        if kind == "links":
+            return "资料来源：" + "；".join(f"[{t}]({u})" for t, u in x)
+    return b
+
+
+def md_report(stats, date, author=None, db=None):
     names = " / ".join(s["model"] for s in stats)
     L_ = [f"# 阶梯代码评测报告：{names}", "", f"{date}　L1–L4：USACO 2024–26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道", ""]
     L_ += [f"- {n}" for n in notes(stats)] + ([""] if notes(stats) else [])
+    for title, blocks in intro(stats, db or {}):
+        L_ += [f"## {title}", ""] + [x for b in blocks for x in (md_block(b), "")]
     L_ += criteria_md()
     for title, blocks in sections(stats):
-        L_ += [f"## {title}", ""]
-        for b in blocks:
-            L_ += [md_table(b) if isinstance(b, dict) else f"### {b[1]}" if isinstance(b, tuple) else b, ""]
+        L_ += [f"## {title}", ""] + [x for b in blocks for x in (md_block(b), "")]
     if author:
         L_ += ["---", "", f"由 {author} 创建于 {date}"]
     return "\n".join(L_) + "\n"
@@ -545,23 +582,38 @@ PREAMBLE = r"""\documentclass[11pt,a4paper,fontset=none]{ctexart}
 """
 
 
-def tex_report(stats, date, author=None):
+def tex_url(u):
+    return u.replace("%", r"\%").replace("#", r"\#")
+
+
+def tex_block(b):
+    if isinstance(b, dict):
+        return tex_table(b, long=b["head"][0] == "题目")
+    if isinstance(b, tuple):
+        kind, x = b
+        if kind == "h":
+            return rf"\subsection*{{{tex(x)}}}"
+        if kind == "ul":
+            return "\n".join([r"\begin{itemize}"] + [rf"\item {tex(i)}" for i in x] + [r"\end{itemize}"])
+        if kind == "links":
+            return r"{\small 资料来源：" + "；".join(rf"\href{{{tex_url(u)}}}{{{tex(t)}}}" for t, u in x) + "}"
+    return tex(b)
+
+
+def tex_report(stats, date, author=None, db=None):
     names = " / ".join(tex(s["model"]) for s in stats)
     parts = [PREAMBLE.replace("__DATE__", date), r"\begin{document}", r"\begin{center}",
              r"{\LARGE\bfseries 阶梯代码评测报告}\\[0.5em]", rf"{{\Large {names}}}\\[0.4em]",
              rf"{{\small {date} \quad L1--L4：USACO 2024--26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道}}", r"\end{center}"]
     if notes(stats):
         parts += [r"\begin{itemize}"] + [rf"\item {tex(n)}" for n in notes(stats)] + [r"\end{itemize}"]
+    for title, blocks in intro(stats, db or {}):
+        parts.append(rf"\section{{{tex(title)}}}")
+        parts += [tex_block(b) for b in blocks]
     parts.append(criteria_tex())
     for title, blocks in sections(stats):
         parts.append(rf"\section{{{tex(title)}}}")
-        for b in blocks:
-            if isinstance(b, dict):
-                parts.append(tex_table(b, long=b["head"][0] == "题目"))
-            elif isinstance(b, tuple):
-                parts.append(rf"\subsection*{{{tex(b[1])}}}")
-            else:
-                parts.append(tex(b))
+        parts += [tex_block(b) for b in blocks]
     if author:
         parts.append(rf"\par\vspace{{2em}}\begin{{flushright}}由 {tex(author)} 创建于 {date}\end{{flushright}}")
     parts.append(r"\end{document}")
@@ -575,6 +627,8 @@ def main():
     ap.add_argument("--date", default=datetime.date.today().isoformat())
     ap.add_argument("--prices", default="", help="model=in,hit,out;model2=... (per 1M tokens)")
     ap.add_argument("--names", default="", help="model=full name;model2=... (shown in the report instead of the API id)")
+    ap.add_argument("--intro", default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "samples", "models.json"),
+                    help="model notes for the first section (keyed by API model id); '' for none")
     ap.add_argument("--author", default=os.environ.get("REPORT_AUTHOR", "Albert Huang"),
                     help="the last line reads: 由 <author> 创建于 <date>")
     a = ap.parse_args()
@@ -596,10 +650,11 @@ def main():
         run = load(d, names=dict(x.split("=", 1) for x in filter(None, a.names.split(";"))))
         run["prices"] = per.get(run["model"], env)
         stats.append(analyze(run))
+    db = json.load(open(a.intro)) if a.intro and os.path.exists(a.intro) else {}
     os.makedirs(a.out, exist_ok=True)
     json.dump(stats, open(os.path.join(a.out, "report.json"), "w"), indent=1, ensure_ascii=False)
-    open(os.path.join(a.out, "report.md"), "w").write(md_report(stats, a.date, a.author))
-    open(os.path.join(a.out, "main.tex"), "w").write(tex_report(stats, a.date, a.author))
+    open(os.path.join(a.out, "report.md"), "w").write(md_report(stats, a.date, a.author, db))
+    open(os.path.join(a.out, "main.tex"), "w").write(tex_report(stats, a.date, a.author, db))
     open(os.path.join(a.out, "build.sh"), "w").write("#!/bin/bash\n# PDF of this report (xelatex with ctex; Times New Roman + Kaiti on the Mac)\n"
                                                     "cd \"$(dirname \"$0\")\" && xelatex -interaction=nonstopmode main.tex >/dev/null && "
                                                     "xelatex -interaction=nonstopmode main.tex >/dev/null && echo \"$(pwd)/main.pdf\"\n")

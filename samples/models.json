@@ -1,0 +1,49 @@
+{
+ "_comment": "Model notes for the first section of a ladder report (tools/ladder_report.py --intro). Keyed by the API model id. Every claim cites a source; vendor-reported numbers are marked as such.",
+ "deepseek-flash": {
+  "name": "DeepSeek Flash V4.1-1017",
+  "vendor": "DeepSeek",
+  "released": "V4.1-Flash 2026-09-10 发布；2026-10-17 更新为 1017 版（API 名 deepseek-flash 与价格不变）",
+  "weights": "开放权重，MIT 许可",
+  "architecture": "多模态 MoE：主干 552B 参数，每 token 激活 8B（prefill）/ 16B（decode），另有 196B Engram 条件记忆；上下文 1M；支持图像输入",
+  "price": "每百万 token 输入 $0.30、缓存命中 $0.006、输出 $1.20；北京时间非高峰时段半价",
+  "access": "DeepSeek 官方 API",
+  "updates": [
+   "1017 版相较 9 月版：官方称缩短了任务耗时和输出长度；厂商自报 Terminal-Bench 4.0 31.2 → 42.3、DeepSWE v1.1 74.2 → 77.0、ProgramBench 20.3 → 29.1、NL2Repo-Bench 65.4 → 68.2、HLE（无工具）36.8 → 42.6",
+   "V4.1 代相较 V4-Flash：新架构系列里最小的模型，原生支持视觉理解；持久 KV cache 约为 V4-Flash 的 1/8，全局 KV cache 每 token 890 字节、约为 1/4；Codeforces 评分 3289 → 3471（厂商自报，各次测评环境不完全相同）"
+  ],
+  "highlights": [
+   "开放权重、MIT 许可，单价在同档里偏低，非高峰再打对折",
+   "1M 上下文，思考深度可调（API 提供 low / high / max）",
+   "厂商自报 DeepSWE v1.1 77.0、Terminal-Bench 4.0 42.3，偏重智能体编程"
+  ],
+  "sources": [
+   ["DeepSeek API 更新日志", "https://api-docs.deepseek.com/updates/"],
+   ["DeepSeek-V4.1-Flash 模型卡", "https://huggingface.co/deepseek-ai/DeepSeek-V4.1-Flash"]
+  ]
+ },
+ "MiniMax-M3.1-Flash": {
+  "name": "MiniMax M3.1 Flash",
+  "vendor": "MiniMax",
+  "released": "2026-09-27 以 M3.1-Flash-Preview 在 MiniMax Code 内测；2026-10-19 正式上线 API；2026-10-23 放出权重",
+  "weights": "开放权重，MiniMax Community License（商用须标注；年收入 2000 万美元以上须书面授权）",
+  "architecture": "MoE：总参数约 428B、每 token 激活约 23B（与 M3 同规模），官方称采用更激进的稀疏化；上下文 1M；输入文本、图像、视频；思考不能关闭，深度用 reasoning_effort 调（默认 max）",
+  "price": "每百万 token 输入 $0.15、缓存 $0.015、输出 $0.60，不分时段、不分上下文长度（国内站 ¥1 / ¥0.1 / ¥4）",
+  "access": "经第三方 OpenAI 兼容网关转发（返回格式与 MiniMax 官方一致）",
+  "updates": [
+   "官方称在线推理速度快了近 3 倍，智能体任务的整体使用成本比前代低 70%（博客未点名前代）；输出速度可达 200+ token/s，P50 在 170+",
+   "2026-10-19 起 MiniMax 把 M2.5、M2.7 归为旧版，套餐内对它们的请求自动改由 M3.1 Flash 处理"
+  ],
+  "highlights": [
+   "定位智能体任务：长程软件工程、电脑操作、企业流程自动化、网络安全",
+   "厂商自报 DeepSWE v1.1 73.7%、OSWorld V2 61.7、Agents' Last Exam 29.6、CyberGym 82%",
+   "单价是同档最低的一批；第三方测评提示其幻觉率偏高，答案需要核验"
+  ],
+  "sources": [
+   ["MiniMax 官方博客：M3.1 Flash", "https://www.minimax.io/blog/minimax-m31f"],
+   ["MiniMax 接口文档", "https://platform.minimax.io/docs/guides/text-generation"],
+   ["权重与许可（OrcaRouter 汇总）", "https://www.orcarouter.ai/blog/minimax-m3-1-flash-open-weights"],
+   ["VentureBeat：幻觉率", "https://venturebeat.com/technology/minimaxs-new-m3-1-flash-beats-deepseek-and-opus-5-on-a-key-business-benchmark-at-lower-cost-but-with-a-high-hallucination-rate"]
+  ]
+ }
+}

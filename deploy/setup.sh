@@ -17,7 +17,7 @@ FILES="bin/cb:755 bin/lcb_run.py:644 bin/crux_run.py:644 tools/lcb_report.py:644
        README.md:644 SURVEY.md:644 samples/lcb_newest100.txt:644 samples/lcb_newest35.txt:644
        bin/ladder_run.py:644 tools/ladder_lib.py:644 tools/ladder_build.py:644 tools/ladder_judge.py:644
        tools/ladder_quality.py:644 tools/ladder_report.py:644 tools/ladder_complexity.py:644 tools/ladder_download.sh:644 tools/ladder_sources.py:644 tools/ladder_fetch.py:644
-       samples/ladder_download.tsv.gz:644 tests/mock_openai.py:644"
+       samples/ladder_download.tsv.gz:644 samples/models.json:644 tests/mock_openai.py:644"
 WORK="src venvs data runs python .cache .local"
 
 changed=0
