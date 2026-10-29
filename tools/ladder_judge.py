@@ -247,9 +247,10 @@ def main():
     def judge_one(r):
         meta = L.load_meta(r["pid"])
         if not r.get("code"):
+            verdict = "timeout" if r.get("finish") == "timeout" else "no code"  # over the time limit: failed, not run
             res = {"pid": r["pid"], "score": 0.0, "solved": False, "strict_score": 0.0, "strict_solved": False,
                    "max_cpu": 0.0, "total_cpu": 0.0, "max_rss_kb": 0, "compile_error": None,
-                   "verdicts": {"no code": len(meta["tests"])}, "tests": []}
+                   "verdicts": {verdict: len(meta["tests"])}, "tests": []}
         else:
             res = judge_code(meta, r["code"], meta["lang"], workers=per_answer)
         res.update(q=r["q"], k=r.get("k", 0), tier=meta["tier"], source=meta["source"], subset=meta["subset"],

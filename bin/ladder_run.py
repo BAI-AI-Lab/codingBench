@@ -27,6 +27,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(
 import ladder_lib as L  # noqa: E402
 
 TAIL = 600
+# LADDER_MAX_SECONDS: a streamed request longer than this is cut off and logged as finish "timeout" (not retried);
+# the server returns no usage for a cut stream, so its tokens are estimated from the characters streamed so far
+# (LADDER_CHARS_PER_TOKEN: 3.57 measured on MiniMax-M3.1-Flash completed calls; median, 10th-90th percentile 3.0-3.9)
+CHARS_PER_TOKEN = float(os.environ.get("LADDER_CHARS_PER_TOKEN") or 3.57)
 _broke = []
 _write = threading.Lock()
 
@@ -75,7 +79,12 @@ def call(client, model, messages, args, usage_path, q):
                     raise
                 stream = client.chat.completions.create(**kw, stream=True)
             parts, r_tail, c_tail, last_write = [], "", "", 0.0
+            limit = float(os.environ.get("LADDER_MAX_SECONDS") or 0)
+            timed_out = False
             for ch in stream:
+                if limit and time.time() - rec["start"] > limit:
+                    timed_out = True
+                    break
                 mdl = ch.model or mdl
                 if ch.usage:
                     usage = ch.usage.model_dump()
@@ -104,9 +113,14 @@ def call(client, model, messages, args, usage_path, q):
                                    "content_chars": n_content, "reasoning_tail": r_tail, "content_tail": c_tail,
                                    "prompt": messages[-1]["content"][:2000]}, f, ensure_ascii=False)
                     os.replace(live + ".tmp", live)
-            if finish is None:
+            if timed_out:
+                finish = "timeout"
+                stream.close()
+            elif finish is None:
                 raise RuntimeError("stream ended without a finish_reason")
             content = "".join(parts)
+        if finish == "timeout" and not usage:
+            usage = {"completion_tokens": round((n_reason + n_content) / CHARS_PER_TOKEN), "prompt_tokens": 0, "estimated": True}
         rec.update(end=time.time(), model=mdl, usage=usage, finish=[finish], chars=[len(content)], content=[content],
                    first_token=first, first_content=first_content, reasoning_chars=n_reason)
     except Exception as e:  # noqa: BLE001  (logged and retried by the caller)
@@ -181,7 +195,8 @@ def main():
     done = {q for q, r in last.items() if r.get("finish") != "error"}
 
     def answer(rec, p, k):
-        code = L.extract_code(rec["content"][0], metas[p]["lang"]) if rec.get("content") else ""
+        timed_out = (rec.get("finish") or [None])[0] == "timeout"  # a cut answer is not code: it is a failure
+        code = L.extract_code(rec["content"][0], metas[p]["lang"]) if rec.get("content") and not timed_out else ""
         r = {"q": f"{p}#{k}", "pid": p, "k": k, "tier": metas[p]["tier"], "lang": metas[p]["lang"], "code": code,
              "finish": (rec.get("finish") or [None])[0], "code_hash": hashlib.sha1(code.encode()).hexdigest()[:12]}
         log(ans_path, r)

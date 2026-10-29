@@ -27,8 +27,8 @@ import ladder_lib as L  # noqa: E402
 import lcb_usage as U  # noqa: E402
 
 TIER_NAME = {"L1": "L1 基础", "L2": "L2 中等", "L3": "L3 困难", "L4": "L4 顶尖", "L5": "L5 开放式"}
-FAIL_ORDER = ("no code", "CE", "WA", "partial", "RE", "MLE", "TLE", "slow", "JE")
-FAIL_NAME = {"no code": "无代码", "CE": "编译错误", "WA": "答案错误", "partial": "部分分", "RE": "运行错误", "MLE": "超内存",
+FAIL_ORDER = ("no code", "timeout", "CE", "WA", "partial", "RE", "MLE", "TLE", "slow", "JE")
+FAIL_NAME = {"no code": "无代码", "timeout": "超过 20 分钟", "CE": "编译错误", "WA": "答案错误", "partial": "部分分", "RE": "运行错误", "MLE": "超内存",
              "TLE": "超时", "slow": "只在官方时限下超时", "JE": "判题错误"}
 
 
@@ -51,6 +51,8 @@ def failure(r, continuous=False):
     v = r.get("verdicts") or {}
     if "no code" in v:
         return "no code"
+    if "timeout" in v:
+        return "timeout"
     if "CE" in v:
         return "CE"
     for k in ("WA", "RE", "MLE", "TLE", "JE"):
@@ -260,7 +262,7 @@ CRITERIA = [  # (dimension, metric, how it is computed, direction)
      "这些测试点的输入大小跨度达到 8 倍时，另报两者按输入大小的增长幂次。", ""),
     ("失败类型", "每份未解出答案的主要原因",
      "按顺序取第一个成立的：无代码、编译错误、答案错误、运行错误、超内存、超时、部分分（部分测试点得分）；"
-     "宽时限下解出但官方时限下没有全部通过的记为“只在官方时限下超时”。FrontierCS 为连续分，得分大于 0 的答案记为部分分，只有 0 分的答案按上面的顺序找原因。", ""),
+     "宽时限下解出但官方时限下没有全部通过的记为“只在官方时限下超时”。单次生成超过 20 分钟的请求记为“超过 20 分钟”（不重试，视为没有通过）。FrontierCS 为连续分，得分大于 0 的答案记为部分分，只有 0 分的答案按上面的顺序找原因。", ""),
     ("静态质量", "Pylint、Radon、SonarQube（只限 L1–L2 的 Python 答案）",
      "按 arXiv:2610.19167 的口径与版本：Pylint 3.3.5 默认配置的问题数（C/R/W/E）与 0–10 分，Radon 6.0.1 的圈复杂度（所有条目之和）、"
      "可维护性指数 MI、SLOC，SonarQube 10.4 的可维护性/可靠性/安全问题数；报告正确答案的每份平均与每百行 SLOC 的问题数。", "见表头"),
@@ -460,7 +462,7 @@ def sections(stats):
             rows.append([TIER_NAME.get(t, t) if t else "已剔除的题"] + mc(s) + [str(d["calls"]), U.fmt_tok(d["completion"]),
                          U.fmt_tok(d["completion"] / d["calls"]) if d["calls"] else "–", f1(d.get("latency_median"), 0, " s"), cost])
     out.append(("用量与费用", [
-        "调用数只计拿到回答的调用；输出 token 含思考过程；延迟为一次调用从发出到收完的时间；费用按每次调用开始时的分时单价计算。",
+        "调用数只计拿到回答或超时的调用；输出 token 含思考过程；延迟为一次调用从发出到收完的时间；费用按每次调用开始时的分时单价计算。超过 20 分钟被切断的请求，服务端不返回用量，其输出 token 按已输出的字数估算（每 token 约 3.57 字符）。",
         table(["档位"] + mh + ["调用数", "输出 token ↓", "每次输出 token ↓", "延迟中位数 ↓", "费用 ↓"], rows, "l" + ma + "rrrrr")]))
 
     body = []

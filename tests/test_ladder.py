@@ -240,6 +240,21 @@ def main():
         rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
         check(rep["dropped"] == ["t-cms", "t-comm"] and "t-cms" not in rep["per_problem"] and rep["unanswered"] == [],
               "report: a problem dropped from the list after the run is left out and listed")
+        # a request over the time limit is cut off: logged as a timeout with estimated tokens, not retried, not code
+        tout = os.path.join(CB, "runs", "mock", "ladder-timeout")
+        subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", tout],
+                       env=dict(env, LADDER_MAX_SECONDS="0.000001", LADDER_N="L1=1"), check=True)
+        ans_t = [json.loads(l) for l in open(os.path.join(tout, "answers.jsonl"))]
+        use_t = [json.loads(l) for l in open(os.path.join(tout, "usage.jsonl"))]
+        check(ans_t and all(a["finish"] == "timeout" and not a["code"] for a in ans_t),
+              "timeout: cut answers are logged with finish timeout and no code")
+        check(len(use_t) == len(ans_t) and all("error" not in u and (u.get("usage") or {}).get("estimated") for u in use_t),
+              "timeout: one call per sample (not retried), tokens estimated")
+        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_judge.py"), tout, "--workers", "2", "--perf-reps", "0"],
+                       env=env, check=True)
+        jt = [json.loads(l) for l in open(os.path.join(tout, "judge.jsonl"))]
+        check(jt and all(j["score"] == 0 and "timeout" in j["verdicts"] for j in jt),
+              "judge: a timed-out answer scores 0 with the timeout verdict")
     finally:
         mock.terminate()
     shutil.rmtree(CB, ignore_errors=True)
