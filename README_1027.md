@@ -109,6 +109,12 @@ cb ladder                                                  # 全量：生成 →
 cb ladder-report /opt/code_bench/runs/模型A/ladder-full /opt/code_bench/runs/模型B/ladder-full --out ~/ladder_compare
 ```
 
+两个模型时，结果部分的第一章是「两个模型对比」：成绩与差值、逐题胜负（含符号检验）、成本与速度、结果不同的题。装了 matplotlib 的机器上这几张表画成 Nature 版式的柱状图（服务器上没有 matplotlib，就把 report.json 拷到有的机器上重画）：
+
+```bash
+python3 tools/ladder_report.py --from-json ~/ladder_compare/report.json --out ~/ladder_compare
+```
+
 注意：「官方时限」「性能」「复杂度」都和机器有关。要对比的模型必须在**同一台机器**上判题；在不同机器上跑的结果只能比正确率。
 
 ## 四、这一版的已知限制

@@ -16,7 +16,7 @@ CHECK=0; [ "${1:-}" = --check ] && CHECK=1
 FILES="bin/cb:755 bin/lcb_run.py:644 bin/crux_run.py:644 tools/lcb_report.py:644 tools/lcb_usage.py:644 tools/lcb_rejudge.py:644 tools/lcb_quality.py:644 tools/lcb_progress.py:644 tools/lcb_perf.py:644 env.sh:644 install.sh:644
        README.md:644 SURVEY.md:644 samples/lcb_newest100.txt:644 samples/lcb_newest35.txt:644
        bin/ladder_run.py:644 tools/ladder_lib.py:644 tools/ladder_build.py:644 tools/ladder_judge.py:644
-       tools/ladder_quality.py:644 tools/ladder_report.py:644 tools/ladder_complexity.py:644 tools/ladder_download.sh:644 tools/ladder_sources.py:644 tools/ladder_fetch.py:644
+       tools/ladder_quality.py:644 tools/ladder_report.py:644 tools/ladder_figures.py:644 tools/ladder_complexity.py:644 tools/ladder_download.sh:644 tools/ladder_sources.py:644 tools/ladder_fetch.py:644
        samples/ladder_download.tsv.gz:644 samples/models.json:644 tests/mock_openai.py:644"
 WORK="src venvs data runs python .cache .local"
 

@@ -4,6 +4,7 @@ then generation against tests/mock_openai.py, judging, performance re-runs and t
   python tests/test_ladder.py          # needs g++, and openai + httpx for the end-to-end part
 """
 import datetime
+import importlib.util
 import json
 import math
 import os
@@ -245,6 +246,16 @@ def main():
         md2 = open(os.path.join(run, "report2", "report.md")).read()
         check("## 两个模型对比" in md2 and "更好 0 题" in md2 and "p = 1.000" not in md2 and "p = –" in md2,
               "report: two runs get a head-to-head section (a run against itself: all ties, no test)")
+        if importlib.util.find_spec("matplotlib"):
+            fig_out = os.path.join(run, "report3")
+            subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), "--from-json",
+                            os.path.join(run, "report2", "report.json"), "--out", fig_out], env=env, check=True)
+            md3 = open(os.path.join(fig_out, "report.md")).read()
+            check(all(os.path.exists(os.path.join(fig_out, f"fig_{k}.{e}")) for k in ("scores", "h2h", "cost") for e in ("pdf", "png"))
+                  and "](fig_scores.png)" in md3 and "includegraphics" in open(os.path.join(fig_out, "main.tex")).read(),
+                  "report: re-rendered from report.json with bar charts in place of the head-to-head tables")
+        else:
+            print("skip figures: matplotlib not installed")
         # a request over the time limit is cut off: logged as a timeout with estimated tokens, not retried, not code
         tout = os.path.join(CB, "runs", "mock", "ladder-timeout")
         subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", tout],

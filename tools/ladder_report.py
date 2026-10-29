@@ -399,16 +399,17 @@ def f_d(x, nd=1):
     return "–" if x is None else f"{x:+.{nd}f}"
 
 
-def compare(stats):
-    """Head-to-head section for two runs on the same problems: B (second run) against A (first run), tier by tier."""
+def comparison(stats):
+    """The numbers of the head-to-head section, B (second run) against A (first run), for both the tables and the
+    figures (ladder_figures.py)."""
     A, B = stats
     short = [s["model"].split()[0] for s in stats]
     if short[0] == short[1]:
         short = [s["model"] for s in stats]
-    a, b = short
     common = sorted(set(A["per_problem"]) & set(B["per_problem"]))
     tiers = [t for t in L.TIERS if t in A["tiers"] and t in B["tiers"]]
     discrete = [t for t in tiers if not A["tiers"][t]["continuous"]]
+    pool = f"{discrete[0]}–{discrete[-1]} 合计" if discrete else None
 
     def pooled(s, ts):  # L1-L4 together: every sample counts once
         n = sum(s["tiers"][t]["samples"] for t in ts)
@@ -418,56 +419,39 @@ def compare(stats):
 
     rows_t = [(TIER_NAME[t], A["tiers"][t], B["tiers"][t]) for t in tiers]
     if len(discrete) > 1:
-        rows_t.append((f"{discrete[0]}–{discrete[-1]} 合计", pooled(A, discrete), pooled(B, discrete)))
-    rows = []
-    for name, x, y in rows_t:
-        cells = [name, str(x["problems"])]
-        for k in ("pass1", "pass1_strict", "score"):
-            if x["continuous"] and k != "score":
-                cells += [NA, NA, NA]
-            else:
-                cells += [f1(x[k]), f1(y[k]), f_d(y[k] - x[k])]
-        rows.append(cells)
-    t1 = table(["档位", "题数", a, b, "差", a, b, "差", a, b, "差"], rows, "l" + "r" * 10,
-               [("", 2), ("pass@1（宽时限）↑", 3), ("pass@1（官方时限）↑", 3), ("平均得分（宽时限）↑", 3)])
+        rows_t.append((pool, pooled(A, discrete), pooled(B, discrete)))
+    scores = [{"label": name, "continuous": x["continuous"], "problems": x["problems"],
+               **{k: [None, None] if x["continuous"] and k != "score" else [x[k], y[k]] for k in ("pass1", "pass1_strict", "score")}}
+              for name, x, y in rows_t]
 
-    # per problem: who scores more on average, and who solves it at least once
-    def h2h(pids):
-        w = l_ = tie = 0
-        both = only_a = only_b = neither = 0
-        for pid in pids:
-            pa, pb = A["per_problem"][pid], B["per_problem"][pid]
-            d = pb["score"] - pa["score"]
-            w, l_, tie = (w + 1, l_, tie) if d < -0.05 else (w, l_ + 1, tie) if d > 0.05 else (w, l_, tie + 1)
-            sa, sb = pa["solved"] > 0, pb["solved"] > 0
-            both += sa and sb
-            only_a += sa and not sb
-            only_b += sb and not sa
-            neither += not sa and not sb
-        return w, tie, l_, (both, only_a, only_b, neither)
-
-    rows, groups = [], {}
+    # per problem: who scores more on average (a difference under 0.05 is a tie), and who solves it at least once
+    h2h = []
     for t in tiers + ["合计"]:
         pids = [p for p in common if t == "合计" or A["per_problem"][p]["tier"] == t]
         if not pids:
             continue
-        wa, tie, wb, solve = h2h(pids)
+        wins, tie = [0, 0], 0
+        solve = [0, 0, 0, 0]  # both, only A, only B, neither
+        for pid in pids:
+            pa, pb = A["per_problem"][pid], B["per_problem"][pid]
+            d = pb["score"] - pa["score"]
+            if abs(d) < 0.05:
+                tie += 1
+            else:
+                wins[d > 0] += 1
+            if not pa["continuous"]:
+                sa, sb = pa["solved"] > 0, pb["solved"] > 0
+                solve[0 if sa and sb else 1 if sa else 2 if sb else 3] += 1
         cont = t != "合计" and A["tiers"][t]["continuous"]
-        sel = [p for p in pids if not A["per_problem"][p]["continuous"]]
-        if t == "合计":
-            solve = h2h(sel)[3]
-        groups[t] = (wa, tie, wb)
-        rows.append([TIER_NAME.get(t, f"{tiers[0]}–{tiers[-1]} 合计"), str(len(pids)), str(wa), str(tie), str(wb), f_p(sign_test(wa, wb))]
-                    + ([NA] * 4 if cont else [str(x) for x in solve]))
-    t2 = table(["档位", "题数", f"{a} 更好", "持平", f"{b} 更好", "符号检验 p", "都解出", f"只有 {a}", f"只有 {b}", "都没解出"], rows,
-               "l" + "r" * 9, [("", 2), ("按每题平均得分", 4), ("按是否解出（至少一次）", 4)])
+        h2h.append({"label": TIER_NAME.get(t, f"{tiers[0]}–{tiers[-1]} 合计"), "n": len(pids), "wins": wins, "tie": tie,
+                    "p": sign_test(*wins), "solve": None if cont else solve})
 
-    rows = []
+    cost = []
     for t in tiers + ["合计"]:
-        cells = [TIER_NAME.get(t, t)]
-        per = []
+        r = {"label": TIER_NAME.get(t, "合计"), "total": t == "合计", "tok": [], "lat": [], "cost": [], "per_solved": []}
         for s in stats:
             u = s["usage"]
+            priced = u["cost"] is not None
             if t == "合计":
                 d = {"calls": u["calls"], "completion": u["completion"], "latency_median": (u["latency"] or {}).get("median"), "cost": u["cost"]}
                 solved = sum(s["tiers"][x]["pass1"] * s["tiers"][x]["samples"] / 100 for x in discrete)
@@ -476,15 +460,12 @@ def compare(stats):
                 d = u["per_tier"].get(t) or {}
                 solved = None if s["tiers"][t]["continuous"] else s["tiers"][t]["pass1"] * s["tiers"][t]["samples"] / 100
                 cost_solved = d.get("cost")
-            priced = u["cost"] is not None
-            per.append([U.fmt_tok(d["completion"] / d["calls"]) if d.get("calls") else "–", f1(d.get("latency_median"), 0, " s"),
-                        f"${d['cost']:.2f}" if priced and d.get("cost") is not None else "–",
-                        f"${cost_solved / solved:.3f}" if priced and solved else NA if solved is None else "–"])
-        for i in range(4):
-            cells += [per[0][i], per[1][i]]
-        rows.append(cells)
-    t3 = table(["档位", a, b, a, b, a, b, a, b], rows, "l" + "r" * 8,
-               [("", 1), ("每次输出 token ↓", 2), ("延迟中位数 ↓", 2), ("费用 ↓", 2), ("每份解出答案的费用 ↓", 2)])
+            r["tok"].append(d["completion"] / d["calls"] if d.get("calls") else None)
+            r["lat"].append(d.get("latency_median"))
+            r["cost"].append(d.get("cost") if priced else None)
+            r["per_solved"].append(cost_solved / solved if priced and solved else None)
+        r["per_solved_na"] = t != "合计" and A["tiers"][t]["continuous"]
+        cost.append(r)
 
     natural = lambda pid: [int(x) if x.isdigit() else x for x in re.split(r"(\d+)", pid)]  # noqa: E731
     diff = []
@@ -492,43 +473,90 @@ def compare(stats):
         pa, pb = A["per_problem"][pid], B["per_problem"][pid]
         d = pb["score"] - pa["score"]
         if (pa["continuous"] and abs(d) >= 20) or (not pa["continuous"] and (pa["solved"] > 0) != (pb["solved"] > 0)):
-            lose = pa if d > 0 else pb
-            why = FAIL_NAME.get(lose["fail"], "")
-            diff.append([pid, pa["title"], pa["tier"], "–" if pa["continuous"] else f"{pa['solved']}/{pa['n']}",
-                         "–" if pb["continuous"] else f"{pb['solved']}/{pb['n']}", f"{pa['score']:.1f}", f"{pb['score']:.1f}", f_d(d), why])
-    diff.sort(key=lambda r: (L.TIERS.index(r[2]), -abs(float(r[7])), natural(r[0])))
-    t4 = table(["题目", "名称", "档位", f"{a} 解出", f"{b} 解出", f"{a} 得分", f"{b} 得分", "差", "落后一方的主要失败"], diff,
-               "lllrrrrrl", tex_spec=r"@{}l>{\raggedright\arraybackslash}p{3.2cm}lrrrrr>{\raggedright\arraybackslash}p{2.6cm}@{}")
+            diff.append({"pid": pid, "title": pa["title"], "tier": pa["tier"], "continuous": pa["continuous"],
+                         "solved": [pa["solved"], pb["solved"]], "n": [pa["n"], pb["n"]], "score": [pa["score"], pb["score"]],
+                         "d": d, "why": FAIL_NAME.get((pa if d > 0 else pb)["fail"], "")})
+    diff.sort(key=lambda r: (L.TIERS.index(r["tier"]), -abs(r["d"]), natural(r["pid"])))
+
+    usage = [{"cost": s["usage"]["cost"], "tok": s["usage"]["completion"] / max(s["usage"]["calls"], 1)} for s in stats]
+    return {"names": [A["model"], B["model"]], "short": short, "tiers": tiers, "discrete": discrete, "pool": pool,
+            "common": len(common), "scores": scores, "h2h": h2h, "cost": cost, "diff": diff, "usage": usage}
+
+
+FIGS = set()  # figures drawn for this report (ladder_figures.py, needs matplotlib); a figure stands in for its table
+
+
+def figure(stem, caption, fallback, width=1.0):
+    """A bar chart in place of a table; width = share of the text width in the PDF (the figure's own size, unscaled)."""
+    return ("fig", {"file": stem, "caption": caption, "table": fallback, "width": width})
+
+
+def compare(stats):
+    """Head-to-head section for two runs on the same problems: tables (or bar charts, when drawn) and a lead in words."""
+    c = comparison(stats)
+    a, b = c["short"]
+    rows = []
+    for r in c["scores"]:
+        cells = [r["label"], str(r["problems"])]
+        for k in ("pass1", "pass1_strict", "score"):
+            x, y = r[k]
+            cells += [NA, NA, NA] if x is None else [f1(x), f1(y), f_d(y - x)]
+        rows.append(cells)
+    t1 = table(["档位", "题数", a, b, "差", a, b, "差", a, b, "差"], rows, "l" + "r" * 10,
+               [("", 2), ("pass@1（宽时限）↑", 3), ("pass@1（官方时限）↑", 3), ("平均得分（宽时限）↑", 3)])
+    rows = [[r["label"], str(r["n"]), str(r["wins"][0]), str(r["tie"]), str(r["wins"][1]), f_p(r["p"])]
+            + ([NA] * 4 if r["solve"] is None else [str(x) for x in r["solve"]]) for r in c["h2h"]]
+    t2 = table(["档位", "题数", f"{a} 更好", "持平", f"{b} 更好", "符号检验 p", "都解出", f"只有 {a}", f"只有 {b}", "都没解出"], rows,
+               "l" + "r" * 9, [("", 2), ("按每题平均得分", 4), ("按是否解出（至少一次）", 4)])
+    rows = []
+    for r in c["cost"]:
+        cells = [r["label"]]
+        fmt = {"tok": lambda v: U.fmt_tok(v), "lat": lambda v: f1(v, 0, " s"), "cost": lambda v: f"${v:.2f}",
+               "per_solved": lambda v: f"${v:.3f}"}
+        for k in ("tok", "lat", "cost", "per_solved"):
+            cells += [NA if k == "per_solved" and r["per_solved_na"] else "–" if v is None else fmt[k](v) for v in r[k]]
+        rows.append(cells)
+    t3 = table(["档位", a, b, a, b, a, b, a, b], rows, "l" + "r" * 8,
+               [("", 1), ("每次输出 token ↓", 2), ("延迟中位数 ↓", 2), ("费用 ↓", 2), ("每份解出答案的费用 ↓", 2)])
+    t4 = table(["题目", "名称", "档位", a, b, a, b, "差", "落后一方的主要失败"],
+               [[r["pid"], r["title"], r["tier"]] + ["–" if r["continuous"] else f"{s}/{n}" for s, n in zip(r["solved"], r["n"])]
+                + [f"{x:.1f}" for x in r["score"]] + [f_d(r["d"]), r["why"]] for r in c["diff"]],
+               "lllrrrrrl", [("", 3), ("解出 / 采样", 2), ("平均得分 ↑", 3), ("", 1)],
+               tex_spec=r"@{}l>{\raggedright\arraybackslash}p{3.0cm}lrrrrr>{\raggedright\arraybackslash}p{2.2cm}@{}")
 
     # the lead in words: facts only, each with the number it rests on
-    pa, pb = (pooled(s, discrete) for s in stats) if len(discrete) > 1 else (A["tiers"][discrete[0]], B["tiers"][discrete[0]])
-    wa, tie, wb = groups["合计"]
-    lead = [f"{a} = {A['model']}，{b} = {B['model']}；“差”一律为 {b} − {a}（百分点或分），正数表示 {b} 更高。"]
-    say = (f"{discrete[0]}–{discrete[-1]} 合计 pass@1（宽时限）{a} {pa['pass1']:.1f}%、{b} {pb['pass1']:.1f}%（{f_d(pb['pass1'] - pa['pass1'])}）"
-           if discrete else "")
-    for t in tiers:
-        if A["tiers"][t]["continuous"]:
-            say += f"；{t} 平均得分 {a} {A['tiers'][t]['score']:.1f}、{b} {B['tiers'][t]['score']:.1f}（{f_d(B['tiers'][t]['score'] - A['tiers'][t]['score'])}）"
-    pv = sign_test(wa, wb)
-    ptxt = "p < 0.001" if pv is not None and pv < 0.001 else f"p = {f_p(pv)}"
-    say += (f"。逐题按平均得分比较（{len(common)} 题）：{a} 更好 {wa} 题，{b} 更好 {wb} 题，持平 {tie} 题，"
+    lead = [f"{a} = {c['names'][0]}，{b} = {c['names'][1]}；“差”一律为 {b} − {a}（百分点或分），正数表示 {b} 更高。"]
+    pooled = next((r for r in c["scores"] if r["label"] == c["pool"]), None) or next((r for r in c["scores"] if not r["continuous"]), None)
+    say = ""
+    if pooled:
+        x, y = pooled["pass1"]
+        say = f"{pooled['label']} pass@1（宽时限）{a} {x:.1f}%、{b} {y:.1f}%（{f_d(y - x)}）"
+    for r in c["scores"]:
+        if r["continuous"]:
+            say += f"；{r['label'].split()[0]} 平均得分 {a} {r['score'][0]:.1f}、{b} {r['score'][1]:.1f}（{f_d(r['score'][1] - r['score'][0])}）"
+    tot = c["h2h"][-1]
+    ptxt = "p < 0.001" if tot["p"] is not None and tot["p"] < 0.001 else f"p = {f_p(tot['p'])}"
+    say += (f"。逐题按平均得分比较（{c['common']} 题）：{a} 更好 {tot['wins'][0]} 题，{b} 更好 {tot['wins'][1]} 题，持平 {tot['tie']} 题，"
             f"符号检验 {ptxt}（p < 0.05 才说明差距不太可能只是采样的随机波动）。")
-    if A["usage"]["cost"] is not None and B["usage"]["cost"] is not None:
-        ca, cb = A["usage"]["cost"], B["usage"]["cost"]
-        ta = A["usage"]["completion"] / max(A["usage"]["calls"], 1)
-        tb = B["usage"]["completion"] / max(B["usage"]["calls"], 1)
-        say += (f"费用 {a} ${ca:.2f}、{b} ${cb:.2f}（{b} 是 {a} 的 {cb / ca:.2f} 倍）；每次调用平均输出 token {a} {U.fmt_tok(ta)}、"
-                f"{b} {U.fmt_tok(tb)}（{tb / ta:.2f} 倍）。")
+    ua, ub = c["usage"]
+    if ua["cost"] is not None and ub["cost"] is not None:
+        say += (f"费用 {a} ${ua['cost']:.2f}、{b} ${ub['cost']:.2f}（{b} 是 {a} 的 {ub['cost'] / ua['cost']:.2f} 倍）；每次调用平均输出 token "
+                f"{a} {U.fmt_tok(ua['tok'])}、{b} {U.fmt_tok(ub['tok'])}（{ub['tok'] / ua['tok']:.2f} 倍）。")
     lead.append(say)
+    diff_text = "L1–L4 中一个模型至少解出一次、另一个一次都没解出的题，以及 L5 中平均得分相差 20 分以上的题；按差距从大到小。"
     return [("两个模型对比", lead + [
-        ("h", "成绩"), t1,
+        ("h", "成绩"),
+        figure("fig_scores", f"各档成绩。a–c 每档两根柱分别为 {a}、{b}，柱上为数值；d 为两者之差（{b} − {a}）。L5 为连续分，没有 pass@1。", t1),
         ("h", "逐题胜负"),
         "只比较两个模型都有结果的题。每题取所有采样的平均得分，相差不到 0.05 分记为持平；“解出”指至少一次采样解出（L5 为连续分，不适用）。"
-        "符号检验只看胜负题数、不看差距大小。", t2,
+        "符号检验只看胜负题数、不看差距大小。",
+        figure("fig_h2h", "逐题胜负。a 按每题平均得分，柱右为符号检验 p 值；b 按是否解出（至少一次，L1–L4）。柱长为占该档题数的比例，柱内数字为题数，n 为题数。", t2),
         ("h", "成本与速度"),
-        "每份解出答案的费用 = 该档费用 ÷ 宽时限下解出的采样数；合计一行只算 L1–L4（L5 没有“解出”）。费用按各自的标价计算，包括超时被切断的调用。", t3,
-        ("h", "结果不同的题"),
-        "L1–L4 中一个模型至少解出一次、另一个一次都没解出的题，以及 L5 中平均得分相差 20 分以上的题；按差距从大到小。", t4])]
+        "每份解出答案的费用 = 该档费用 ÷ 宽时限下解出的采样数；合计只算 L1–L4（L5 没有“解出”）。费用按各自的标价计算，包括超时被切断的调用。",
+        figure("fig_cost", "成本与速度。a 每次调用的平均输出 token（含思考）；b 每次调用的延迟中位数；c 各档费用；d 每份解出答案的费用。"
+               "均为越低越好。", t3),
+        ("h", "结果不同的题"), diff_text,
+        figure("fig_diff", f"结果不同的题的平均得分之差（{b} − {a}），向左为 {a} 更好，向右为 {b} 更好。", None, 0.72), t4])]
 
 
 def sections(stats):
@@ -713,6 +741,10 @@ def md_block(b):
         return md_table(b)
     if isinstance(b, tuple):
         kind, x = b
+        if kind == "fig":
+            if x["file"] in FIGS:
+                return f"![{x['caption']}]({x['file']}.png)\n\n{x['caption']}"
+            return md_table(x["table"]) if x["table"] else ""
         if kind == "h":
             return f"### {x}"
         if kind == "ul":
@@ -753,7 +785,7 @@ PREAMBLE = r"""\documentclass[11pt,a4paper,fontset=none]{ctexart}
     \setCJKmonofont{simkai.ttf}[Path=\WinFonts]}{%
   \setCJKmainfont{FandolKai}\setCJKsansfont{FandolKai}\setCJKmonofont{FandolKai}}}}
 \usepackage{amsmath}
-\usepackage{booktabs,tabularx,longtable,array,graphicx}
+\usepackage{booktabs,tabularx,longtable,array,graphicx,float}
 \usepackage{enumitem}
 \usepackage{xurl}
 \usepackage[hidelinks]{hyperref}
@@ -777,6 +809,11 @@ def tex_block(b):
         return tex_table(b, long=b["head"][0] == "题目")
     if isinstance(b, tuple):
         kind, x = b
+        if kind == "fig":
+            if x["file"] in FIGS:
+                return "\n".join([r"\begin{figure}[H]\centering", rf"\includegraphics[width={x.get('width', 1.0):g}\linewidth]{{{x['file']}.pdf}}",
+                                  rf"\caption{{{tex(x['caption'])}}}", r"\end{figure}"])
+            return tex_table(x["table"]) if x["table"] else ""
         if kind == "h":
             return rf"\subsection*{{{tex(x)}}}"
         if kind == "ul":
@@ -808,7 +845,9 @@ def tex_report(stats, date, author=None, db=None):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("runs", nargs="+")
+    ap.add_argument("runs", nargs="*")
+    ap.add_argument("--from-json", help="re-render from a report.json written earlier (e.g. on a machine with matplotlib "
+                                        "for the figures, without the run directories)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--date", default=datetime.date.today().isoformat())
     ap.add_argument("--prices", default="", help="model=in,hit,out;model2=... (per 1M tokens)")
@@ -831,13 +870,25 @@ def main():
             env["off"] = {"in": float(os.environ["PRICE_OFF_IN"]), "out": float(os.environ["PRICE_OFF_OUT"]),
                           "hit": float(os.environ.get("PRICE_OFF_HIT") or os.environ["PRICE_OFF_IN"])}
             env["peak_hours"] = [tuple(map(int, r.split("-"))) for r in os.environ.get("PEAK_HOURS_UTC", "1-4,6-10").split(",") if r]
-    stats = []
-    for d in a.runs:
-        run = load(d, names=dict(x.split("=", 1) for x in filter(None, a.names.split(";"))))
-        run["prices"] = per.get(run["model"], env)
-        stats.append(analyze(run))
+    if a.from_json:
+        stats = json.load(open(a.from_json))
+    elif a.runs:
+        stats = []
+        for d in a.runs:
+            run = load(d, names=dict(x.split("=", 1) for x in filter(None, a.names.split(";"))))
+            run["prices"] = per.get(run["model"], env)
+            stats.append(analyze(run))
+    else:
+        ap.error("give run directories or --from-json")
     db = json.load(open(a.intro)) if a.intro and os.path.exists(a.intro) else {}
     os.makedirs(a.out, exist_ok=True)
+    if len(stats) == 2:  # bar charts for the head-to-head section, where matplotlib is installed
+        try:
+            import ladder_figures
+        except ImportError:
+            print("no matplotlib: the head-to-head section keeps its tables")
+        else:
+            FIGS.update(ladder_figures.draw(comparison(stats), a.out))
     json.dump(stats, open(os.path.join(a.out, "report.json"), "w"), indent=1, ensure_ascii=False)
     open(os.path.join(a.out, "report.md"), "w").write(md_report(stats, a.date, a.author, db))
     open(os.path.join(a.out, "main.tex"), "w").write(tex_report(stats, a.date, a.author, db))
