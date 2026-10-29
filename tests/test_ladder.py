@@ -240,6 +240,11 @@ def main():
         rep = json.load(open(os.path.join(run, "report", "report.json")))[0]
         check(rep["dropped"] == ["t-cms", "t-comm"] and "t-cms" not in rep["per_problem"] and rep["unanswered"] == [],
               "report: a problem dropped from the list after the run is left out and listed")
+        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), run, run, "--out",
+                        os.path.join(run, "report2")], env=env, check=True)
+        md2 = open(os.path.join(run, "report2", "report.md")).read()
+        check("## 两个模型对比" in md2 and "更好 0 题" in md2 and "p = 1.000" not in md2 and "p = –" in md2,
+              "report: two runs get a head-to-head section (a run against itself: all ties, no test)")
         # a request over the time limit is cut off: logged as a timeout with estimated tokens, not retried, not code
         tout = os.path.join(CB, "runs", "mock", "ladder-timeout")
         subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", tout],
