@@ -2,6 +2,12 @@
 
 2026-10-29　L1–L4：USACO 2024–26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道
 
+## 总结
+
+在 112 道题（L1–L5）上，DeepSeek Flash V4.1-1017 明显强于 MiniMax M3.1 Flash：L1–L4 合计 pass@1（宽时限）DeepSeek 90.7%、MiniMax 75.6%，DeepSeek 每一档都领先（10.5–22.2 个百分点，L4 差距最大）；逐题比较 DeepSeek 更好 39 题、MiniMax 更好 9 题、持平 64 题（符号检验 p < 0.001）。L5 开放式题平均得分 DeepSeek 30.6、MiniMax 25.6，差距不显著（p = 0.286）。成本上（均为 DeepSeek / MiniMax）：每次调用平均输出 42.3k / 58.6k token，延迟中位数 177 / 350 s，总费用 $6.07 / $7.58，每份解出答案的费用 $0.031 / $0.045；MiniMax 输出更长、更慢，也更贵。MiniMax 另有 10 个采样生成超时，按失败计（见下方说明）。
+
+说明：
+
 - DeepSeek Flash V4.1-1017：2 道题在运行后从题单中剔除（当前判题程序无法正确评测），其答案不计入：egoi26-census、egoi26-seatingplan。
 - MiniMax M3.1 Flash：13 个采样单次生成超过 20 分钟被切断，再以 30 分钟为限重问一次：3 个在时限内完成，按正常答案判题；10 个仍未完成（其中 6 个是服务端在约 24–30 分钟时主动断开），记为“生成超时”。超时请求的输出 token 为按字数估算的值。
 

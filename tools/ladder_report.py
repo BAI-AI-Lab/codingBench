@@ -483,6 +483,57 @@ def comparison(stats):
             "common": len(common), "scores": scores, "h2h": h2h, "cost": cost, "diff": diff, "usage": usage}
 
 
+def summary(stats):
+    """The opening paragraph of a two-model report: which model is better, by how much and how surely (sign test over
+    problems), the open-ended tier on its own, then output length, latency and cost; every claim carries its number."""
+    c = comparison(stats)
+    full, short = c["names"], c["short"]
+    tot = c["h2h"][-1]
+    fp = lambda p: "p < 0.001" if p is not None and p < 0.001 else f"p = {f_p(p)}"  # noqa: E731
+    pooled = next((r for r in c["scores"] if r["label"] == c["pool"]), None) or next((r for r in c["scores"] if not r["continuous"]), None)
+    lead = (pooled["pass1"][0] >= pooled["pass1"][1]) if pooled else tot["wins"][0] >= tot["wins"][1]
+    w, l_ = (0, 1) if lead else (1, 0)
+    sig = tot["p"] is not None and tot["p"] < 0.05
+    txt = f"在 {c['common']} 道题（{c['tiers'][0]}–{c['tiers'][-1]}）上，"
+    if tot["wins"][0] == tot["wins"][1] and (not pooled or pooled["pass1"][0] == pooled["pass1"][1]):
+        txt += f"{full[0]} 与 {full[1]} 成绩相当"
+    else:
+        txt += f"{full[w]} {'明显强于' if sig else '略强于'} {full[l_]}"
+    if pooled:
+        txt += f"：{pooled['label']} pass@1（宽时限）{short[0]} {pooled['pass1'][0]:.1f}%、{short[1]} {pooled['pass1'][1]:.1f}%"
+        gaps = [(r["label"].split()[0], r["pass1"][w] - r["pass1"][l_]) for r in c["scores"]
+                if not r["continuous"] and r["label"] != c["pool"]]
+        if len(gaps) > 1 and all(g > 0 for _, g in gaps):
+            big = max(gaps, key=lambda x: x[1])
+            txt += f"，{short[w]} 每一档都领先（{min(g for _, g in gaps):.1f}–{big[1]:.1f} 个百分点，{big[0]} 差距最大）"
+    txt += (f"；逐题比较 {short[0]} 更好 {tot['wins'][0]} 题、{short[1]} 更好 {tot['wins'][1]} 题、持平 {tot['tie']} 题"
+            f"（符号检验 {fp(tot['p'])}{'' if sig else '，差距不显著'}）。")
+    for r in c["scores"]:
+        if r["continuous"]:
+            h = next((x for x in c["h2h"] if x["label"] == r["label"]), None)
+            ps = h is not None and h["p"] is not None and h["p"] < 0.05
+            txt += (f"{r['label']}题平均得分 {short[0]} {r['score'][0]:.1f}、{short[1]} {r['score'][1]:.1f}，"
+                    f"差距{'显著' if ps else '不显著'}（{fp(h['p'] if h else None)}）。")
+    total = next((r for r in c["cost"] if r["total"]), None)
+    ua, ub = c["usage"]
+    if total and None not in total["lat"]:
+        txt += (f"成本上（均为 {short[0]} / {short[1]}）：每次调用平均输出 {U.fmt_tok(ua['tok'])} / {U.fmt_tok(ub['tok'])} token，"
+                f"延迟中位数 {total['lat'][0]:.0f} / {total['lat'][1]:.0f} s")
+        if ua["cost"] is not None and ub["cost"] is not None:
+            txt += f"，总费用 ${ua['cost']:.2f} / ${ub['cost']:.2f}"
+            if None not in total["per_solved"]:
+                txt += f"，每份解出答案的费用 ${total['per_solved'][0]:.3f} / ${total['per_solved'][1]:.3f}"
+        more = [ua["tok"] < ub["tok"], total["lat"][0] < total["lat"][1]] + ([ua["cost"] < ub["cost"]] if ua["cost"] and ub["cost"] else [])
+        if all(more) or not any(more):
+            txt += f"；{short[1] if all(more) else short[0]} 输出更长、更慢" + ("，也更贵" if len(more) == 3 else "")
+        txt += "。"
+    for st, nm in zip(stats, short):
+        still = sum(v["final"] == "timeout" for v in (st.get("timeouts") or {}).values())
+        if still:
+            txt += f"{nm} 另有 {still} 个采样生成超时，按失败计（见下方说明）。"
+    return txt
+
+
 FIGS = set()  # figures drawn for this report (ladder_figures.py, needs matplotlib); a figure stands in for its table
 
 
@@ -757,6 +808,8 @@ def md_block(b):
 def md_report(stats, date, author=None, db=None):
     names = " / ".join(s["model"] for s in stats)
     L_ = [f"# 阶梯代码评测报告：{names}", "", f"{date}　L1–L4：USACO 2024–26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道", ""]
+    if len(stats) == 2:
+        L_ += ["## 总结", "", summary(stats), ""] + (["说明：", ""] if notes(stats) else [])
     L_ += [f"- {n}" for n in notes(stats)] + ([""] if notes(stats) else [])
     for title, blocks in intro(stats, db or {}):
         L_ += [f"## {title}", ""] + [x for b in blocks for x in (md_block(b), "")]
@@ -828,6 +881,8 @@ def tex_report(stats, date, author=None, db=None):
     parts = [PREAMBLE.replace("__DATE__", date), r"\begin{document}", r"\begin{center}",
              r"{\LARGE\bfseries 阶梯代码评测报告}\\[0.5em]", rf"{{\Large {names}}}\\[0.4em]",
              rf"{{\small {date} \quad L1--L4：USACO 2024--26 与 EGOI/IOI 2026；L5：FrontierCS 算法赛道}}", r"\end{center}"]
+    if len(stats) == 2:
+        parts += [r"\section{总结}", tex(summary(stats))] + ([r"\par 说明："] if notes(stats) else [])
     if notes(stats):
         parts += [r"\begin{itemize}"] + [rf"\item {tex(n)}" for n in notes(stats)] + [r"\end{itemize}"]
     for title, blocks in intro(stats, db or {}):

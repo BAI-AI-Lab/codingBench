@@ -246,6 +246,8 @@ def main():
         md2 = open(os.path.join(run, "report2", "report.md")).read()
         check("## 两个模型对比" in md2 and "更好 0 题" in md2 and "p = 1.000" not in md2 and "p = –" in md2,
               "report: two runs get a head-to-head section (a run against itself: all ties, no test)")
+        check(md2.split("\n## ")[1].startswith("总结") and "成绩相当" in md2.split("\n## ")[1],
+              "report: a two-model report opens with a summary paragraph (a run against itself: on a par)")
         if importlib.util.find_spec("matplotlib"):
             fig_out = os.path.join(run, "report3")
             subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), "--from-json",
