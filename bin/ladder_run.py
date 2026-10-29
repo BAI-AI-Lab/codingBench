@@ -31,6 +31,9 @@ TAIL = 600
 # the server returns no usage for a cut stream, so its tokens are estimated from the characters streamed so far
 # (LADDER_CHARS_PER_TOKEN: 3.57 measured on MiniMax-M3.1-Flash completed calls; median, 10th-90th percentile 3.0-3.9)
 CHARS_PER_TOKEN = float(os.environ.get("LADDER_CHARS_PER_TOKEN") or 3.57)
+# LADDER_CUT_IS_TIMEOUT: a stream the server drops after at least this many seconds also counts as a timeout (the model
+# did not finish), instead of an error that is retried. LADDER_REDO_TIMEOUTS=1 asks timed-out samples again (e.g. with a
+# longer LADDER_MAX_SECONDS); whatever that attempt gives is the sample's answer.
 _broke = []
 _write = threading.Lock()
 
@@ -124,10 +127,18 @@ def call(client, model, messages, args, usage_path, q):
         rec.update(end=time.time(), model=mdl, usage=usage, finish=[finish], chars=[len(content)], content=[content],
                    first_token=first, first_content=first_content, reasoning_chars=n_reason)
     except Exception as e:  # noqa: BLE001  (logged and retried by the caller)
-        if out_of_balance(e):
-            _broke.append(1)
-        rec.update(end=time.time(), error=repr(e)[:500], first_token=first, first_content=first_content,
-                   reasoning_chars=n_reason, content_chars=n_content, usage=usage)
+        cut_after = float(os.environ.get("LADDER_CUT_IS_TIMEOUT") or 0)
+        if cut_after and args.stream and time.time() - rec["start"] >= cut_after and not out_of_balance(e):
+            # the server dropped a stream that had already run this long: the model did not finish in time
+            rec.update(end=time.time(), model=mdl, finish=["timeout"], chars=[0], content=[""], first_token=first,
+                       first_content=first_content, reasoning_chars=n_reason, content_chars=n_content, cut=repr(e)[:300],
+                       usage=usage or {"completion_tokens": round((n_reason + n_content) / CHARS_PER_TOKEN),
+                                       "prompt_tokens": 0, "estimated": True})
+        else:
+            if out_of_balance(e):
+                _broke.append(1)
+            rec.update(end=time.time(), error=repr(e)[:500], first_token=first, first_content=first_content,
+                       reasoning_chars=n_reason, content_chars=n_content, usage=usage)
     finally:
         if os.path.exists(live):
             os.remove(live)
@@ -185,14 +196,15 @@ def main():
     if os.path.exists(usage_path):
         for l in open(usage_path):
             r = json.loads(l)
-            if r.get("content") and r["content"][0].strip():
+            if r.get("content") and r["content"][0].strip() and (r.get("finish") or [None])[0] != "timeout":
                 have[r["q"]] = r
     ans_path = os.path.join(a.out, "answers.jsonl")
     # a sample whose retries all failed (finish "error", no code) is asked again on the next run
     last = {}
     for r in (map(json.loads, open(ans_path)) if os.path.exists(ans_path) else []):
         last[r["q"]] = r  # the last answer per sample counts (as in the judge)
-    done = {q for q, r in last.items() if r.get("finish") != "error"}
+    redo = os.environ.get("LADDER_REDO_TIMEOUTS") == "1"
+    done = {q for q, r in last.items() if r.get("finish") != "error" and not (redo and r.get("finish") == "timeout")}
 
     def answer(rec, p, k):
         timed_out = (rec.get("finish") or [None])[0] == "timeout"  # a cut answer is not code: it is a failure

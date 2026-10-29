@@ -255,6 +255,23 @@ def main():
         jt = [json.loads(l) for l in open(os.path.join(tout, "judge.jsonl"))]
         check(jt and all(j["score"] == 0 and "timeout" in j["verdicts"] for j in jt),
               "judge: a timed-out answer scores 0 with the timeout verdict")
+        n_calls = len(use_t)
+        subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", tout],
+                       env=dict(env, LADDER_REDO_TIMEOUTS="1", LADDER_N="L1=1"), check=True)
+        last_t = {}
+        for l in open(os.path.join(tout, "answers.jsonl")):
+            x = json.loads(l); last_t[x["q"]] = x
+        check(all(x["finish"] == "stop" and x["code"] for x in last_t.values())
+              and len(open(os.path.join(tout, "usage.jsonl")).readlines()) == n_calls + len(last_t),
+              "redo: timed-out samples are asked again once each, and the new answers count")
+        cut = os.path.join(CB, "runs", "mock", "ladder-cut")
+        subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", cut],
+                       env=dict(env, MODEL="mock-cut", LADDER_CUT_IS_TIMEOUT="0.000001", RETRIES="3", LADDER_N="L1=1"),
+                       check=True)
+        ans_c = [json.loads(l) for l in open(os.path.join(cut, "answers.jsonl"))]
+        use_c = [json.loads(l) for l in open(os.path.join(cut, "usage.jsonl"))]
+        check(ans_c and all(x["finish"] == "timeout" for x in ans_c) and len(use_c) == len(ans_c),
+              "cut: a stream the server drops after the threshold is a timeout, not retried")
     finally:
         mock.terminate()
     shutil.rmtree(CB, ignore_errors=True)

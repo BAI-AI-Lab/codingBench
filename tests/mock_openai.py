@@ -77,6 +77,9 @@ class H(BaseHTTPRequestHandler):
         chunk({"role": "assistant", "reasoning_content": "Let me think about the problem. "})
         for i in range(0, len(text), 200):
             chunk({"content": text[i:i + 200]})
+        if body["model"] == "mock-cut":  # the server drops the stream: no finish_reason, no usage
+            self.wfile.write(b"data: [DONE]\n\n")
+            return
         chunk({}, finish="stop")
         chunk(None, use=usage)
         self.wfile.write(b"data: [DONE]\n\n")
