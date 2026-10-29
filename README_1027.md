@@ -1,6 +1,6 @@
 # 阶梯代码评测集（ladder-v1，2026-10-27）
 
-一句话：按人类难度分 5 档的竞赛编程题，测模型写的代码**做没做对、够不够快、复杂度如何、代码质量怎样**。所有题目、测试数据和官方题解都来自官方发布，判题规则与官方一致。设计原理见 `reports/2026-10-27_ladder_design/report.pdf`，第一轮结果（只含 USACO 65 题）见 `reports/2026-10-28_ladder_deepseek-flash/report.pdf`，完整一轮（L1–L5 共 112 题）见 `reports/2026-10-29_ladder_deepseek-flash/report.pdf`。
+一句话：按人类难度分 5 档的竞赛编程题，测模型写的代码**做没做对、够不够快、复杂度如何、代码质量怎样**。所有题目、测试数据和官方题解都来自官方发布，判题规则与官方一致。设计原理见 `reports/2026-10-27_ladder_design/report.pdf`，第一轮结果（只含 USACO 65 题）见 `reports/2026-10-28_ladder_deepseek-flash/report.pdf`，完整一轮（L1–L5 共 112 题）见 `reports/2026-10-29_ladder_deepseek-flash/report.pdf`，DeepSeek Flash V4.1-1017 与 MiniMax M3.1 Flash 的对比见 `reports/2026-10-29_ladder_deepseek-flash_vs_minimax-m3.1-flash/report.pdf`。
 
 | 档 | 题目来源 | 题数 | 作答语言 | 计分 |
 |---|---|---:|---|---|

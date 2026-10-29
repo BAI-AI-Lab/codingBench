@@ -117,7 +117,7 @@ cb ladder --smoke && cb ladder                                 # 报告在 /opt/
 - `samples/`：固定的题目清单；`samples/ladder.json`、`samples/ladder_download.tsv.gz`：阶梯测试集的题目清单和下载清单
 - `bin/ladder_run.py`、`tools/ladder_*.py`：阶梯测试集的生成、建库、判题、静态质量和报告；`tests/test_ladder.py`、`tests/mock_openai.py`：它的测试
 - `deploy/setup.sh`：安装和更新（只在仓库里）
-- `reports/`：跑过的评测报告（`2026-10-23_lcb35_kimi_deepseek`：LiveCodeBench 最新 35 题；`2026-10-27_ladder_design`：阶梯测试集的设计说明；`2026-10-28_ladder_deepseek-flash`：阶梯测试集的第一轮评测）
+- `reports/`：跑过的评测报告（`2026-10-23_lcb35_kimi_deepseek`：LiveCodeBench 最新 35 题；`2026-10-27_ladder_design`：阶梯测试集的设计说明；`2026-10-28_ladder_deepseek-flash`：阶梯测试集的第一轮评测；`2026-10-29_ladder_deepseek-flash`：完整一轮；`2026-10-29_ladder_deepseek-flash_vs_minimax-m3.1-flash`：DeepSeek Flash V4.1-1017 与 MiniMax M3.1 Flash 对比）
 - 结果网站：https://bai-ai-lab.github.io/coding-eval/（公开仓库 `BAI-AI-Lab/coding-eval`）。由 `reports/2026-10-23_lcb35_kimi_deepseek/site.py` 生成：在放好 `runs/` 的报告目录里运行 `python site.py <coding-eval 的检出目录>`（需要 pygments），然后在该目录提交并推送
 - `SURVEY.md`：选这几个 benchmark 时调研过的约 45 个代码 benchmark（会议、获奖级别、怎么跑、国内能不能下）
 - `src/`：三个官方仓库（`install.sh` 拉取，钉在测过的 commit 上）
