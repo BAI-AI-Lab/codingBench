@@ -28,7 +28,7 @@ import lcb_usage as U  # noqa: E402
 
 TIER_NAME = {"L1": "L1 基础", "L2": "L2 中等", "L3": "L3 困难", "L4": "L4 顶尖", "L5": "L5 开放式"}
 FAIL_ORDER = ("no code", "timeout", "CE", "WA", "partial", "RE", "MLE", "TLE", "slow", "JE")
-FAIL_NAME = {"no code": "无代码", "timeout": "超过 20 分钟", "CE": "编译错误", "WA": "答案错误", "partial": "部分分", "RE": "运行错误", "MLE": "超内存",
+FAIL_NAME = {"no code": "无代码", "timeout": "生成超时", "CE": "编译错误", "WA": "答案错误", "partial": "部分分", "RE": "运行错误", "MLE": "超内存",
              "TLE": "超时", "slow": "只在官方时限下超时", "JE": "判题错误"}
 
 
@@ -88,11 +88,20 @@ def load(run_dir, prices=None, names=None):
         planned = {q: t for q, t in planned.items() if q.split("#")[0] in listed}
         unanswered = [q for q in unanswered if q.split("#")[0] in listed]
     metas = {r["pid"]: L.load_meta(r["pid"]) for r in judged.values()}
+    # samples cut for running over the per-request time limit: the length of each cut call in minutes, whether the
+    # server dropped it (LADDER_CUT_IS_TIMEOUT) rather than our limit, and how the sample ended (a re-ask with a longer
+    # limit, LADDER_REDO_TIMEOUTS, may have finished it)
+    cut = collections.defaultdict(list)
+    for c in calls:
+        if "timeout" in (c.get("finish") or []):
+            cut[c["q"]].append((round((c["end"] - c["start"]) / 60), "cut" in c))
+    timeouts = {q: {"calls": v, "final": last[q].get("finish")} for q, v in cut.items()
+                if q in last and q not in unanswered and q.split("#")[0] not in dropped}
     # the model's full name for the report (--names, else MODEL_NAME at generation time), the API id otherwise
     name = (names or {}).get(info["model"]) or info.get("name") or info["model"]
     return {"dir": run_dir, "model": info["model"], "name": name, "info": info, "judged": judged, "perf": perf, "quality": quality,
             "complexity": complexity, "unanswered": unanswered, "planned": planned, "dropped": dropped,
-            "calls": calls, "metas": metas, "prices": prices}
+            "calls": calls, "metas": metas, "prices": prices, "timeouts": timeouts}
 
 
 def tier_stats(rs, metas, perf):
@@ -192,7 +201,7 @@ def analyze(run):
     rs = list(run["judged"].values())
     metas = run["metas"]
     s = {"model": run.get("name") or run["model"], "model_id": run["model"], "tiers": {}, "subsets": {}, "unanswered": run.get("unanswered", []),
-         "dropped": run.get("dropped", [])}
+         "dropped": run.get("dropped", []), "timeouts": run.get("timeouts", {})}
     for t in L.TIERS:
         sel = [r for r in rs if r["tier"] == t]
         if sel:
@@ -262,7 +271,7 @@ CRITERIA = [  # (dimension, metric, how it is computed, direction)
      "这些测试点的输入大小跨度达到 8 倍时，另报两者按输入大小的增长幂次。", ""),
     ("失败类型", "每份未解出答案的主要原因",
      "按顺序取第一个成立的：无代码、编译错误、答案错误、运行错误、超内存、超时、部分分（部分测试点得分）；"
-     "宽时限下解出但官方时限下没有全部通过的记为“只在官方时限下超时”。单次生成超过 20 分钟的请求记为“超过 20 分钟”（不重试，视为没有通过）。FrontierCS 为连续分，得分大于 0 的答案记为部分分，只有 0 分的答案按上面的顺序找原因。", ""),
+     "宽时限下解出但官方时限下没有全部通过的记为“只在官方时限下超时”。单次生成超过时间上限的请求被切断，记为“生成超时”（视为没有通过；上限与重问见报告开头的说明）。FrontierCS 为连续分，得分大于 0 的答案记为部分分，只有 0 分的答案按上面的顺序找原因。", ""),
     ("静态质量", "Pylint、Radon、SonarQube（只限 L1–L2 的 Python 答案）",
      "按 arXiv:2610.19167 的口径与版本：Pylint 3.3.5 默认配置的问题数（C/R/W/E）与 0–10 分，Radon 6.0.1 的圈复杂度（所有条目之和）、"
      "可维护性指数 MI、SLOC，SonarQube 10.4 的可维护性/可靠性/安全问题数；报告正确答案的每份平均与每百行 SLOC 的问题数。", "见表头"),
@@ -344,7 +353,32 @@ def notes(stats):
         if s["pending"]:
             out.append(f"{who}部分结果，{sum(p - d for d, p in s['pending'].values())} 个采样还没有生成或判题，不计入任何比率"
                        "（已判 / 计划）：" + "，".join(f"{t} {d}/{p}" for t, (d, p) in s["pending"].items()) + "。")
+        if s["timeouts"]:
+            out.append(f"{who}" + timeout_note(s["timeouts"]))
     return out
+
+
+def timeout_note(t):
+    """How many samples were cut by the time limit, the limit, and what a re-ask with a longer limit made of them."""
+    first = collections.Counter(v["calls"][0][0] for v in t.values() if not v["calls"][0][1])
+    redone = {q: v for q, v in t.items() if len(v["calls"]) > 1 or v["final"] != "timeout"}
+    later = [m for v in redone.values() for m, server in v["calls"][1:] if not server]
+    ok = sum(v["final"] != "timeout" for v in redone.values())
+    still = [v for v in redone.values() if v["final"] == "timeout"]
+    by_server = sorted(v["calls"][-1][0] for v in still if v["calls"][-1][1])  # minutes at which the server dropped them
+    txt = (f"{len(t)} 个采样单次生成超过 {first.most_common(1)[0][0] if first else '–'} 分钟被切断" if first
+           else f"{len(t)} 个采样的生成被切断")
+    if redone:
+        txt += (f"，再以 {max(later)} 分钟为限重问一次" if later else "，再以更长的上限重问一次") + f"：{ok} 个在时限内完成，按正常答案判题"
+        if still:
+            txt += f"；{len(still)} 个仍未完成" + (f"（其中 {len(by_server)} 个是服务端在约 {by_server[0]}{'' if by_server[0] == by_server[-1] else '–' + str(by_server[-1])} 分钟时主动断开）"
+                                      if by_server else "")
+            txt += "，记为“生成超时”"
+    if not redone:
+        txt += "，记为“生成超时”"
+    elif len(t) > len(redone):
+        txt += f"；{len(t) - len(redone)} 个未重问，记为“生成超时”"
+    return txt + "。超时请求的输出 token 为按字数估算的值。"
 
 
 def sections(stats):
@@ -462,7 +496,7 @@ def sections(stats):
             rows.append([TIER_NAME.get(t, t) if t else "已剔除的题"] + mc(s) + [str(d["calls"]), U.fmt_tok(d["completion"]),
                          U.fmt_tok(d["completion"] / d["calls"]) if d["calls"] else "–", f1(d.get("latency_median"), 0, " s"), cost])
     out.append(("用量与费用", [
-        "调用数只计拿到回答或超时的调用；输出 token 含思考过程；延迟为一次调用从发出到收完的时间；费用按每次调用开始时的分时单价计算。超过 20 分钟被切断的请求，服务端不返回用量，其输出 token 按已输出的字数估算（每 token 约 3.57 字符）。",
+        "调用数只计拿到回答或超时的调用；输出 token 含思考过程；延迟为一次调用从发出到收完的时间；费用按每次调用开始时的分时单价计算。超过时间上限被切断的请求，服务端不返回用量，其输出 token 按已输出的字数估算（每 token 约 3.57 字符）。",
         table(["档位"] + mh + ["调用数", "输出 token ↓", "每次输出 token ↓", "延迟中位数 ↓", "费用 ↓"], rows, "l" + ma + "rrrrr")]))
 
     body = []

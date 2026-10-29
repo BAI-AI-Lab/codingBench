@@ -264,6 +264,12 @@ def main():
         check(all(x["finish"] == "stop" and x["code"] for x in last_t.values())
               and len(open(os.path.join(tout, "usage.jsonl")).readlines()) == n_calls + len(last_t),
               "redo: timed-out samples are asked again once each, and the new answers count")
+        subprocess.run([sys.executable, os.path.join(ROOT, "tools", "ladder_report.py"), tout, "--out",
+                        os.path.join(tout, "report")], env=env, check=True)
+        rep_t = json.load(open(os.path.join(tout, "report", "report.json")))[0]
+        md_t = open(os.path.join(tout, "report", "report.md")).read()
+        check(set(rep_t["timeouts"]) == set(last_t) and f"{len(last_t)} 个在时限内完成" in md_t,
+              "report: the timed-out samples and what the re-ask made of them are noted")
         cut = os.path.join(CB, "runs", "mock", "ladder-cut")
         subprocess.run([sys.executable, os.path.join(ROOT, "bin", "ladder_run.py"), "--out", cut],
                        env=dict(env, MODEL="mock-cut", LADDER_CUT_IS_TIMEOUT="0.000001", RETRIES="3", LADDER_N="L1=1"),
