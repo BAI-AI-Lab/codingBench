@@ -2,6 +2,7 @@
 
   python mm_report.py <run dir> [<run dir> ...] --out <report dir> [--date 2026-11-01] [--prices model=in,hit,out;...]
   python mm_report.py --from-json <report dir>/report.json --out <dir>     (re-render, e.g. with figures on the Mac)
+  prices per 1M tokens: --prices, or PRICE_IN/PRICE_HIT/PRICE_OUT for every run not named there (as cb mm passes them)
 
 Every run is scored here from its answers (mm_lib.score), so a change to answer extraction applies to old runs too.
 Only items every run answered are compared. Per model: the score of each capability (mean over its items of the item's
@@ -287,6 +288,10 @@ def main():
         m, v = x.split("=")
         i, h, o = map(float, v.split(","))
         per[m] = {"in": i, "hit": h, "out": o}
+    env = None  # one model's prices from PRICE_IN/PRICE_HIT/PRICE_OUT, as the ladder report
+    if os.environ.get("PRICE_IN") and os.environ.get("PRICE_OUT"):
+        env = {"in": float(os.environ["PRICE_IN"]), "hit": float(os.environ.get("PRICE_HIT") or os.environ["PRICE_IN"]),
+               "out": float(os.environ["PRICE_OUT"])}
     if a.from_json:
         data = json.load(open(a.from_json))
         stats, p = data["stats"], data["profile"]
@@ -295,7 +300,7 @@ def main():
         stats = []
         for d in a.runs:
             info = json.load(open(os.path.join(d, "run.json")))
-            stats.append(load(d, per.get(info["model"]), names))
+            stats.append(load(d, per.get(info["model"], env), names))
         p = profile(stats)
     else:
         ap.error("give run directories or --from-json")
