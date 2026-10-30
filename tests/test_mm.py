@@ -96,6 +96,17 @@ def units():
     check(len(ids) == 6 and Bd.build(src, 0, False) == ids and Bd.build(src, 1, False) != ids
           and sum(M.load_item(i)["tier"] == "L1" for i in ids) == 3 and M.load_item(ids[0])["images"] == ["img0.png"],
           "build: same seed same items, strata in turn, images written")
+    real_get = Bd.get
+    Bd.get = lambda url, binary=False: ({"rows": [{"row_idx": 0, "row": {}}]} if "/rows?" in url else
+                                        {"size": {"splits": [{"dataset": "a/b", "config": "default", "split": "test"}]}})
+    stale = []
+    for f in (lambda: Bd.rows("x/y", "c", "s", 5), lambda: Bd.num_rows("x/y", "c", "s")):
+        try:
+            f()
+        except RuntimeError:
+            stale.append(True)
+    Bd.get = real_get
+    check(stale == [True, True], "datasets-server answers for other rows or another dataset (a caching proxy) stop the build")
     it = item("unit/a/1", "reasoning", "L1", "unit", "What colour?", "mcq", "A", options=["red", "blue"])
     msgs, logged = M.messages(it, "high")
     sent = json.dumps(msgs)

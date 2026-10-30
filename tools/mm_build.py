@@ -32,7 +32,9 @@ FRAMES = int(os.environ.get("MM_FRAMES", "16"))
 
 
 def get(url, binary=False, tries=6):
-    headers = {"User-Agent": "codingBench-mm"}
+    # no-cache: some cloud hosts' HTTPS proxies cache by path alone, so without it every
+    # /rows or /size call gets the first answer that proxy saw, whatever the dataset or offset
+    headers = {"User-Agent": "codingBench-mm", "Cache-Control": "no-cache", "Pragma": "no-cache"}
     host = urllib.parse.urlparse(url).hostname or ""
     if os.environ.get("HF_TOKEN") and (host == "huggingface.co" or host.endswith(".huggingface.co")):
         headers["Authorization"] = f"Bearer {os.environ['HF_TOKEN']}"  # never to a mirror or a CDN
@@ -55,12 +57,18 @@ def get(url, binary=False, tries=6):
 
 def rows(dataset, config, split, offset, length=1):
     q = urllib.parse.urlencode({"dataset": dataset, "config": config, "split": split, "offset": offset, "length": length})
-    return [r["row"] for r in get(f"{DS}/rows?{q}")["rows"]]
+    got = get(f"{DS}/rows?{q}")["rows"]
+    if [r["row_idx"] for r in got] != list(range(offset, offset + len(got))):  # a stale answer from a caching proxy
+        raise RuntimeError(f"/rows gave other rows than {dataset} {config} {split} from {offset}")
+    return [r["row"] for r in got]
 
 
 def num_rows(dataset, config, split):
     q = urllib.parse.urlencode({"dataset": dataset, "config": config})
-    for s in get(f"{DS}/size?{q}")["size"]["splits"]:
+    splits = get(f"{DS}/size?{q}")["size"]["splits"]
+    if any((s["dataset"], s["config"]) != (dataset, config) for s in splits):
+        raise RuntimeError(f"/size answered for another dataset than {dataset} {config}")
+    for s in splits:
         if s["split"] == split:
             return s["num_rows"]
     raise KeyError(f"{dataset} {config}: no split {split}")
