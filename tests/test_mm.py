@@ -96,6 +96,19 @@ def units():
     check(len(ids) == 6 and Bd.build(src, 0, False) == ids and Bd.build(src, 1, False) != ids
           and sum(M.load_item(i)["tier"] == "L1" for i in ids) == 3 and M.load_item(ids[0])["images"] == ["img0.png"],
           "build: same seed same items, strata in turn, images written")
+    import mm_sources as S
+    mp = {"id": "test_Art_1", "question": "q", "options": "['a', 'b']", "answer": "A", "topic_difficulty": "Easy"}
+    img = {"src": "x"}
+    check(S.mmmu_pro({**mp, "img_type": "['Paintings']"}, "", "", 0) and not S.mmmu_pro({**mp, "img_type": "['Diagrams', 'Tables']"}, "", "", 0)
+          and S.docvqa({"question": "q", "answers": ["a"], "question_types": ["form"], "image": img}, "", "", 0)
+          and not S.docvqa({"question": "q", "answers": ["a"], "question_types": ["figure/diagram"], "image": img}, "", "", 0)
+          and not S.ocrbench_kie({"question_type": "Doc-oriented VQA", "question": "q", "answer": ["a"], "image": img}, "", "", 0)
+          and not S.screenspot_v2({"data_type": "text", "bbox": [0, 0, 1, 1], "image": img}, "", "", 0)
+          and not S.screenspot_pro({"ui_type": "text"}, "", "", 0)
+          and S.cvbench({"question": "q", "choices": ["a", "b"], "answer": "(B)", "task": "Depth", "image": img}, "", "", 0)[0]["answer"] == "B"
+          and not set(S.BLINK_PERCEPTION) & set(S.BLINK_SPATIAL) and "IQ_Test" not in S.BLINK_PERCEPTION + S.BLINK_SPATIAL
+          and all(s["cap"] != "spatial" or s["adapt"] not in (S.screenspot_v2, S.screenspot_pro) for s in S.SOURCES),
+          "sources: rows of another capability (tables in MMMU-Pro, figures in DocVQA, text targets in GUI) are left out")
     real_get = Bd.get
     Bd.get = lambda url, binary=False: ({"rows": [{"row_idx": 0, "row": {}}]} if "/rows?" in url else
                                         {"size": {"splits": [{"dataset": "a/b", "config": "default", "split": "test"}]}})
@@ -191,7 +204,7 @@ def main():
         check(abs(p["overall"][1] - sum(p["cap"][1].values()) / len(p["caps"])) < 1e-9, "overall = equal-weight mean of capabilities")
         md = open(os.path.join(out, "report.md")).read()
         check(all(x in md for x in ("## 总结", "## 能力画像", "## 排名", "## 按难度", "## 按来源", "## 成本与速度", "第 1 名 mock",
-                                    "视频理解", "由 Albert Huang 创建于")) and "base64" not in md, "report.md: every section, no images")
+                                    "视频时序", "由 Albert Huang 创建于")) and "base64" not in md, "report.md: every section, no images")
         tex = open(os.path.join(out, "main.tex")).read()
         check(r"\section{排名}" in tex and "多模态阶梯评测" in tex, "main.tex written")
         out2 = os.path.join(CB, "report2")

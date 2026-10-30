@@ -4,8 +4,8 @@ $CB/data/mm/items, plus the item list $CB/data/mm/mm.json (copy it to samples/mm
   python mm_build.py [--sources mmmu_pro,charxiv] [--seed 0] [--dry-run] [--list]
 
 Rows come from the Hugging Face datasets-server (/rows, which returns images as links), so only the sampled items are
-downloaded, never whole datasets. HF_TOKEN is sent when set (gated sets such as ZeroBench need it, after accepting the
-terms on the dataset page). The same seed gives the same items. An image over MAX_IMAGE_MB is re-encoded as JPEG
+downloaded, never whole datasets. HF_TOKEN is sent when set (a gated set needs it, after accepting the terms on
+the dataset page). The same seed gives the same items. An image over MAX_IMAGE_MB is re-encoded as JPEG
 (needs Pillow) or the item is skipped; images and frames are never committed, since several sources allow academic
 use only. Video sources download only the sampled videos and keep FRAMES evenly spaced frames (needs ffmpeg).
 """

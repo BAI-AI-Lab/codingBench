@@ -8,7 +8,7 @@
 | `livecodebench` | LiveCodeBench release_v6 | ICLR 2025 | 竞赛编程题（LeetCode / AtCoder / Codeforces），按发布日期切分，可以只算模型训练截止之后的新题 | 1055 |
 | `cruxeval` | CRUXEval 的 input 和 output 两项 | ICML 2024 | 读代码推理：给定函数和输出，写出输入（input）；或给定输入，算出输出（output） | 各 800 |
 | `ladder` | 阶梯测试集（见下） | USACO、EGOI/IOI 2026、FrontierCS（ICML 2026） | 按人类难度分 5 档的竞赛题，测正确率、部分分、官方时限下的速度和相对官方解的运行时间 | L1–L4 约 98、L5 30（题库 180） |
-| `mm` | 多模态阶梯测试集（见下） | MMMU-Pro、BLINK、ChartQA、CharXiv、DocVQA、InfographicVQA、RefSpatial-Bench、MindCube、ScreenSpot-v2/Pro、MMVU、TimeBlind（ZeroBench 需授权） | 看图、读图表和文档、空间指点、界面定位、看视频（抽帧）；同一套题既给能力画像，也给带区间的排名 | 约 330 |
+| `mm` | 多模态阶梯测试集（见下） | MMMU-Pro、BLINK、ChartQA、CharXiv、DocVQA、OCRBench、CV-Bench、MindCube、ScreenSpot-v2/Pro、TimeBlind | 学科推理、视觉感知、图表、文档、空间、界面定位、视频时序，7 项能力互不重叠；同一套题既给能力画像，也给带区间的排名 | 354 |
 
 
 
@@ -108,13 +108,20 @@ cb ladder --smoke && cb ladder                                 # 报告在 /opt/
 
 测会看图的模型（图片、图表、文档、截图、视频帧进，文字出）。所有模型答同一套题：按能力切开看是能力画像，把各项合起来做逐题配对比较就是排名。
 
-- **7 项能力，约 330 题：**视觉推理（MMMU-Pro 标准与“题在图里”两种）、视觉感知（BLINK 14 个子任务）、图表（ChartQA、CharXiv 推理题）、文档（DocVQA、InfographicVQA）、空间（RefSpatial-Bench、MindCube）、界面定位（ScreenSpot-v2、ScreenSpot-Pro）、视频理解（MMVU、TimeBlind）。ZeroBench 是受限数据集，在页面上同意条款并设置 `HF_TOKEN` 后才会加入。
+- **7 项能力，354 题，彼此尽量不重叠：**每项能力只测一种技能、用一种答题形式，会测到别的能力的题不收：
+  - 学科推理（50）：MMMU-Pro 标准版，去掉表格、统计图和截图类的题（归文档、图表、界面），也不用“题目印在图里”的版本（那是读文档）。
+  - 视觉感知（54）：BLINK 中 9 个低层感知子任务（计数、对应点、相似度、反射率、伪造检测、拼图、画风）；它的深度、方位、多视角、定位 4 个子任务归空间，IQ 测试是抽象推理，不收。
+  - 图表（50）：ChartQA、CharXiv 推理题。
+  - 文档（50）：DocVQA（去掉问图片和插图的题）、OCRBench 的关键信息抽取（收据、标签、表单）；不收信息图（InfographicVQA，本质是图表加文字）。
+  - 空间（50）：CV-Bench 3D（深度、距离）、BLINK 空间子任务、MindCube（多视角）；全部是选择题，不用坐标作答，坐标只属于界面定位。
+  - 界面定位（50）：ScreenSpot-v2、ScreenSpot-Pro，只收图标目标（文字目标等于读字加点击，会和文档重叠）。
+  - 视频时序（50）：TimeBlind，单看一帧答不出来的时序题；不收考专业知识的视频题（那是学科推理）。
 - **难度：**每个来源按它对现在的模型是否已经饱和分为 L1–L4；MMMU-Pro 有自己的难度标签，按题分档。跑过几个模型以后，可以按“不含被测模型的平均得分”重新分档。
 - **打分（`tools/mm_lib.py`）：**只用确定的规则，不用模型裁判：
   - 选择题、是否题：取最后一行 `Answer: …`；
   - 短答案：数字相对误差 1%，ChartQA 按它的规则放宽到 5%；文字规范化后相同；
   - 文档：ANLS；
-  - 界面定位、空间指点：模型给 0–1000 的相对坐标，落在目标框或掩膜内得分。
+  - 界面定位：模型给 0–1000 的相对坐标，落在目标框内得分。
   读不出答案、超时、被截断都计 0 分，报告里分别计数。
 - **视频：**每段视频按时间均匀抽 16 帧，所有模型拿到同样的帧（作为图片），分数才可比；厂商自己的原生视频输入不进排名。
 - **总分与排名（`tools/mm_report.py`）：**

@@ -20,8 +20,8 @@ DATA = os.path.join(CB, "data", "mm")
 ITEMS = os.path.join(DATA, "items")
 TIERS = ("L1", "L2", "L3", "L4")
 CAPS = ("reasoning", "perception", "charts", "documents", "spatial", "gui", "video")
-CAP_NAME = {"reasoning": "视觉推理", "perception": "视觉感知", "charts": "图表", "documents": "文档", "spatial": "空间",
-            "gui": "界面定位", "video": "视频理解"}
+CAP_NAME = {"reasoning": "学科推理", "perception": "视觉感知", "charts": "图表", "documents": "文档", "spatial": "空间",
+            "gui": "界面定位", "video": "视频时序"}
 TIER_NAME = {"L1": "L1 基础", "L2": "L2 中等", "L3": "L3 困难", "L4": "L4 顶尖"}
 LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 MIME = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".webp": "image/webp", ".gif": "image/gif"}
