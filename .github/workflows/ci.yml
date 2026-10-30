@@ -48,8 +48,6 @@ jobs:
           python tests/test_lcb_stream.py
       - name: Ladder pipeline (synthetic problems, native judge, mock endpoint)
         run: python tests/test_ladder.py
-      - name: Multimodal ladder (synthetic items, scoring, mock endpoint, report)
-        run: python tests/test_mm.py
 
   workstation:   # deploy/wsl_setup.sh end to end on Ubuntu (what WSL2 runs) with two USACO problems and a mock model
     runs-on: ubuntu-latest

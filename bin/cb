@@ -30,11 +30,7 @@
 #   cb ladder-judge <run dir>     # (re-)judge a ladder run; cb ladder-report <run dir>... [--out dir] compares runs
 #   cb ladder-data [--status]     # download the sources (resumable) / show progress; cb ladder-build [--calibrate]
 #   cb ladder-fetch [--verify]    # the same download for fast links (parallel, every file checked)
-# Multimodal ladder (images, charts, documents, screens, video frames; samples/mm.json, items in data/mm/items):
-#   cb mm [--smoke] [--caps reasoning,charts] [--k 4]   # answer every item k times, then score and report; run dir
-#                          # runs/<model>/mm-<full|smoke>; REASONING_EFFORT, MM_DETAIL, MM_TEMPERATURE (default: vendor's)
-#   cb mm-report <run dir>... [--out dir]   # profile + ranking of one or more runs (same items, paired intervals)
-#   cb mm-build ...        # sample the items from the source benchmarks (tools/mm_build.py; HF_TOKEN for gated sets)
+# The multimodal benchmark moved to its own repository: github.com/BAI-AI-Lab/mmBench (mmb build / run / report).
 #
 # Optional: MAX_TOKENS (default 16384; must fit the model's context; "none" = send no limit, LiveCodeBench only), WORKERS (parallel requests, default 16),
 #           LCB_RELEASE (default release_v6), LCB_START (only problems released on/after this date, e.g. 2025-01-01),
@@ -50,7 +46,7 @@
 # Model-generated code is executed, so everything runs as the unprivileged user "bench".
 set -euo pipefail
 CB=$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)   # install dir = parent of bin/
-KEEP=MODEL,MODEL_NAME,REPORT_AUTHOR,LADDER_MAX_SECONDS,LADDER_CHARS_PER_TOKEN,LADDER_CUT_IS_TIMEOUT,LADDER_REDO_TIMEOUTS,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LADDER_N,LADDER_TIMEOUT,LADDER_OMIT,LADDER_LENIENT,LADDER_CORES,LADDER_RATE,LADDER_LIST,http_proxy,https_proxy,no_proxy,HTTP_PROXY,HTTPS_PROXY,NO_PROXY,REQUESTS_CA_BUNDLE,SSL_CERT_FILE,TEMPERATURE,RETRIES,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CB_POST,CRUX_MAX_TOKENS,PRICE_IN,PRICE_HIT,PRICE_OUT,PRICE_OFF_IN,PRICE_OFF_HIT,PRICE_OFF_OUT,PEAK_HOURS_UTC,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER,REASONING_EFFORT,MM_K,MM_TEMPERATURE,MM_DETAIL,MM_OMIT,MM_TIMEOUT,HF_TOKEN,HF_ENDPOINT
+KEEP=MODEL,MODEL_NAME,REPORT_AUTHOR,LADDER_MAX_SECONDS,LADDER_CHARS_PER_TOKEN,LADDER_CUT_IS_TIMEOUT,LADDER_REDO_TIMEOUTS,OPENAI_BASE_URL,OPENAI_API_KEY,MAX_TOKENS,WORKERS,LADDER_N,LADDER_TIMEOUT,LADDER_OMIT,LADDER_LENIENT,LADDER_CORES,LADDER_RATE,LADDER_LIST,http_proxy,https_proxy,no_proxy,HTTP_PROXY,HTTPS_PROXY,NO_PROXY,REQUESTS_CA_BUNDLE,SSL_CERT_FILE,TEMPERATURE,RETRIES,LCB_RELEASE,LCB_START,LCB_IDS,LCB_TIMEOUT,LCB_OMIT,STREAM,LCB_STREAM,CB_POST,CRUX_MAX_TOKENS,PRICE_IN,PRICE_HIT,PRICE_OUT,PRICE_OFF_IN,PRICE_OFF_HIT,PRICE_OFF_OUT,PEAK_HOURS_UTC,SONAR_URL,SONAR_TOKEN,SONAR_SCANNER,REASONING_EFFORT
 if [ "$(id -un)" != bench ]; then exec sudo -u bench -H --preserve-env=$KEEP "$0" "$@"; fi
 source $CB/env.sh
 export PATH=$CB/.local/bin:$PATH MPLCONFIGDIR=$CB/.cache/matplotlib
@@ -132,22 +128,6 @@ case "$1" in
     [ $rc = 4 ] && { echo "=== ladder PAUSED: re-run the same command to continue"; exit 4; }
     [ $rc = 0 ] || [ $rc = 3 ] || { echo "=== ladder generation FAILED (exit $rc)" >&2; exit $rc; }
     [ "${CB_POST:-1}" = 0 ] || LADDER_PYTHON=$LPY ladder_post "$d"
-    exit $rc ;;
-  mm-build) exec $LPY $CB/tools/mm_build.py "${@:2}" ;;
-  mm-report)
-    args=(); for x in "${@:2}"; do if [ -d "$x" ]; then args+=("$(readlink -f "$x")"); else args+=("$x"); fi; done
-    exec $LPY $CB/tools/mm_report.py "${args[@]}" ;;
-  mm)
-    : "${MODEL:?set MODEL}" "${OPENAI_BASE_URL:?set OPENAI_BASE_URL}" "${OPENAI_API_KEY:?set OPENAI_API_KEY}"
-    tag=full
-    for x in "${@:2}"; do [ "$x" = --smoke ] && tag=smoke; done
-    d=$CB/runs/${MODEL//\//_}/mm-$tag; mkdir -p "$d"
-    echo "=== mm ($tag) model=$MODEL  $(date +%F\ %T)"
-    rc=0; $LPY $CB/bin/mm_run.py --out "$d" "${@:2}" || rc=$?   # 3 = out of balance, 4 = paused
-    [ $rc = 4 ] && { echo "=== mm PAUSED: re-run the same command to continue"; exit 4; }
-    [ $rc = 0 ] || [ $rc = 3 ] || { echo "=== mm generation FAILED (exit $rc)" >&2; exit $rc; }
-    $LPY $CB/tools/mm_report.py "$d" --out "$d/report" || echo "=== mm report FAILED" >&2
-    echo "=== mm done  $(date +%T): $d/report/report.md"
     exit $rc ;;
 esac
 if [ "$1" = post ]; then
