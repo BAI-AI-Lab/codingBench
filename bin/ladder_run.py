@@ -55,15 +55,25 @@ def out_of_balance(e):
         "balance is running low"))
 
 
-def call(client, model, messages, args, usage_path, q):
-    """One request (streamed unless STREAM=0); returns the usage-log record (content or error)."""
+def text_of(messages):
+    """The last message's text (the text parts of a multimodal one), for the live file."""
+    c = messages[-1]["content"]
+    return (c if isinstance(c, str) else "\n".join(p.get("text", "") for p in c if p.get("type") == "text"))[:2000]
+
+
+def call(client, model, messages, args, usage_path, q, logged=None):
+    """One request (streamed unless STREAM=0); returns the usage-log record (content or error). `logged` is what the
+    logs keep of the messages (default: the messages as sent), e.g. with the images replaced by their file names."""
     import openai
     kw = {"model": model, "messages": messages, "temperature": args.temperature, "top_p": 0.95}
     if args.max_tokens:
         kw["max_tokens"] = args.max_tokens
+    if getattr(args, "reasoning_effort", None):  # REASONING_EFFORT, e.g. low / high / max (MiniMax, Kimi, DeepSeek)
+        kw["extra_body"] = {"reasoning_effort": args.reasoning_effort}
     for k in args.omit:
         kw.pop(k, None)
-    rec = {"q": q, "start": time.time(), "stream": args.stream, "messages": messages}
+    logged = messages if logged is None else logged
+    rec = {"q": q, "start": time.time(), "stream": args.stream, "messages": logged}
     live = f"{usage_path}.live.{os.getpid()}-{threading.get_ident()}"
     first = first_content = None
     n_reason = n_content = 0
@@ -114,7 +124,7 @@ def call(client, model, messages, args, usage_path, q):
                         json.dump({"q": q, "start": rec["start"], "updated": last_write, "first_token": first,
                                    "first_content": first_content, "reasoning_chars": n_reason,
                                    "content_chars": n_content, "reasoning_tail": r_tail, "content_tail": c_tail,
-                                   "prompt": messages[-1]["content"][:2000]}, f, ensure_ascii=False)
+                                   "prompt": text_of(logged)}, f, ensure_ascii=False)
                     os.replace(live + ".tmp", live)
             if timed_out:
                 finish = "timeout"

@@ -8,6 +8,7 @@
 | `livecodebench` | LiveCodeBench release_v6 | ICLR 2025 | 竞赛编程题（LeetCode / AtCoder / Codeforces），按发布日期切分，可以只算模型训练截止之后的新题 | 1055 |
 | `cruxeval` | CRUXEval 的 input 和 output 两项 | ICML 2024 | 读代码推理：给定函数和输出，写出输入（input）；或给定输入，算出输出（output） | 各 800 |
 | `ladder` | 阶梯测试集（见下） | USACO、EGOI/IOI 2026、FrontierCS（ICML 2026） | 按人类难度分 5 档的竞赛题，测正确率、部分分、官方时限下的速度和相对官方解的运行时间 | L1–L4 约 98、L5 30（题库 180） |
+| `mm` | 多模态阶梯测试集（见下） | MMMU-Pro、BLINK、ChartQA、CharXiv、DocVQA、InfographicVQA、RefSpatial-Bench、MindCube、ScreenSpot-v2/Pro、MMVU、TimeBlind（ZeroBench 需授权） | 看图、读图表和文档、空间指点、界面定位、看视频（抽帧）；同一套题既给能力画像，也给带区间的排名 | 约 330 |
 
 
 
@@ -103,6 +104,37 @@ cb ladder --smoke && cb ladder                                 # 报告在 /opt/
 可选的环境变量：`LADDER_N`（每档采样次数，默认 `L1=1,L2=1,L3=3,L4=3,L5=1`）、`MAX_TOKENS`（默认不设上限）、`WORKERS`、`STREAM`、`LADDER_TIMEOUT`（同 `LCB_TIMEOUT`）、`LADDER_OMIT`（同 `LCB_OMIT`）、`TEMPERATURE`（默认 0.2）、`LADDER_LENIENT`、`LADDER_CORES`（判题用的核数，默认 64）、`PRICE_*`（算费用）。中途断了直接重跑同一条命令，已经答过的不再请求。报告的 PDF 用 Times New Roman 和楷体排版，服务器上没有 xelatex 和这两种字体，把报告目录拷到 Mac 上运行 `bash build.sh` 即可。`tests/test_ladder.py` 用合成题和 `tests/mock_openai.py`（假的模型接口，回答官方解）把整条管路测一遍，CI 里也跑。
 
 
+## 多模态阶梯测试集（cb mm）
+
+测会看图的模型（图片、图表、文档、截图、视频帧进，文字出）。所有模型答同一套题：按能力切开看是能力画像，把各项合起来做逐题配对比较就是排名。
+
+- **7 项能力，约 330 题：**视觉推理（MMMU-Pro 标准与“题在图里”两种）、视觉感知（BLINK 14 个子任务）、图表（ChartQA、CharXiv 推理题）、文档（DocVQA、InfographicVQA）、空间（RefSpatial-Bench、MindCube）、界面定位（ScreenSpot-v2、ScreenSpot-Pro）、视频理解（MMVU、TimeBlind）。ZeroBench 是受限数据集，在页面上同意条款并设置 `HF_TOKEN` 后才会加入。
+- **难度：**每个来源按它对现在的模型是否已经饱和分为 L1–L4；MMMU-Pro 有自己的难度标签，按题分档。跑过几个模型以后，可以按“不含被测模型的平均得分”重新分档。
+- **打分（`tools/mm_lib.py`）：**只用确定的规则，不用模型裁判：
+  - 选择题、是否题：取最后一行 `Answer: …`；
+  - 短答案：数字相对误差 1%，ChartQA 按它的规则放宽到 5%；文字规范化后相同；
+  - 文档：ANLS；
+  - 界面定位、空间指点：模型给 0–1000 的相对坐标，落在目标框或掩膜内得分。
+  读不出答案、超时、被截断都计 0 分，报告里分别计数。
+- **视频：**每段视频按时间均匀抽 16 帧，所有模型拿到同样的帧（作为图片），分数才可比；厂商自己的原生视频输入不进排名。
+- **总分与排名（`tools/mm_report.py`）：**
+  - 总分是各项能力的等权平均，不按题数加权。
+  - 区间：每项能力的 95% 区间来自按题重抽样（bootstrap，2000 次）；两两比较的差值区间在每项能力内成对重抽样。
+  - 名次 = 1 + 明显强于它的模型数，区间包含 0 的模型名次相同。报告里写明这套题的题量能分出多大的差距。
+- **参数：**默认不发送 temperature，各家用厂商默认值（Kimi K3 系列不接受别的值，MiniMax 会忽略）；`REASONING_EFFORT` 设思考深度，所有模型应设成一样；`MAX_TOKENS` 默认不设上限，因为思考也占这个上限，设小了会得到空答案。
+
+```bash
+cb mm-build --list            # 看来源、每个来源抽几题
+cb mm-build                   # 从 Hugging Face 只下载抽中的题（datasets-server 按行读取；视频要 ffmpeg，掩膜和大图要 Pillow）
+cb mm-build --dry-run         # 只抽样检查，不下载
+cp $CB/data/mm/mm.json samples/mm.json   # 核对后把题目清单（只有编号）固定进仓库
+REASONING_EFFORT=high cb mm --smoke     # 每项能力一题，先确认接口能收图片
+REASONING_EFFORT=high cb mm             # 全量：每题答 4 次（--k 改），然后出报告 runs/<模型>/mm-full/report/
+cb mm-report <运行A> <运行B> ... --out <目录> --prices "模型=输入,缓存,输出;..."   # 多个模型的画像和排名
+```
+
+题目、图片和视频帧只放在服务器的 `data/mm/items/`，不进仓库，也不上公开网站：好几个来源只允许学术用途。仓库里只有代码、题目编号清单（`samples/mm.json`）和汇总分数。`tests/test_mm.py` 用合成题和 `tests/mock_openai.py` 把整条管路测一遍，CI 里也跑。
+
 ## 打分口径
 
 - 都是 pass@1。BigCodeBench 用贪心解码（temperature 0），LiveCodeBench 和 CRUXEval 用 temperature 0.2、每题 1 次。
@@ -116,6 +148,7 @@ cb ladder --smoke && cb ladder                                 # 报告在 /opt/
 - `tools/lcb_progress.py`：运行中的进度（`cb progress`）；`tools/lcb_rejudge.py`：复核判分（`cb rejudge`）；`tools/lcb_perf.py`：代码性能（`cb perf`）；`tools/lcb_report.py`：LiveCodeBench 报告；`tools/lcb_usage.py`：延迟和 token 报告（读 LiveCodeBench 运行目录里的 `usage.jsonl`）
 - `samples/`：固定的题目清单；`samples/ladder.json`、`samples/ladder_download.tsv.gz`：阶梯测试集的题目清单和下载清单
 - `bin/ladder_run.py`、`tools/ladder_*.py`：阶梯测试集的生成、建库、判题、静态质量和报告；`tests/test_ladder.py`、`tests/mock_openai.py`：它的测试
+- `bin/mm_run.py`、`tools/mm_*.py`：多模态阶梯测试集的作答、建库（`mm_sources.py` 是来源清单）、打分和报告；`tests/test_mm.py`：它的测试
 - `deploy/setup.sh`：安装和更新（只在仓库里）
 - `reports/`：跑过的评测报告（`2026-10-23_lcb35_kimi_deepseek`：LiveCodeBench 最新 35 题；`2026-10-27_ladder_design`：阶梯测试集的设计说明；`2026-10-28_ladder_deepseek-flash`：阶梯测试集的第一轮评测；`2026-10-29_ladder_deepseek-flash`：完整一轮；`2026-10-29_ladder_deepseek-flash_vs_minimax-m3.1-flash`：DeepSeek Flash V4.1-1017 与 MiniMax M3.1 Flash 对比）
 - 结果网站：https://bai-ai-lab.github.io/coding-eval/（公开仓库 `BAI-AI-Lab/coding-eval`）。由 `reports/2026-10-23_lcb35_kimi_deepseek/site.py` 生成：在放好 `runs/` 的报告目录里运行 `python site.py <coding-eval 的检出目录>`（需要 pygments），然后在该目录提交并推送
@@ -124,6 +157,7 @@ cb ladder --smoke && cb ladder                                 # 报告在 /opt/
 - `venvs/`：每个 benchmark 一个独立的 Python 环境
 - `data/code_generation_lite/`：LiveCodeBench 的题目（从 OpenCompass 的阿里云镜像下载，sha256 和 HF 官方一致）
 - `data/ladder/`：阶梯测试集的原始下载（`raw/`）和整理好的题目（`problems/`，题面和测试数据只在服务器上，不进仓库）
+- `data/mm/`：多模态阶梯测试集的题目（`items/`，题目、图片和视频帧只在服务器上，不进仓库）和题目清单 `mm.json`
 - `runs/`：结果
 
 ## 许可证
