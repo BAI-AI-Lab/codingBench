@@ -20,3 +20,10 @@ __pycache__/
 
 .DS_Store
 ._*
+
+# LaTeX build files of the technical report
+paper/*.aux
+paper/*.log
+paper/*.bbl
+paper/*.blg
+paper/*.out

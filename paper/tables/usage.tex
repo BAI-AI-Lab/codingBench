@@ -1,0 +1,23 @@
+\begin{tabular}{llrrrrrr}
+\toprule
+档位 & 模型 & 调用数 & 输出 token $\downarrow$ & 每次输出 $\downarrow$ & 延迟中位数（秒）$\downarrow$ & 费用 $\downarrow$ & 每份解出答案 $\downarrow$ \\
+\midrule
+\multirow{2}{*}{L1 基础} & DeepSeek & 18 & 0.18M & 10.0k & 49 & \$0.11 & \$0.006 \\
+ & MiniMax & 18 & 0.27M & 15.0k & 64 & \$0.16 & \$0.010 \\
+\midrule
+\multirow{2}{*}{L2 中等} & DeepSeek & 19 & 0.48M & 25.2k & 106 & \$0.29 & \$0.015 \\
+ & MiniMax & 19 & 0.75M & 39.6k & 194 & \$0.45 & \$0.027 \\
+\midrule
+\multirow{2}{*}{L3 困难} & DeepSeek & 81 & 2.41M & 29.7k & 126 & \$1.45 & \$0.018 \\
+ & MiniMax & 81 & 2.95M & 36.4k & 200 & \$1.78 & \$0.026 \\
+\midrule
+\multirow{2}{*}{L4 顶尖} & DeepSeek & 54 & 3.71M & 68.6k & 398 & \$3.01 & \$0.075 \\
+ & MiniMax & 64 & 5.81M & 90.7k & 739 & \$3.49 & \$0.125 \\
+\midrule
+\multirow{2}{*}{L5 开放式} & DeepSeek & 30 & 1.55M & 51.8k & 233 & \$0.94 & -- \\
+ & MiniMax & 33 & 2.82M & 85.5k & 853 & \$1.70 & -- \\
+\midrule
+\multirow{2}{*}{合计} & DeepSeek & 208 & 8.80M & 42.3k & 177 & \$6.07 & \$0.031 \\
+ & MiniMax & 215 & 12.60M & 58.6k & 350 & \$7.58 & \$0.045 \\
+\bottomrule
+\end{tabular}

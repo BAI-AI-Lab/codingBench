@@ -1,0 +1,17 @@
+\begin{tabularx}{\linewidth}{@{}>{\raggedright\arraybackslash}p{4.3cm}>{\raggedright\arraybackslash}p{1.7cm}>{\raggedright\arraybackslash}X>{\raggedright\arraybackslash}p{2.3cm}@{}}
+\toprule
+厂商声称 & 对应维度 & 本文观测（DeepSeek $-$ MiniMax，95\% 区间） & 判定 \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{DeepSeek Flash V4.1-1017}} \\
+Codeforces 评分 3471（内部评测，max 深度），高于 V4-Flash 的 3289 与 V4-Pro 的 3348 & 竞赛编程 & pass@1 领先 MiniMax：L1--L4 合计 +15.1 [+9.9, +20.9]，L3 +12.3 [+4.9, +21.0]，L4 +22.2 [+11.1, +33.3] & 一致，可归因（相对 MiniMax） \\
+1017 版以自反馈强化学习改进端到端项目开发；智能体编程（DeepSWE v1.1 77.0、Terminal-Bench 4.0 42.3） & 多轮、多文件编程 & 本文为单轮、单文件、无工具的作答 & 本文未测 \\
+1017 版缩短输出长度与任务耗时（相对 0910 版） & — & 每次调用平均输出 42.3k token，短于 MiniMax 的 58.6k；没有 0910 版对照 & 无法检验 \\
+按思考深度施加长度惩罚、深度可调 & 思考深度 & 本文使用接口默认的 high，未比较不同深度 & 本文未测 \\
+\midrule
+\multicolumn{4}{@{}l}{\textbf{MiniMax M3.1 Flash}} \\
+推理速度：输出可达每秒 200 token 以上、中位数 170 以上 & 生成速度 & 首个 token 之后的平均生成速度 116 token/s，低于所称；DeepSeek 为 177 & 不一致（国内站、8 路并发） \\
+智能体编程与工具调用（DeepSWE v1.1 73.7、Terminal Bench 4.0 38.1）；交错思考 & 多轮、多文件编程 & 本文为单轮、单文件、无工具的作答 & 本文未测 \\
+在线推理快近 3 倍、使用成本降低 70\%（相对前代） & — & 没有前代对照；本文费用 \$7.58，高于 DeepSeek 的 \$6.07 & 无法检验 \\
+没有竞赛编程方面的声称或成绩 & 竞赛编程 & L3、L4 的 pass@1 均显著落后 DeepSeek（见上） & 无对应声称 \\
+\bottomrule
+\end{tabularx}

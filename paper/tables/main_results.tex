@@ -1,0 +1,25 @@
+\begin{tabular}{llrrrrrrrr}
+\toprule
+ & & & & \multicolumn{2}{c}{pass@1（\%）$\uparrow$} & \multicolumn{2}{c}{平均得分 $\uparrow$} & & \\
+\cmidrule(lr){5-6}\cmidrule(lr){7-8}
+档位 & 模型 & 题数 & 采样数 & 宽时限 & 官方时限 & 宽时限 & 官方时限 & pass@$n$（\%）$\uparrow$ & 95\% 区间 \\
+\midrule
+\multirow{2}{*}{L1 基础} & DeepSeek & 18 & 18 & \textbf{100.0} & 83.3 & \textbf{100.0} & \textbf{94.7} & -- & {\scriptsize\color{gray}100.0--100.0} \\
+ & MiniMax & 18 & 18 & 88.9 & 83.3 & 89.4 & 88.5 & -- & {\scriptsize\color{gray}72.2--100.0} \\
+\midrule
+\multirow{2}{*}{L2 中等} & DeepSeek & 19 & 19 & \textbf{100.0} & 84.2 & \textbf{100.0} & \textbf{95.2} & -- & {\scriptsize\color{gray}100.0--100.0} \\
+ & MiniMax & 19 & 19 & 89.5 & 84.2 & 89.8 & 87.0 & -- & {\scriptsize\color{gray}73.7--100.0} \\
+\midrule
+\multirow{2}{*}{L3 困难} & DeepSeek & 27 & 81 & \textbf{97.5} & \textbf{96.3} & \textbf{98.3} & \textbf{98.3} & 100.0 & {\scriptsize\color{gray}93.8--100.0} \\
+ & MiniMax & 27 & 81 & 85.2 & 85.2 & 88.1 & 88.1 & 100.0 & {\scriptsize\color{gray}76.5--92.6} \\
+\midrule
+\multirow{2}{*}{L4 顶尖} & DeepSeek & 18 & 54 & \textbf{74.1} & \textbf{72.2} & \textbf{77.2} & \textbf{76.6} & \textbf{94.4} & {\scriptsize\color{gray}59.3--88.9} \\
+ & MiniMax & 18 & 54 & 51.9 & 51.9 & 55.1 & 55.1 & 72.2 & {\scriptsize\color{gray}33.3--72.2} \\
+\midrule
+\multirow{2}{*}{L5 开放式} & DeepSeek & 30 & 30 & -- & -- & \textbf{30.6} & \textbf{28.6} & -- & {\scriptsize\color{gray}20.7--40.0} \\
+ & MiniMax & 30 & 30 & -- & -- & 25.6 & 24.5 & -- & {\scriptsize\color{gray}16.4--34.5} \\
+\midrule
+\multirow{2}{*}{L1--L4 合计} & DeepSeek & 82 & 172 & \textbf{90.7} & \textbf{86.0} & -- & -- & -- & {\scriptsize\color{gray}85.5--95.9} \\
+ & MiniMax & 82 & 172 & 75.6 & 74.4 & -- & -- & -- & {\scriptsize\color{gray}68.0--83.1} \\
+\bottomrule
+\end{tabular}

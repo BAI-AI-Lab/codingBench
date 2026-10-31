@@ -1,0 +1,17 @@
+\begin{tabular}{llrrrrrl}
+\toprule
+档位 & 模型 & 比较的答案数 & CPU 时间倍数 $\downarrow$ & 快于官方解 & 慢 2 倍以上 & 峰值内存倍数 $\downarrow$ & 时间复杂度：更优 / 同阶 / 更差 / 不确定 \\
+\midrule
+\multirow{2}{*}{L1 基础} & DeepSeek & 12 & 0.66$\times$ & 10 & 2 & 0.98$\times$ & 1 / 4 / 0 / 3 \\
+ & MiniMax & 10 & 0.42$\times$ & 9 & 1 & 0.80$\times$ & 3 / 3 / 0 / 3 \\
+\midrule
+\multirow{2}{*}{L2 中等} & DeepSeek & 9 & 0.84$\times$ & 7 & 0 & 1.32$\times$ & 0 / 6 / 0 / 0 \\
+ & MiniMax & 8 & 0.54$\times$ & 8 & 0 & 1.14$\times$ & 0 / 6 / 0 / 0 \\
+\midrule
+\multirow{2}{*}{L3 困难} & DeepSeek & 58 & 0.58$\times$ & 47 & 3 & 0.92$\times$ & 4 / 42 / 2 / 10 \\
+ & MiniMax & 51 & 0.45$\times$ & 43 & 0 & 0.83$\times$ & 11 / 35 / 0 / 8 \\
+\midrule
+\multirow{2}{*}{L4 顶尖} & DeepSeek & 37 & 0.96$\times$ & 18 & 9 & 1.25$\times$ & 4 / 28 / 0 / 1 \\
+ & MiniMax & 25 & 0.55$\times$ & 21 & 2 & 0.99$\times$ & 3 / 19 / 1 / 0 \\
+\bottomrule
+\end{tabular}
