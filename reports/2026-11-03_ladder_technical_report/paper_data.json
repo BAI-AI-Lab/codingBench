@@ -1,0 +1,9814 @@
+{
+"problems": {
+"usaco-1443": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Roundabout Rounding",
+"lang": "python",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1444": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Farmer John's Cheese Block",
+"lang": "python",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1445": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "It's Mooin' Time",
+"lang": "python",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1467": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Astral Superposition",
+"lang": "python",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1468": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "It's Mooin' Time II",
+"lang": "python",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1469": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Cow Checkups",
+"lang": "python",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1491": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Reflection",
+"lang": "python",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1492": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Making Mexes",
+"lang": "python",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1493": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Printing Sequences",
+"lang": "python",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1515": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Hoof Paper Scissors Minus One",
+"lang": "python",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1516": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "More Cow Photos",
+"lang": "python",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1517": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "It's Mooin' Time III",
+"lang": "python",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1539": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Chip Exchange",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1541": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Photoshoot",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1564": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Moo Hunt",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1565": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Purchasing Milk",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1587": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Make All Distinct",
+"lang": "python",
+"continuous": false,
+"date": "2026-02"
+},
+"usaco-1588": {
+"tier": "L1",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Strange Function",
+"lang": "python",
+"continuous": false,
+"date": "2026-02"
+},
+"usaco-1446": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Cake Game",
+"lang": "python",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1447": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Deforestation",
+"lang": "python",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1448": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "2D Conveyor Belt",
+"lang": "python",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1470": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Cow Checkups",
+"lang": "python",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1471": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Farmer John's Favorite Operation",
+"lang": "python",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1472": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Table Recovery",
+"lang": "python",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1494": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "The Best Lineup",
+"lang": "python",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1495": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Vocabulary Quiz",
+"lang": "python",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1496": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Transforming Pairs",
+"lang": "python",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1519": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Compatible Pairs",
+"lang": "python",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1520": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Ski Slope",
+"lang": "python",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1542": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Lineup Queries",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1543": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Mooclear Reactor",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1544": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Sliding Window Summation",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1567": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Declining Invitations",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1568": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Farmer John Loves Rotations",
+"lang": "python",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1590": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Clash!",
+"lang": "python",
+"continuous": false,
+"date": "2026-02"
+},
+"usaco-1591": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Milk Buckets",
+"lang": "python",
+"continuous": false,
+"date": "2026-02"
+},
+"usaco-1592": {
+"tier": "L2",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Point Elimination",
+"lang": "python",
+"continuous": false,
+"date": "2026-02"
+},
+"egoi26-biscuits": {
+"tier": "L3",
+"source": "egoi2026",
+"subset": "2026",
+"title": "C. Biscuits",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-05"
+},
+"egoi26-cakes": {
+"tier": "L3",
+"source": "egoi2026",
+"subset": "2026",
+"title": "B. Cakes",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-05"
+},
+"egoi26-ferriswheel": {
+"tier": "L3",
+"source": "egoi2026",
+"subset": "2026",
+"title": "A. Ferris Wheel",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-05"
+},
+"egoi26-foxfamilies": {
+"tier": "L3",
+"source": "egoi2026",
+"subset": "2026",
+"title": "C. Fox Families",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-05"
+},
+"egoi26-ovenmasters": {
+"tier": "L3",
+"source": "egoi2026",
+"subset": "2026",
+"title": "B. Ovenmasters",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-05"
+},
+"egoi26-wateringplants": {
+"tier": "L3",
+"source": "egoi2026",
+"subset": "2026",
+"title": "A. Watering Plants",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-05"
+},
+"usaco-1449": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Cowdependence",
+"lang": "cpp",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1450": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Interstellar Intervals",
+"lang": "cpp",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1451": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Job Completion",
+"lang": "cpp",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1473": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Median Heap",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1474": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Reachable Pairs",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1475": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Photo Op",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1497": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Bessie's Function",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1498": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "The Best Subsequence",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1499": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Friendship Editing",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1521": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Moo Decomposition",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1522": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Election Queries",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1523": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "OohMoo Milk",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1545": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "COW Traversals",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1546": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Milk Buckets",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1547": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Supervision",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1569": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Balancing the Barns",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1570": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Lexicographically Smallest Path",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1571": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "The Chase",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1593": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Good Cyclic Shifts",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-02"
+},
+"usaco-1594": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Picking Flowers",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-02"
+},
+"usaco-1595": {
+"tier": "L3",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Random Tree Generation",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-02"
+},
+"usaco-1452": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "All Pairs Similarity",
+"lang": "cpp",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1453": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "It's Mooin' Time",
+"lang": "cpp",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1454": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Maximize Minimum Difference",
+"lang": "cpp",
+"continuous": false,
+"date": "2024-12"
+},
+"usaco-1476": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "DFS Order",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1477": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Shock Wave",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1478": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Watering the Plants",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-01"
+},
+"usaco-1500": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Min Max Subarrays",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1501": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Transforming Pairs",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1502": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "True or False Test",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-02"
+},
+"usaco-1525": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Lazy Sort",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1526": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2024-25",
+"title": "Package Pickup",
+"lang": "cpp",
+"continuous": false,
+"date": "2025-03"
+},
+"usaco-1548": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Hoof, Paper, Scissors Triples",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1549": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Lineup Counting Queries",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1550": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Pluses and Minuses",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1572": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Circle of Cows",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1573": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Cow Circle",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1574": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "Dynamic Instability",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-01"
+},
+"usaco-1596": {
+"tier": "L4",
+"source": "usaco",
+"subset": "USACO 2025-26",
+"title": "All Pairs Shortest Paths",
+"lang": "cpp",
+"continuous": false,
+"date": "2026-02"
+},
+"fcs-0": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #0",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-6": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #6",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-13": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #13",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-23": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #23",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-30": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #30",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-42": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #42",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-48": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #48",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-58": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #58",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-68": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #68",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-77": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #77",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-85": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #85",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-104": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #104",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-111": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #111",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-121": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #121",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-132": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #132",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-141": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #141",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-148": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #148",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-154": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #154",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-160": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #160",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-166": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #166",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-174": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #174",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-183": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #183",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-193": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #193",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-211": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #211",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-222": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #222",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-239": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #239",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-249": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #249",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-257": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #257",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-304": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #304",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+},
+"fcs-310": {
+"tier": "L5",
+"source": "frontiercs",
+"subset": "FrontierCS",
+"title": "FrontierCS #310",
+"lang": "cpp",
+"continuous": true,
+"date": "2026-05"
+}
+},
+"tiers": {
+"L1": [
+"usaco-1443",
+"usaco-1444",
+"usaco-1445",
+"usaco-1467",
+"usaco-1468",
+"usaco-1469",
+"usaco-1491",
+"usaco-1492",
+"usaco-1493",
+"usaco-1515",
+"usaco-1516",
+"usaco-1517",
+"usaco-1539",
+"usaco-1541",
+"usaco-1564",
+"usaco-1565",
+"usaco-1587",
+"usaco-1588"
+],
+"L2": [
+"usaco-1446",
+"usaco-1447",
+"usaco-1448",
+"usaco-1470",
+"usaco-1471",
+"usaco-1472",
+"usaco-1494",
+"usaco-1495",
+"usaco-1496",
+"usaco-1519",
+"usaco-1520",
+"usaco-1542",
+"usaco-1543",
+"usaco-1544",
+"usaco-1567",
+"usaco-1568",
+"usaco-1590",
+"usaco-1591",
+"usaco-1592"
+],
+"L3": [
+"egoi26-biscuits",
+"egoi26-cakes",
+"egoi26-ferriswheel",
+"egoi26-foxfamilies",
+"egoi26-ovenmasters",
+"egoi26-wateringplants",
+"usaco-1449",
+"usaco-1450",
+"usaco-1451",
+"usaco-1473",
+"usaco-1474",
+"usaco-1475",
+"usaco-1497",
+"usaco-1498",
+"usaco-1499",
+"usaco-1521",
+"usaco-1522",
+"usaco-1523",
+"usaco-1545",
+"usaco-1546",
+"usaco-1547",
+"usaco-1569",
+"usaco-1570",
+"usaco-1571",
+"usaco-1593",
+"usaco-1594",
+"usaco-1595"
+],
+"L4": [
+"usaco-1452",
+"usaco-1453",
+"usaco-1454",
+"usaco-1476",
+"usaco-1477",
+"usaco-1478",
+"usaco-1500",
+"usaco-1501",
+"usaco-1502",
+"usaco-1525",
+"usaco-1526",
+"usaco-1548",
+"usaco-1549",
+"usaco-1550",
+"usaco-1572",
+"usaco-1573",
+"usaco-1574",
+"usaco-1596"
+],
+"L5": [
+"fcs-0",
+"fcs-6",
+"fcs-13",
+"fcs-23",
+"fcs-30",
+"fcs-42",
+"fcs-48",
+"fcs-58",
+"fcs-68",
+"fcs-77",
+"fcs-85",
+"fcs-104",
+"fcs-111",
+"fcs-121",
+"fcs-132",
+"fcs-141",
+"fcs-148",
+"fcs-154",
+"fcs-160",
+"fcs-166",
+"fcs-174",
+"fcs-183",
+"fcs-193",
+"fcs-211",
+"fcs-222",
+"fcs-239",
+"fcs-249",
+"fcs-257",
+"fcs-304",
+"fcs-310"
+]
+},
+"names": {
+"kimi-k3.1-pro": "Kimi K3.1 Pro",
+"kimi-k3.1-pro-high": "Kimi K3.1 Pro（high）",
+"deepseek-flash": "DeepSeek Flash V4.1-1017",
+"MiniMax-M3.1-Flash": "MiniMax M3.1 Flash"
+},
+"samples": {
+"kimi-k3.1-pro": {
+"usaco-1443#0": {
+"pid": "usaco-1443",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5090,
+"latency": 157.5625422000885,
+"ttft": 1.6673989295959473,
+"tps": 32.65015120559835
+},
+"usaco-1446#0": {
+"pid": "usaco-1446",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8059,
+"latency": 295.2280533313751,
+"ttft": 1.6744871139526367,
+"tps": 27.45325190166842
+},
+"egoi26-biscuits#0": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11097,
+"latency": 379.5777328014374,
+"ttft": 1.6282296180725098,
+"tps": 29.36106518604474
+},
+"usaco-1444#0": {
+"pid": "usaco-1444",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 1296,
+"latency": 39.766146659851074,
+"ttft": 2.0597612857818604,
+"tps": 34.37083632236101
+},
+"usaco-1468#0": {
+"pid": "usaco-1468",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4958,
+"latency": 177.31545233726501,
+"ttft": 4.1356728076934814,
+"tps": 28.629208406824368
+},
+"usaco-1491#0": {
+"pid": "usaco-1491",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2154,
+"latency": 64.82851243019104,
+"ttft": 2.048053503036499,
+"tps": 34.31003909193035
+},
+"usaco-1445#0": {
+"pid": "usaco-1445",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11152,
+"latency": 336.69652223587036,
+"ttft": 2.017383098602295,
+"tps": 33.32146732762458
+},
+"usaco-1492#0": {
+"pid": "usaco-1492",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3110,
+"latency": 101.08670830726624,
+"ttft": 1.8737540245056152,
+"tps": 31.346712961861655
+},
+"usaco-1467#0": {
+"pid": "usaco-1467",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11969,
+"latency": 427.37846779823303,
+"ttft": 2.126365900039673,
+"tps": 28.145657473705832
+},
+"usaco-1469#0": {
+"pid": "usaco-1469",
+"tier": "L1",
+"score": 46.154,
+"solved": false,
+"fail": "TLE",
+"out": 11874,
+"latency": 425.6931757926941,
+"ttft": 1.7304935455322266,
+"tps": 28.007181993149324
+},
+"usaco-1515#0": {
+"pid": "usaco-1515",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4060,
+"latency": 135.8621428012848,
+"ttft": 1.9043605327606201,
+"tps": 30.30805624910656
+},
+"usaco-1516#0": {
+"pid": "usaco-1516",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3776,
+"latency": 124.79657649993896,
+"ttft": 1.7174623012542725,
+"tps": 30.67945381784648
+},
+"usaco-1541#0": {
+"pid": "usaco-1541",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 1903,
+"latency": 68.87759208679199,
+"ttft": 2.1567904949188232,
+"tps": 28.52183958520954
+},
+"usaco-1493#0": {
+"pid": "usaco-1493",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8078,
+"latency": 285.5554256439209,
+"ttft": 1.8824458122253418,
+"tps": 28.47645202159442
+},
+"usaco-1517#0": {
+"pid": "usaco-1517",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6810,
+"latency": 230.76639437675476,
+"ttft": 1.4308786392211914,
+"tps": 29.694484860311846
+},
+"usaco-1587#0": {
+"pid": "usaco-1587",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4500,
+"latency": 158.31518840789795,
+"ttft": 1.903432846069336,
+"tps": 28.77021604825078
+},
+"usaco-1539#0": {
+"pid": "usaco-1539",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13948,
+"latency": 447.01137113571167,
+"ttft": 1.684441089630127,
+"tps": 31.320809632053216
+},
+"usaco-1588#0": {
+"pid": "usaco-1588",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4674,
+"latency": 144.22739124298096,
+"ttft": 2.0050272941589355,
+"tps": 32.86402975049631
+},
+"usaco-1564#0": {
+"pid": "usaco-1564",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12874,
+"latency": 471.37702107429504,
+"ttft": 1.6928789615631104,
+"tps": 27.409909864297756
+},
+"usaco-1565#0": {
+"pid": "usaco-1565",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13830,
+"latency": 524.8754422664642,
+"ttft": 2.356734275817871,
+"tps": 26.467951842688034
+},
+"usaco-1447#0": {
+"pid": "usaco-1447",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7743,
+"latency": 288.6437027454376,
+"ttft": 1.5826795101165771,
+"tps": 26.973358879350894
+},
+"usaco-1470#0": {
+"pid": "usaco-1470",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7156,
+"latency": 220.7358169555664,
+"ttft": 2.0151050090789795,
+"tps": 32.71752334891265
+},
+"usaco-1471#0": {
+"pid": "usaco-1471",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8272,
+"latency": 287.9480605125427,
+"ttft": 1.9614527225494385,
+"tps": 28.92443133586984
+},
+"usaco-1472#0": {
+"pid": "usaco-1472",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8377,
+"latency": 278.60427737236023,
+"ttft": 1.6513910293579102,
+"tps": 30.24702183325579
+},
+"usaco-1496#0": {
+"pid": "usaco-1496",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8034,
+"latency": 233.19706201553345,
+"ttft": 1.9615442752838135,
+"tps": 34.743797486269884
+},
+"usaco-1448#0": {
+"pid": "usaco-1448",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 30556,
+"latency": 1197.2036633491516,
+"ttft": 1.566580057144165,
+"tps": 25.556249824460643
+},
+"usaco-1494#0": {
+"pid": "usaco-1494",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 25971,
+"latency": 1008.7111120223999,
+"ttft": 1.5577421188354492,
+"tps": 25.786539345528617
+},
+"usaco-1495#0": {
+"pid": "usaco-1495",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29051,
+"latency": 1125.9809381961823,
+"ttft": 2.0032665729522705,
+"tps": 25.846598854624066
+},
+"usaco-1542#0": {
+"pid": "usaco-1542",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11096,
+"latency": 394.0186605453491,
+"ttft": 1.9466440677642822,
+"tps": 28.30092313062177
+},
+"usaco-1520#0": {
+"pid": "usaco-1520",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13044,
+"latency": 548.8761541843414,
+"ttft": 2.134321689605713,
+"tps": 23.857695213262456
+},
+"usaco-1544#0": {
+"pid": "usaco-1544",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4594,
+"latency": 148.8989279270172,
+"ttft": 1.4313697814941406,
+"tps": 31.15261456670067
+},
+"usaco-1519#0": {
+"pid": "usaco-1519",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28976,
+"latency": 1147.912534236908,
+"ttft": 3.5088579654693604,
+"tps": 25.31973690822647
+},
+"usaco-1543#0": {
+"pid": "usaco-1543",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10335,
+"latency": 367.6342873573303,
+"ttft": 1.8355777263641357,
+"tps": 28.253243458475843
+},
+"usaco-1567#0": {
+"pid": "usaco-1567",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15020,
+"latency": 538.4107139110565,
+"ttft": 1.8859570026397705,
+"tps": 27.99498029978861
+},
+"usaco-1591#0": {
+"pid": "usaco-1591",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12096,
+"latency": 392.80287861824036,
+"ttft": 1.83735990524292,
+"tps": 30.938789793581545
+},
+"egoi26-biscuits#1": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9816,
+"latency": 336.82945728302,
+"ttft": 1.8869335651397705,
+"tps": 29.306520686122102
+},
+"usaco-1568#0": {
+"pid": "usaco-1568",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29721,
+"latency": 1052.1663851737976,
+"ttft": 2.285067558288574,
+"tps": 28.308914066117826
+},
+"egoi26-biscuits#2": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9221,
+"latency": 343.8013343811035,
+"ttft": 2.93456768989563,
+"tps": 27.05162515403952
+},
+"usaco-1590#0": {
+"pid": "usaco-1590",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 54518,
+"latency": 2377.691169500351,
+"ttft": 1.8763699531555176,
+"tps": 22.94707483529042
+},
+"egoi26-cakes#1": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6839,
+"latency": 245.90408730506897,
+"ttft": 3.2150323390960693,
+"tps": 28.180092427154932
+},
+"egoi26-cakes#0": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9405,
+"latency": 376.70028257369995,
+"ttft": 1.901221513748169,
+"tps": 25.09344600117769
+},
+"usaco-1592#0": {
+"pid": "usaco-1592",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28818,
+"latency": 1033.8920607566833,
+"ttft": 1.6050376892089844,
+"tps": 27.916654337440356
+},
+"egoi26-ferriswheel#2": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3001,
+"latency": 108.7101845741272,
+"ttft": 2.15940260887146,
+"tps": 28.164973964982924
+},
+"egoi26-ferriswheel#0": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3282,
+"latency": 129.87468791007996,
+"ttft": 2.7606537342071533,
+"tps": 25.819336324886685
+},
+"egoi26-cakes#2": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6325,
+"latency": 261.81301975250244,
+"ttft": 2.783499240875244,
+"tps": 24.418066278727817
+},
+"egoi26-ferriswheel#1": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9036,
+"latency": 296.1637511253357,
+"ttft": 2.110279083251953,
+"tps": 30.72910493880108
+},
+"egoi26-ovenmasters#0": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17814,
+"latency": 594.7674791812897,
+"ttft": 3.61391282081604,
+"tps": 30.1343018357727
+},
+"egoi26-ovenmasters#1": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17762,
+"latency": 674.7800278663635,
+"ttft": 3.310317277908325,
+"tps": 26.452421784497076
+},
+"egoi26-foxfamilies#0": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 39265,
+"latency": 1681.9121527671814,
+"ttft": 2.089960813522339,
+"tps": 23.374497722484666
+},
+"egoi26-foxfamilies#1": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 40063,
+"latency": 1733.5346360206604,
+"ttft": 3.058859348297119,
+"tps": 23.151436466241424
+},
+"egoi26-foxfamilies#2": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 27986,
+"latency": 1338.7224552631378,
+"ttft": 4.1466169357299805,
+"tps": 20.969958541340137
+},
+"egoi26-wateringplants#2": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 1934,
+"latency": 67.5052125453949,
+"ttft": 1.913106918334961,
+"tps": 29.485255603719036
+},
+"egoi26-wateringplants#1": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2130,
+"latency": 74.50568127632141,
+"ttft": 2.1121485233306885,
+"tps": 29.422517716708686
+},
+"egoi26-wateringplants#0": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2743,
+"latency": 91.15560030937195,
+"ttft": 1.6813311576843262,
+"tps": 30.656858401936024
+},
+"usaco-1451#0": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4033,
+"latency": 173.2284984588623,
+"ttft": 5.019492864608765,
+"tps": 23.97612414241499
+},
+"usaco-1451#1": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11781,
+"latency": 489.1901090145111,
+"ttft": 5.260293245315552,
+"tps": 24.34443924740278
+},
+"usaco-1451#2": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3994,
+"latency": 157.16425132751465,
+"ttft": 3.7435665130615234,
+"tps": 26.03299551706695
+},
+"egoi26-ovenmasters#2": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 18904,
+"latency": 937.0629723072052,
+"ttft": 3.4089951515197754,
+"tps": 20.24732980583425
+},
+"usaco-1450#1": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 30509,
+"latency": 1287.9641075134277,
+"ttft": 3.6783511638641357,
+"tps": 23.755616574552977
+},
+"usaco-1473#1": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15567,
+"latency": 636.581218957901,
+"ttft": 3.6116533279418945,
+"tps": 24.59359951138731
+},
+"usaco-1450#0": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38653,
+"latency": 1590.9698557853699,
+"ttft": 1.904893159866333,
+"tps": 24.32436741675827
+},
+"usaco-1449#2": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 39610,
+"latency": 1736.060302734375,
+"ttft": 1.9258520603179932,
+"tps": 22.84136618392168
+},
+"usaco-1449#1": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 56799,
+"latency": 2252.1258776187897,
+"ttft": 4.456620216369629,
+"tps": 25.270177012449466
+},
+"usaco-1449#0": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 37297,
+"latency": 1420.405338048935,
+"ttft": 2.4833312034606934,
+"tps": 26.303985564746682
+},
+"usaco-1473#0": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20749,
+"latency": 900.3546895980835,
+"ttft": 1.8868029117584229,
+"tps": 23.09375806020759
+},
+"usaco-1474#0": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6671,
+"latency": 291.37830805778503,
+"ttft": 1.7751884460449219,
+"tps": 23.03497285852292
+},
+"usaco-1450#2": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38955,
+"latency": 1639.0643503665924,
+"ttft": 3.890363931655884,
+"tps": 23.8231529630257
+},
+"usaco-1474#2": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5820,
+"latency": 256.3236765861511,
+"ttft": 2.7150721549987793,
+"tps": 22.948748182477253
+},
+"usaco-1474#1": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8309,
+"latency": 406.2470440864563,
+"ttft": 3.6793603897094727,
+"tps": 20.640007473275347
+},
+"usaco-1497#0": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14114,
+"latency": 578.5607855319977,
+"ttft": 2.2399635314941406,
+"tps": 24.48983181105275
+},
+"usaco-1497#1": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13973,
+"latency": 583.142058134079,
+"ttft": 3.9558067321777344,
+"tps": 24.125227361973483
+},
+"usaco-1497#2": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13547,
+"latency": 546.636296749115,
+"ttft": 3.1959853172302246,
+"tps": 24.928220661999955
+},
+"usaco-1473#2": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 27777,
+"latency": 1200.3540828227997,
+"ttft": 2.9715607166290283,
+"tps": 23.198100429210243
+},
+"usaco-1498#0": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20235,
+"latency": 943.2468008995056,
+"ttft": 3.046035051345825,
+"tps": 21.521999061281242
+},
+"usaco-1475#1": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38043,
+"latency": 1641.9576773643494,
+"ttft": 4.939074516296387,
+"tps": 23.239198341309947
+},
+"usaco-1475#0": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 80027,
+"latency": 3268.6786212921143,
+"ttft": 4.052812099456787,
+"tps": 24.513376012239114
+},
+"usaco-1475#2": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 55979,
+"latency": 2217.5452930927277,
+"ttft": 3.6391754150390625,
+"tps": 25.285173365309657
+},
+"usaco-1499#1": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2850,
+"latency": 116.81191182136536,
+"ttft": 3.5565621852874756,
+"tps": 25.164374214179485
+},
+"usaco-1499#2": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 1366,
+"latency": 50.989476442337036,
+"ttft": 2.613579273223877,
+"tps": 28.2372024073211
+},
+"usaco-1499#0": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 1358,
+"latency": 52.458062171936035,
+"ttft": 2.118410587310791,
+"tps": 26.97674610872279
+},
+"usaco-1522#0": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11874,
+"latency": 526.2925591468811,
+"ttft": 1.9494786262512207,
+"tps": 22.64547858285855
+},
+"usaco-1522#2": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2958,
+"latency": 129.05253648757935,
+"ttft": 3.3955047130584717,
+"tps": 23.54026637608183
+},
+"usaco-1522#1": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4265,
+"latency": 187.31809425354004,
+"ttft": 2.8579599857330322,
+"tps": 23.121527136090517
+},
+"usaco-1498#1": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12286,
+"latency": 530.2998912334442,
+"ttft": 2.110454797744751,
+"tps": 23.260593931805506
+},
+"usaco-1521#1": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6586,
+"latency": 288.93604946136475,
+"ttft": 2.5821468830108643,
+"tps": 22.99951193505351
+},
+"usaco-1521#0": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6204,
+"latency": 291.94162487983704,
+"ttft": 2.156412124633789,
+"tps": 21.40895990176298
+},
+"usaco-1498#2": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15064,
+"latency": 675.1961500644684,
+"ttft": 3.9380645751953125,
+"tps": 22.441442904959583
+},
+"usaco-1546#0": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20967,
+"latency": 918.120322227478,
+"ttft": 4.245391607284546,
+"tps": 22.94296440079708
+},
+"usaco-1523#1": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4977,
+"latency": 205.00057888031006,
+"ttft": 2.8530030250549316,
+"tps": 24.620626682971995
+},
+"usaco-1523#0": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11766,
+"latency": 450.255978345871,
+"ttft": 3.126085042953491,
+"tps": 26.314500945318986
+},
+"usaco-1547#0": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4648,
+"latency": 194.87920546531677,
+"ttft": 2.1720874309539795,
+"tps": 24.11950345898062
+},
+"usaco-1547#1": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 93.75,
+"solved": false,
+"fail": "WA",
+"out": 3948,
+"latency": 173.9329354763031,
+"ttft": 3.6302144527435303,
+"tps": 23.18224850590518
+},
+"usaco-1521#2": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9772,
+"latency": 526.2947196960449,
+"ttft": 2.9078545570373535,
+"tps": 18.670701637506
+},
+"usaco-1546#2": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7711,
+"latency": 337.42057609558105,
+"ttft": 2.813584804534912,
+"tps": 23.044945863945973
+},
+"usaco-1545#0": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 19395,
+"latency": 798.4232339859009,
+"ttft": 3.6664068698883057,
+"tps": 24.403690963410703
+},
+"usaco-1547#2": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5084,
+"latency": 222.4356827735901,
+"ttft": 4.549553632736206,
+"tps": 23.333288906672053
+},
+"usaco-1569#1": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8147,
+"latency": 308.0782639980316,
+"ttft": 2.5515451431274414,
+"tps": 26.6654256312982
+},
+"usaco-1545#2": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 24787,
+"latency": 1068.4578921794891,
+"ttft": 2.9820566177368164,
+"tps": 23.2637842855737
+},
+"usaco-1570#1": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 19925,
+"latency": 994.3893280029297,
+"ttft": 1.6571242809295654,
+"tps": 20.070871001561365
+},
+"usaco-1570#0": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2797,
+"latency": 139.03538012504578,
+"ttft": 2.590886116027832,
+"tps": 20.499178221256326
+},
+"usaco-1545#1": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16217,
+"latency": 675.6836433410645,
+"ttft": 2.5704634189605713,
+"tps": 24.092530771536392
+},
+"usaco-1570#2": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4398,
+"latency": 213.74545407295227,
+"ttft": 3.2420942783355713,
+"tps": 20.89277816891392
+},
+"usaco-1523#2": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 23996,
+"latency": 938.2595412731171,
+"ttft": 2.455735445022583,
+"tps": 25.642126961394325
+},
+"usaco-1546#1": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11017,
+"latency": 517.1493821144104,
+"ttft": 32.62498497962952,
+"tps": 22.737761122347333
+},
+"usaco-1569#0": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 24187,
+"latency": 773.7851257324219,
+"ttft": 2.8292605876922607,
+"tps": 31.37274271265766
+},
+"usaco-1569#2": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8055,
+"latency": 343.24045515060425,
+"ttft": 5.030778169631958,
+"tps": 23.816586420302738
+},
+"usaco-1571#0": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33794,
+"latency": 1501.8564698696136,
+"ttft": 2.4743523597717285,
+"tps": 22.538617478061376
+},
+"usaco-1571#1": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 4.762,
+"solved": false,
+"fail": "WA",
+"out": 24361,
+"latency": 1314.3342473506927,
+"ttft": 4.010605812072754,
+"tps": 18.591590068080134
+},
+"usaco-1593#0": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10206,
+"latency": 377.62041687965393,
+"ttft": 2.476579427719116,
+"tps": 27.205564855660572
+},
+"usaco-1593#1": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6173,
+"latency": 219.75602746009827,
+"ttft": 3.5245697498321533,
+"tps": 28.548112589017254
+},
+"usaco-1593#2": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7263,
+"latency": 273.4293706417084,
+"ttft": 5.108980178833008,
+"tps": 27.06838637000606
+},
+"usaco-1594#0": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7143,
+"latency": 282.9964122772217,
+"ttft": 2.141836404800415,
+"tps": 25.433091050098188
+},
+"usaco-1595#1": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2673,
+"latency": 97.38897514343262,
+"ttft": 2.920609474182129,
+"tps": 28.295186235767208
+},
+"usaco-1595#0": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3158,
+"latency": 117.2607696056366,
+"ttft": 4.267816066741943,
+"tps": 27.948645478259376
+},
+"usaco-1594#1": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8953,
+"latency": 379.41201186180115,
+"ttft": 3.925607204437256,
+"tps": 23.843739450885646
+},
+"usaco-1571#2": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 4.762,
+"solved": false,
+"fail": "WA",
+"out": 20370,
+"latency": 1053.7361302375793,
+"ttft": 3.884243965148926,
+"tps": 19.402736963520685
+},
+"usaco-1594#2": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7297,
+"latency": 298.3845405578613,
+"ttft": 3.294527530670166,
+"tps": 24.728047978118514
+},
+"usaco-1595#2": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4822,
+"latency": 186.4820806980133,
+"ttft": 3.537935495376587,
+"tps": 26.35777162837842
+},
+"usaco-1452#1": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11973,
+"latency": 497.0996994972229,
+"ttft": 4.015871047973633,
+"tps": 24.2818752293198
+},
+"usaco-1452#0": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16188,
+"latency": 675.678097486496,
+"ttft": 2.110480308532715,
+"tps": 24.03322188768907
+},
+"usaco-1452#2": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 18833,
+"latency": 720.3956534862518,
+"ttft": 3.0375545024871826,
+"tps": 26.253275772141567
+},
+"usaco-1476#0": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4160,
+"latency": 168.49514055252075,
+"ttft": 3.6654109954833984,
+"tps": 25.238165537124672
+},
+"usaco-1453#1": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17403,
+"latency": 796.7218019962311,
+"ttft": 3.6871378421783447,
+"tps": 21.94481626924109
+},
+"usaco-1476#1": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6283,
+"latency": 263.02182388305664,
+"ttft": 5.293114185333252,
+"tps": 24.378347322535408
+},
+"usaco-1476#2": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5578,
+"latency": 232.9852421283722,
+"ttft": 3.6831908226013184,
+"tps": 24.325992585918126
+},
+"usaco-1453#2": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20203,
+"latency": 913.9949018955231,
+"ttft": 3.1491973400115967,
+"tps": 22.180485562984536
+},
+"usaco-1453#0": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29260,
+"latency": 1271.1943125724792,
+"ttft": 2.263746500015259,
+"tps": 23.058787283030163
+},
+"usaco-1478#0": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 22888,
+"latency": 963.535845041275,
+"ttft": 3.011367082595825,
+"tps": 23.828648332463025
+},
+"usaco-1454#0": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 44189,
+"latency": 1822.5012979507446,
+"ttft": 2.7221786975860596,
+"tps": 24.28261734211747
+},
+"usaco-1454#1": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 54815,
+"latency": 2288.133098602295,
+"ttft": 3.8324058055877686,
+"tps": 23.996403001081738
+},
+"usaco-1454#2": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 58527,
+"latency": 2364.5328221321106,
+"ttft": 2.246199131011963,
+"tps": 24.775571020948366
+},
+"usaco-1477#2": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 50079,
+"latency": 2035.9856283664703,
+"ttft": 2.872324228286743,
+"tps": 24.631681814323667
+},
+"usaco-1477#0": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 63694,
+"latency": 2567.40988779068,
+"ttft": 2.159902572631836,
+"tps": 24.829548919999688
+},
+"usaco-1477#1": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33375,
+"latency": 1312.7131934165955,
+"ttft": 1.4856858253479004,
+"tps": 25.453248812107805
+},
+"usaco-1478#1": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28331,
+"latency": 1148.8802697658539,
+"ttft": 3.3473405838012695,
+"tps": 24.731720300898942
+},
+"usaco-1478#2": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 22466,
+"latency": 975.9706387519836,
+"ttft": 5.70177698135376,
+"tps": 23.154406871309995
+},
+"usaco-1502#1": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11078,
+"latency": 410.23626160621643,
+"ttft": 2.318364143371582,
+"tps": 27.15742571949552
+},
+"usaco-1502#0": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11848,
+"latency": 469.9917492866516,
+"ttft": 2.342862606048584,
+"tps": 25.335246885965542
+},
+"usaco-1500#0": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 31272,
+"latency": 1330.149412870407,
+"ttft": 2.555530309677124,
+"tps": 23.555396278025167
+},
+"usaco-1500#2": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42563,
+"latency": 1672.2902691364288,
+"ttft": 3.3988020420074463,
+"tps": 25.50375554025881
+},
+"usaco-1501#0": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 58566,
+"latency": 2391.529486179352,
+"ttft": 2.5635597705841064,
+"tps": 24.515209427051065
+},
+"usaco-1502#2": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12374,
+"latency": 464.2655248641968,
+"ttft": 2.160327672958374,
+"tps": 26.777452569699456
+},
+"usaco-1501#2": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29595,
+"latency": 1181.2200543880463,
+"ttft": 3.8793840408325195,
+"tps": 25.1371593162343
+},
+"usaco-1500#1": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 46716,
+"latency": 1775.141443490982,
+"ttft": 2.225142002105713,
+"tps": 26.34980566243787
+},
+"usaco-1501#1": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38828,
+"latency": 1495.5459847450256,
+"ttft": 1.8224689960479736,
+"tps": 25.994101043880935
+},
+"usaco-1525#0": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20159,
+"latency": 789.9933290481567,
+"ttft": 2.2670862674713135,
+"tps": 25.591377949829916
+},
+"usaco-1548#0": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 85.714,
+"solved": false,
+"fail": "TLE",
+"out": 13286,
+"latency": 505.38782024383545,
+"ttft": 2.1450693607330322,
+"tps": 26.400777709535625
+},
+"usaco-1548#1": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14080,
+"latency": 567.7338318824768,
+"ttft": 2.913485288619995,
+"tps": 24.928280443346797
+},
+"usaco-1548#2": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26497,
+"latency": 909.7100405693054,
+"ttft": 2.051372766494751,
+"tps": 29.19269207679344
+},
+"usaco-1525#2": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 31583,
+"latency": 1267.1234498023987,
+"ttft": 5.382001638412476,
+"tps": 25.0312772446033
+},
+"usaco-1525#1": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 32665,
+"latency": 1287.281404018402,
+"ttft": 7.811825513839722,
+"tps": 25.530110718364003
+},
+"usaco-1549#0": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15272,
+"latency": 518.6016397476196,
+"ttft": 5.51972508430481,
+"tps": 29.76522766354279
+},
+"usaco-1549#1": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14555,
+"latency": 556.6816101074219,
+"ttft": 12.910468578338623,
+"tps": 26.76677537368271
+},
+"usaco-1549#2": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17507,
+"latency": 645.5499513149261,
+"ttft": 5.535851240158081,
+"tps": 27.354084852122458
+},
+"usaco-1526#0": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 66216,
+"latency": 2940.9922885894775,
+"ttft": 2.0274555683135986,
+"tps": 22.530381873243453
+},
+"usaco-1526#1": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 50506,
+"latency": 2317.1960155963898,
+"ttft": 4.053499460220337,
+"tps": 21.834365867073462
+},
+"usaco-1526#2": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 80324,
+"latency": 3157.178457260132,
+"ttft": 1.6541063785552979,
+"tps": 25.455040452329083
+},
+"usaco-1550#0": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 37798,
+"latency": 1645.1807835102081,
+"ttft": 1.9486439228057861,
+"tps": 23.002227798131226
+},
+"usaco-1550#2": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 116817,
+"latency": 5422.231184720993,
+"ttft": 2.3132431507110596,
+"tps": 21.553278344681964
+},
+"usaco-1550#1": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 71371,
+"latency": 3179.251569747925,
+"ttft": 2.519582748413086,
+"tps": 22.466799305726564
+},
+"usaco-1572#0": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 54784,
+"latency": 2337.8193764686584,
+"ttft": 1.9686522483825684,
+"tps": 23.453553530603845
+},
+"usaco-1572#2": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 85380,
+"latency": 3573.485494375229,
+"ttft": 1.4857659339904785,
+"tps": 23.902577405082397
+},
+"usaco-1572#1": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 116950,
+"latency": 4967.353107690811,
+"ttft": 1.404707431793213,
+"tps": 23.550385661256573
+},
+"usaco-1573#0": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 98497,
+"latency": 4084.318461418152,
+"ttft": 2.1681816577911377,
+"tps": 24.12870503282456
+},
+"usaco-1573#1": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 102256,
+"latency": 4446.0366015434265,
+"ttft": 2.3194406032562256,
+"tps": 23.011365551979775
+},
+"usaco-1574#0": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28738,
+"latency": 1090.2336015701294,
+"ttft": 1.949126958847046,
+"tps": 26.406698496975938
+},
+"usaco-1574#1": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33097,
+"latency": 1277.4101929664612,
+"ttft": 4.470442533493042,
+"tps": 26.000445024002616
+},
+"usaco-1596#0": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 23175,
+"latency": 794.6687366962433,
+"ttft": 1.6959662437438965,
+"tps": 29.225467586706028
+},
+"usaco-1574#2": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 27489,
+"latency": 961.9665358066559,
+"ttft": 4.703951120376587,
+"tps": 28.716258673171566
+},
+"fcs-0#0": {
+"pid": "fcs-0",
+"tier": "L5",
+"score": 60.302,
+"solved": false,
+"fail": "partial",
+"out": 30338,
+"latency": 1106.762311220169,
+"ttft": 2.202038288116455,
+"tps": 27.466133576819534
+},
+"fcs-42#0": {
+"pid": "fcs-42",
+"tier": "L5",
+"score": 58.967,
+"solved": false,
+"fail": "partial",
+"out": 5781,
+"latency": 206.0631775856018,
+"ttft": 1.038029670715332,
+"tps": 28.19654105261227
+},
+"usaco-1573#2": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 114416,
+"latency": 5052.727986812592,
+"ttft": 2.335620880126953,
+"tps": 22.654873465237216
+},
+"fcs-30#0": {
+"pid": "fcs-30",
+"tier": "L5",
+"score": 42.553,
+"solved": false,
+"fail": "partial",
+"out": 31150,
+"latency": 1124.2693102359772,
+"ttft": 2.01397967338562,
+"tps": 27.756606853793574
+},
+"fcs-58#0": {
+"pid": "fcs-58",
+"tier": "L5",
+"score": 60.076,
+"solved": false,
+"fail": "partial",
+"out": 12727,
+"latency": 443.40283012390137,
+"ttft": 2.250267505645752,
+"tps": 28.849430057630897
+},
+"fcs-48#0": {
+"pid": "fcs-48",
+"tier": "L5",
+"score": 22.816,
+"solved": false,
+"fail": "partial",
+"out": 40380,
+"latency": 1243.2927055358887,
+"ttft": 2.103001117706299,
+"tps": 32.533302408376365
+},
+"fcs-6#0": {
+"pid": "fcs-6",
+"tier": "L5",
+"score": 59.5,
+"solved": false,
+"fail": "partial",
+"out": 47941,
+"latency": 1836.9281721115112,
+"ttft": 1.5349783897399902,
+"tps": 26.12028864659036
+},
+"fcs-23#0": {
+"pid": "fcs-23",
+"tier": "L5",
+"score": 61.407,
+"solved": false,
+"fail": "partial",
+"out": 23747,
+"latency": 1010.5711183547974,
+"ttft": 1.977020263671875,
+"tps": 23.54465492604388
+},
+"usaco-1596#1": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 71226,
+"latency": 2373.0515847206116,
+"ttft": 2.4429354667663574,
+"tps": 30.04544846422397
+},
+"fcs-77#0": {
+"pid": "fcs-77",
+"tier": "L5",
+"score": 49.4,
+"solved": false,
+"fail": "partial",
+"out": 22202,
+"latency": 777.6734454631805,
+"ttft": 1.9824962615966797,
+"tps": 28.622223867446753
+},
+"fcs-121#0": {
+"pid": "fcs-121",
+"tier": "L5",
+"score": 19.885,
+"solved": false,
+"fail": "partial",
+"out": 19878,
+"latency": 628.572624206543,
+"ttft": 1.9678435325622559,
+"tps": 31.723345580956273
+},
+"fcs-13#0": {
+"pid": "fcs-13",
+"tier": "L5",
+"score": 48.968,
+"solved": false,
+"fail": "partial",
+"out": 52317,
+"latency": 2166.5845086574554,
+"ttft": 1.5772099494934082,
+"tps": 24.164814608810723
+},
+"usaco-1596#2": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 28.571,
+"solved": false,
+"fail": "WA",
+"out": 61539,
+"latency": 2066.9593567848206,
+"ttft": 3.859043836593628,
+"tps": 29.82840902779908
+},
+"fcs-85#0": {
+"pid": "fcs-85",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 39334,
+"latency": 1422.1008553504944,
+"ttft": 2.331618309020996,
+"tps": 27.70450223443671
+},
+"fcs-111#0": {
+"pid": "fcs-111",
+"tier": "L5",
+"score": 60.011,
+"solved": false,
+"fail": "partial",
+"out": 35972,
+"latency": 1246.4677090644836,
+"ttft": 1.4883825778961182,
+"tps": 28.893652476555832
+},
+"fcs-148#0": {
+"pid": "fcs-148",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 20720,
+"latency": 724.929514169693,
+"ttft": 1.6077468395233154,
+"tps": 28.64561932994073
+},
+"fcs-132#0": {
+"pid": "fcs-132",
+"tier": "L5",
+"score": 32.0,
+"solved": false,
+"fail": "partial",
+"out": 56499,
+"latency": 2060.747898340225,
+"ttft": 1.5729739665985107,
+"tps": 27.437688431052663
+},
+"fcs-160#0": {
+"pid": "fcs-160",
+"tier": "L5",
+"score": 4.131,
+"solved": false,
+"fail": "partial",
+"out": 23923,
+"latency": 804.5750436782837,
+"ttft": 1.8050854206085205,
+"tps": 29.800567091377296
+},
+"fcs-174#0": {
+"pid": "fcs-174",
+"tier": "L5",
+"score": 3.333,
+"solved": false,
+"fail": "partial",
+"out": 10924,
+"latency": 344.75850772857666,
+"ttft": 1.9934532642364502,
+"tps": 31.870226727376274
+},
+"fcs-154#0": {
+"pid": "fcs-154",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 33176,
+"latency": 1313.8399012088776,
+"ttft": 1.9309656620025635,
+"tps": 25.288340601301293
+},
+"fcs-104#0": {
+"pid": "fcs-104",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 47863,
+"latency": 1767.5978565216064,
+"ttft": 1.5207550525665283,
+"tps": 27.101308295196795
+},
+"fcs-166#0": {
+"pid": "fcs-166",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "RE",
+"out": 30046,
+"latency": 986.2128524780273,
+"ttft": 2.115077495574951,
+"tps": 30.531519086643353
+},
+"fcs-193#0": {
+"pid": "fcs-193",
+"tier": "L5",
+"score": 60.44,
+"solved": false,
+"fail": "partial",
+"out": 16659,
+"latency": 566.3615050315857,
+"ttft": 2.3018412590026855,
+"tps": 29.534109722684512
+},
+"fcs-222#0": {
+"pid": "fcs-222",
+"tier": "L5",
+"score": 9.314,
+"solved": false,
+"fail": "partial",
+"out": 56777,
+"latency": 1987.5792095661163,
+"ttft": 2.1004698276519775,
+"tps": 28.596125893284007
+},
+"fcs-183#0": {
+"pid": "fcs-183",
+"tier": "L5",
+"score": 31.859,
+"solved": false,
+"fail": "partial",
+"out": 25075,
+"latency": 875.4692552089691,
+"ttft": 1.9602785110473633,
+"tps": 28.706058745715072
+},
+"fcs-141#0": {
+"pid": "fcs-141",
+"tier": "L5",
+"score": 58.484,
+"solved": false,
+"fail": "partial",
+"out": 64342,
+"latency": 2563.5222017765045,
+"ttft": 3.5316989421844482,
+"tps": 25.13368699171465
+},
+"fcs-68#0": {
+"pid": "fcs-68",
+"tier": "L5",
+"score": 60.051,
+"solved": false,
+"fail": "partial",
+"out": 51880,
+"latency": 2127.977356672287,
+"ttft": 2.0482101440429688,
+"tps": 24.403447351348852
+},
+"fcs-211#0": {
+"pid": "fcs-211",
+"tier": "L5",
+"score": 52.339,
+"solved": false,
+"fail": "partial",
+"out": 28789,
+"latency": 909.4662268161774,
+"ttft": 2.000211477279663,
+"tps": 31.724604021946327
+},
+"fcs-249#0": {
+"pid": "fcs-249",
+"tier": "L5",
+"score": 60.142,
+"solved": false,
+"fail": "partial",
+"out": 36943,
+"latency": 1340.5487229824066,
+"ttft": 3.875967264175415,
+"tps": 27.638028711185562
+},
+"fcs-304#0": {
+"pid": "fcs-304",
+"tier": "L5",
+"score": 58.522,
+"solved": false,
+"fail": "partial",
+"out": 41945,
+"latency": 1567.4656949043274,
+"ttft": 2.650857448577881,
+"tps": 26.80508836955998
+},
+"fcs-257#0": {
+"pid": "fcs-257",
+"tier": "L5",
+"score": 38.519,
+"solved": false,
+"fail": "partial",
+"out": 42945,
+"latency": 1426.2460372447968,
+"ttft": 2.7539150714874268,
+"tps": 30.168765482476953
+},
+"fcs-310#0": {
+"pid": "fcs-310",
+"tier": "L5",
+"score": 61.138,
+"solved": false,
+"fail": "partial",
+"out": 35480,
+"latency": 1184.1708850860596,
+"ttft": 2.242928981781006,
+"tps": 30.018750141882325
+},
+"fcs-239#0": {
+"pid": "fcs-239",
+"tier": "L5",
+"score": 54.898,
+"solved": false,
+"fail": "partial",
+"out": 47460,
+"latency": 1826.8414607048035,
+"ttft": 3.0964035987854004,
+"tps": 26.02337416355287
+}
+},
+"kimi-k3.1-pro-high": {
+"usaco-1452#1": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11973,
+"latency": 497.0996994972229,
+"ttft": 4.015871047973633,
+"tps": 24.2818752293198
+},
+"usaco-1452#0": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16188,
+"latency": 675.678097486496,
+"ttft": 2.110480308532715,
+"tps": 24.03322188768907
+},
+"usaco-1452#2": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 18833,
+"latency": 720.3956534862518,
+"ttft": 3.0375545024871826,
+"tps": 26.253275772141567
+},
+"usaco-1476#0": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4160,
+"latency": 168.49514055252075,
+"ttft": 3.6654109954833984,
+"tps": 25.238165537124672
+},
+"usaco-1453#1": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17403,
+"latency": 796.7218019962311,
+"ttft": 3.6871378421783447,
+"tps": 21.94481626924109
+},
+"usaco-1476#1": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6283,
+"latency": 263.02182388305664,
+"ttft": 5.293114185333252,
+"tps": 24.378347322535408
+},
+"usaco-1476#2": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5578,
+"latency": 232.9852421283722,
+"ttft": 3.6831908226013184,
+"tps": 24.325992585918126
+},
+"usaco-1453#2": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20203,
+"latency": 913.9949018955231,
+"ttft": 3.1491973400115967,
+"tps": 22.180485562984536
+},
+"usaco-1453#0": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29260,
+"latency": 1271.1943125724792,
+"ttft": 2.263746500015259,
+"tps": 23.058787283030163
+},
+"usaco-1478#0": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 22888,
+"latency": 963.535845041275,
+"ttft": 3.011367082595825,
+"tps": 23.828648332463025
+},
+"usaco-1454#0": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 44189,
+"latency": 1822.5012979507446,
+"ttft": 2.7221786975860596,
+"tps": 24.28261734211747
+},
+"usaco-1454#1": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 54815,
+"latency": 2288.133098602295,
+"ttft": 3.8324058055877686,
+"tps": 23.996403001081738
+},
+"usaco-1454#2": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 58527,
+"latency": 2364.5328221321106,
+"ttft": 2.246199131011963,
+"tps": 24.775571020948366
+},
+"usaco-1477#2": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 14.286,
+"solved": false,
+"fail": "WA",
+"out": 32175,
+"latency": 1548.5244178771973,
+"ttft": 2.7274458408355713,
+"tps": 20.81450577407597
+},
+"usaco-1477#0": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 14.286,
+"solved": false,
+"fail": "WA",
+"out": 37769,
+"latency": 1762.9517712593079,
+"ttft": 2.2654592990875244,
+"tps": 21.45129415923654
+},
+"usaco-1477#1": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33375,
+"latency": 1312.7131934165955,
+"ttft": 1.4856858253479004,
+"tps": 25.453248812107805
+},
+"usaco-1478#1": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28331,
+"latency": 1148.8802697658539,
+"ttft": 3.3473405838012695,
+"tps": 24.731720300898942
+},
+"usaco-1478#2": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 22466,
+"latency": 975.9706387519836,
+"ttft": 5.70177698135376,
+"tps": 23.154406871309995
+},
+"usaco-1502#1": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11078,
+"latency": 410.23626160621643,
+"ttft": 2.318364143371582,
+"tps": 27.15742571949552
+},
+"usaco-1502#0": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11848,
+"latency": 469.9917492866516,
+"ttft": 2.342862606048584,
+"tps": 25.335246885965542
+},
+"usaco-1500#0": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 31272,
+"latency": 1330.149412870407,
+"ttft": 2.555530309677124,
+"tps": 23.555396278025167
+},
+"usaco-1500#2": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 23.077,
+"solved": false,
+"fail": "WA",
+"out": 27478,
+"latency": 1166.3055124282837,
+"ttft": 6.340177297592163,
+"tps": 23.688638934114437
+},
+"usaco-1501#0": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 78.947,
+"solved": false,
+"fail": "WA",
+"out": 31876,
+"latency": 1219.286784172058,
+"ttft": 1.889293909072876,
+"tps": 26.183724095828445
+},
+"usaco-1502#2": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12374,
+"latency": 464.2655248641968,
+"ttft": 2.160327672958374,
+"tps": 26.777452569699456
+},
+"usaco-1501#2": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29595,
+"latency": 1181.2200543880463,
+"ttft": 3.8793840408325195,
+"tps": 25.1371593162343
+},
+"usaco-1500#1": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 23.077,
+"solved": false,
+"fail": "WA",
+"out": 36467,
+"latency": 1574.9186055660248,
+"ttft": 4.38738226890564,
+"tps": 23.21953200232622
+},
+"usaco-1501#1": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38828,
+"latency": 1495.5459847450256,
+"ttft": 1.8224689960479736,
+"tps": 25.994101043880935
+},
+"usaco-1525#0": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20159,
+"latency": 789.9933290481567,
+"ttft": 2.2670862674713135,
+"tps": 25.591377949829916
+},
+"usaco-1548#0": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 85.714,
+"solved": false,
+"fail": "TLE",
+"out": 13286,
+"latency": 505.38782024383545,
+"ttft": 2.1450693607330322,
+"tps": 26.400777709535625
+},
+"usaco-1548#1": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14080,
+"latency": 567.7338318824768,
+"ttft": 2.913485288619995,
+"tps": 24.928280443346797
+},
+"usaco-1548#2": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 4.762,
+"solved": false,
+"fail": "WA",
+"out": 13833,
+"latency": 540.2763092517853,
+"ttft": 3.3068442344665527,
+"tps": 25.76124137627425
+},
+"usaco-1525#2": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 31583,
+"latency": 1267.1234498023987,
+"ttft": 5.382001638412476,
+"tps": 25.0312772446033
+},
+"usaco-1525#1": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 32665,
+"latency": 1287.281404018402,
+"ttft": 7.811825513839722,
+"tps": 25.530110718364003
+},
+"usaco-1549#0": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15272,
+"latency": 518.6016397476196,
+"ttft": 5.51972508430481,
+"tps": 29.76522766354279
+},
+"usaco-1549#1": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14555,
+"latency": 556.6816101074219,
+"ttft": 12.910468578338623,
+"tps": 26.76677537368271
+},
+"usaco-1549#2": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17507,
+"latency": 645.5499513149261,
+"ttft": 5.535851240158081,
+"tps": 27.354084852122458
+},
+"usaco-1526#0": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 66216,
+"latency": 2940.9922885894775,
+"ttft": 2.0274555683135986,
+"tps": 22.530381873243453
+},
+"usaco-1526#1": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 50506,
+"latency": 2317.1960155963898,
+"ttft": 4.053499460220337,
+"tps": 21.834365867073462
+},
+"usaco-1526#2": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 5.0,
+"solved": false,
+"fail": "WA",
+"out": 76057,
+"latency": 3693.204461336136,
+"ttft": 2.446627616882324,
+"tps": 20.607420867642183
+},
+"usaco-1550#0": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 37798,
+"latency": 1645.1807835102081,
+"ttft": 1.9486439228057861,
+"tps": 23.002227798131226
+},
+"usaco-1550#2": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 39400,
+"latency": 1679.8584218025208,
+"ttft": 5.100085020065308,
+"tps": 23.525782278352622
+},
+"usaco-1550#1": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 26405,
+"latency": 1088.1820931434631,
+"ttft": 3.4494407176971436,
+"tps": 24.34240357838498
+},
+"usaco-1572#0": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 30590,
+"latency": 1313.2487218379974,
+"ttft": 2.3279366493225098,
+"tps": 23.33474329312531
+},
+"usaco-1572#2": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 34842,
+"latency": 1629.8766469955444,
+"ttft": 6.186849355697632,
+"tps": 21.45853231980975
+},
+"usaco-1572#1": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 9.091,
+"solved": false,
+"fail": "WA",
+"out": 46457,
+"latency": 2144.3770661354065,
+"ttft": 3.0610291957855225,
+"tps": 21.695536389106095
+},
+"usaco-1573#0": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 75390,
+"latency": 3271.370332956314,
+"ttft": 1.2761259078979492,
+"tps": 23.05438168646736
+},
+"usaco-1573#1": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 43917,
+"latency": 1947.557047367096,
+"ttft": 1.4737401008605957,
+"tps": 22.56686537314402
+},
+"usaco-1574#0": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28738,
+"latency": 1090.2336015701294,
+"ttft": 1.949126958847046,
+"tps": 26.406698496975938
+},
+"usaco-1574#1": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33097,
+"latency": 1277.4101929664612,
+"ttft": 4.470442533493042,
+"tps": 26.000445024002616
+},
+"usaco-1596#0": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 23175,
+"latency": 794.6687366962433,
+"ttft": 1.6959662437438965,
+"tps": 29.225467586706028
+},
+"usaco-1574#2": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 13.043,
+"solved": false,
+"fail": "WA",
+"out": 27819,
+"latency": 966.9007227420807,
+"ttft": 3.0682079792022705,
+"tps": 28.862898453725663
+},
+"fcs-0#0": {
+"pid": "fcs-0",
+"tier": "L5",
+"score": 60.376,
+"solved": false,
+"fail": "partial",
+"out": 14589,
+"latency": 565.0452170372009,
+"ttft": 1.8383185863494873,
+"tps": 25.903446921776503
+},
+"fcs-42#0": {
+"pid": "fcs-42",
+"tier": "L5",
+"score": 59.26,
+"solved": false,
+"fail": "partial",
+"out": 4447,
+"latency": 159.54633855819702,
+"ttft": 1.7285881042480469,
+"tps": 28.17807241079405
+},
+"usaco-1573#2": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 62050,
+"latency": 2678.8316526412964,
+"ttft": 1.200218677520752,
+"tps": 23.17346562821963
+},
+"fcs-30#0": {
+"pid": "fcs-30",
+"tier": "L5",
+"score": 42.553,
+"solved": false,
+"fail": "partial",
+"out": 10973,
+"latency": 468.5925397872925,
+"ttft": 2.618464708328247,
+"tps": 23.54852037238447
+},
+"fcs-58#0": {
+"pid": "fcs-58",
+"tier": "L5",
+"score": 33.06,
+"solved": false,
+"fail": "partial",
+"out": 6237,
+"latency": 234.26815581321716,
+"ttft": 2.4952681064605713,
+"tps": 26.90996372229339
+},
+"fcs-48#0": {
+"pid": "fcs-48",
+"tier": "L5",
+"score": 25.274,
+"solved": false,
+"fail": "partial",
+"out": 19730,
+"latency": 680.6426236629486,
+"ttft": 1.5921308994293213,
+"tps": 29.05527675814678
+},
+"fcs-6#0": {
+"pid": "fcs-6",
+"tier": "L5",
+"score": 48.58,
+"solved": false,
+"fail": "partial",
+"out": 25675,
+"latency": 1197.876344203949,
+"ttft": 2.384000062942505,
+"tps": 21.476507253125224
+},
+"fcs-23#0": {
+"pid": "fcs-23",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 22079,
+"latency": 975.4093539714813,
+"ttft": 2.735257387161255,
+"tps": 22.69927828605025
+},
+"usaco-1596#1": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 28.571,
+"solved": false,
+"fail": "WA",
+"out": 60779,
+"latency": 2406.4767599105835,
+"ttft": 3.1039412021636963,
+"tps": 25.289043600261248
+},
+"fcs-77#0": {
+"pid": "fcs-77",
+"tier": "L5",
+"score": 53.452,
+"solved": false,
+"fail": "partial",
+"out": 12109,
+"latency": 494.8443443775177,
+"ttft": 2.0625832080841064,
+"tps": 24.572743867921993
+},
+"fcs-121#0": {
+"pid": "fcs-121",
+"tier": "L5",
+"score": 28.073,
+"solved": false,
+"fail": "partial",
+"out": 4928,
+"latency": 189.5402135848999,
+"ttft": 2.557431221008301,
+"tps": 26.355367792150524
+},
+"fcs-13#0": {
+"pid": "fcs-13",
+"tier": "L5",
+"score": 16.283,
+"solved": false,
+"fail": "partial",
+"out": 30734,
+"latency": 1349.0947260856628,
+"ttft": 2.3605849742889404,
+"tps": 22.82113377970591
+},
+"usaco-1596#2": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 61.905,
+"solved": false,
+"fail": "WA",
+"out": 84898,
+"latency": 3486.3412249088287,
+"ttft": 1.692183494567871,
+"tps": 24.36342914049782
+},
+"fcs-85#0": {
+"pid": "fcs-85",
+"tier": "L5",
+"score": 59.822,
+"solved": false,
+"fail": "partial",
+"out": 10675,
+"latency": 444.53604388237,
+"ttft": 2.0197548866271973,
+"tps": 24.123405771629567
+},
+"fcs-111#0": {
+"pid": "fcs-111",
+"tier": "L5",
+"score": 60.0,
+"solved": false,
+"fail": "partial",
+"out": 13345,
+"latency": 507.1084680557251,
+"ttft": 3.851066827774048,
+"tps": 26.51724538464436
+},
+"fcs-148#0": {
+"pid": "fcs-148",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 12633,
+"latency": 493.04450392723083,
+"ttft": 3.032270669937134,
+"tps": 25.78098900924115
+},
+"fcs-132#0": {
+"pid": "fcs-132",
+"tier": "L5",
+"score": 16.8,
+"solved": false,
+"fail": "partial",
+"out": 17638,
+"latency": 689.6699540615082,
+"ttft": 1.5726985931396484,
+"tps": 25.633004433354856
+},
+"fcs-160#0": {
+"pid": "fcs-160",
+"tier": "L5",
+"score": 12.877,
+"solved": false,
+"fail": "partial",
+"out": 12789,
+"latency": 488.2644839286804,
+"ttft": 3.1747329235076904,
+"tps": 26.36419337555459
+},
+"fcs-174#0": {
+"pid": "fcs-174",
+"tier": "L5",
+"score": 3.333,
+"solved": false,
+"fail": "partial",
+"out": 5553,
+"latency": 213.033944606781,
+"ttft": 2.1971242427825928,
+"tps": 26.33790431108307
+},
+"fcs-154#0": {
+"pid": "fcs-154",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 15608,
+"latency": 677.8850543498993,
+"ttft": 2.388681411743164,
+"tps": 23.105971586658633
+},
+"fcs-104#0": {
+"pid": "fcs-104",
+"tier": "L5",
+"score": 35.261,
+"solved": false,
+"fail": "partial",
+"out": 25528,
+"latency": 1065.8125686645508,
+"ttft": 3.0575435161590576,
+"tps": 24.0205874316478
+},
+"fcs-166#0": {
+"pid": "fcs-166",
+"tier": "L5",
+"score": 27.5,
+"solved": false,
+"fail": "partial",
+"out": 14036,
+"latency": 537.2950670719147,
+"ttft": 2.1079773902893066,
+"tps": 26.226342657760675
+},
+"fcs-193#0": {
+"pid": "fcs-193",
+"tier": "L5",
+"score": 60.439,
+"solved": false,
+"fail": "partial",
+"out": 7924,
+"latency": 264.18641781806946,
+"ttft": 1.3967809677124023,
+"tps": 30.153396058430733
+},
+"fcs-222#0": {
+"pid": "fcs-222",
+"tier": "L5",
+"score": 9.314,
+"solved": false,
+"fail": "partial",
+"out": 3805,
+"latency": 165.31566452980042,
+"ttft": 3.555370330810547,
+"tps": 23.52245969161795
+},
+"fcs-183#0": {
+"pid": "fcs-183",
+"tier": "L5",
+"score": 31.612,
+"solved": false,
+"fail": "partial",
+"out": 10982,
+"latency": 393.32960963249207,
+"ttft": 1.8549482822418213,
+"tps": 28.052901207249437
+},
+"fcs-141#0": {
+"pid": "fcs-141",
+"tier": "L5",
+"score": 60.459,
+"solved": false,
+"fail": "partial",
+"out": 25732,
+"latency": 1060.0079967975616,
+"ttft": 1.9896588325500488,
+"tps": 24.320939511779002
+},
+"fcs-68#0": {
+"pid": "fcs-68",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "partial",
+"out": 15684,
+"latency": 1010.7010133266449,
+"ttft": 2.2900285720825195,
+"tps": 15.553182419782283
+},
+"fcs-211#0": {
+"pid": "fcs-211",
+"tier": "L5",
+"score": 52.321,
+"solved": false,
+"fail": "partial",
+"out": 14228,
+"latency": 570.4702780246735,
+"ttft": 3.2691359519958496,
+"tps": 25.084575725654854
+},
+"fcs-249#0": {
+"pid": "fcs-249",
+"tier": "L5",
+"score": 60.097,
+"solved": false,
+"fail": "partial",
+"out": 14163,
+"latency": 564.2323801517487,
+"ttft": 2.4535791873931885,
+"tps": 25.21099047469866
+},
+"fcs-304#0": {
+"pid": "fcs-304",
+"tier": "L5",
+"score": 58.521,
+"solved": false,
+"fail": "partial",
+"out": 13087,
+"latency": 532.3329091072083,
+"ttft": 2.2216286659240723,
+"tps": 24.687269414651766
+},
+"fcs-257#0": {
+"pid": "fcs-257",
+"tier": "L5",
+"score": 46.322,
+"solved": false,
+"fail": "partial",
+"out": 14152,
+"latency": 575.0752778053284,
+"ttft": 2.1565122604370117,
+"tps": 24.701582233111743
+},
+"fcs-310#0": {
+"pid": "fcs-310",
+"tier": "L5",
+"score": 62.233,
+"solved": false,
+"fail": "partial",
+"out": 22076,
+"latency": 817.1877439022064,
+"ttft": 2.4926114082336426,
+"tps": 27.097252848952454
+},
+"fcs-239#0": {
+"pid": "fcs-239",
+"tier": "L5",
+"score": 45.713,
+"solved": false,
+"fail": "partial",
+"out": 38087,
+"latency": 1328.2288823127747,
+"ttft": 1.6621971130371094,
+"tps": 28.71095771130823
+}
+},
+"deepseek-flash": {
+"usaco-1492#0": {
+"pid": "usaco-1492",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3010,
+"latency": 15.72140622138977,
+"ttft": 0.6059274673461914,
+"tps": 199.13361984613206
+},
+"usaco-1444#0": {
+"pid": "usaco-1444",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4178,
+"latency": 20.531476974487305,
+"ttft": 0.6059377193450928,
+"tps": 209.680648864837
+},
+"usaco-1491#0": {
+"pid": "usaco-1491",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4816,
+"latency": 22.405591249465942,
+"ttft": 0.5292751789093018,
+"tps": 220.14675526113191
+},
+"usaco-1516#0": {
+"pid": "usaco-1516",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2729,
+"latency": 14.784572839736938,
+"ttft": 0.5001664161682129,
+"tps": 191.0474904646548
+},
+"usaco-1468#0": {
+"pid": "usaco-1468",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8234,
+"latency": 40.90167498588562,
+"ttft": 0.4708247184753418,
+"tps": 203.65636501681746
+},
+"usaco-1515#0": {
+"pid": "usaco-1515",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4309,
+"latency": 21.991207599639893,
+"ttft": 0.5267198085784912,
+"tps": 200.7501898924616
+},
+"usaco-1493#0": {
+"pid": "usaco-1493",
+"tier": "L1",
+"score": 92.308,
+"solved": false,
+"fail": "TLE",
+"out": 7767,
+"latency": 41.379953145980835,
+"ttft": 0.8110926151275635,
+"tps": 191.4522591555923
+},
+"usaco-1445#0": {
+"pid": "usaco-1445",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10846,
+"latency": 58.26971626281738,
+"ttft": 0.507880449295044,
+"tps": 187.7710402940638
+},
+"usaco-1443#0": {
+"pid": "usaco-1443",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12010,
+"latency": 59.615148067474365,
+"ttft": 0.6610047817230225,
+"tps": 203.7176580072991
+},
+"usaco-1469#0": {
+"pid": "usaco-1469",
+"tier": "L1",
+"score": 46.154,
+"solved": false,
+"fail": "TLE",
+"out": 12063,
+"latency": 60.614649057388306,
+"ttft": 0.44779300689697266,
+"tps": 200.49244371148242
+},
+"usaco-1564#0": {
+"pid": "usaco-1564",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3414,
+"latency": 16.31637740135193,
+"ttft": 0.6120879650115967,
+"tps": 217.39283485821855
+},
+"usaco-1587#0": {
+"pid": "usaco-1587",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8708,
+"latency": 45.03758668899536,
+"ttft": 0.524066686630249,
+"tps": 195.62595812547116
+},
+"usaco-1517#0": {
+"pid": "usaco-1517",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13868,
+"latency": 69.78186464309692,
+"ttft": 0.599069356918335,
+"tps": 200.4544618735659
+},
+"usaco-1467#0": {
+"pid": "usaco-1467",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 21757,
+"latency": 107.14523601531982,
+"ttft": 0.683539628982544,
+"tps": 204.36458123911856
+},
+"usaco-1539#0": {
+"pid": "usaco-1539",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14782,
+"latency": 71.48893928527832,
+"ttft": 0.669123649597168,
+"tps": 208.7268918637566
+},
+"usaco-1588#0": {
+"pid": "usaco-1588",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10974,
+"latency": 53.39837718009949,
+"ttft": 0.43367862701416016,
+"tps": 207.19460885821914
+},
+"usaco-1541#0": {
+"pid": "usaco-1541",
+"tier": "L1",
+"score": 66.667,
+"solved": false,
+"fail": "TLE",
+"out": 15815,
+"latency": 73.5542266368866,
+"ttft": 0.39914608001708984,
+"tps": 216.18457500987495
+},
+"usaco-1565#0": {
+"pid": "usaco-1565",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20883,
+"latency": 109.65838861465454,
+"ttft": 0.7183883190155029,
+"tps": 191.69267434668774
+},
+"usaco-1447#0": {
+"pid": "usaco-1447",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12071,
+"latency": 65.21328735351562,
+"ttft": 0.5415842533111572,
+"tps": 186.65041156093872
+},
+"usaco-1470#0": {
+"pid": "usaco-1470",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15150,
+"latency": 70.53590989112854,
+"ttft": 0.658308744430542,
+"tps": 216.80767157697284
+},
+"usaco-1446#0": {
+"pid": "usaco-1446",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17404,
+"latency": 105.69694638252258,
+"ttft": 5.74660849571228,
+"tps": 174.12647488705164
+},
+"usaco-1496#0": {
+"pid": "usaco-1496",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9625,
+"latency": 47.566864252090454,
+"ttft": 0.44516563415527344,
+"tps": 204.2583413225386
+},
+"usaco-1472#0": {
+"pid": "usaco-1472",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20413,
+"latency": 103.956716299057,
+"ttft": 0.5714414119720459,
+"tps": 197.44591308863485
+},
+"usaco-1471#0": {
+"pid": "usaco-1471",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 24233,
+"latency": 110.37506866455078,
+"ttft": 0.5811161994934082,
+"tps": 220.71343144070076
+},
+"usaco-1520#0": {
+"pid": "usaco-1520",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9672,
+"latency": 46.64255714416504,
+"ttft": 0.529620885848999,
+"tps": 209.74591480835804
+},
+"usaco-1448#0": {
+"pid": "usaco-1448",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 34526,
+"latency": 175.06430768966675,
+"ttft": 0.49280858039855957,
+"tps": 197.77569750025123
+},
+"usaco-1544#0": {
+"pid": "usaco-1544",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13212,
+"latency": 60.83297038078308,
+"ttft": 0.42572903633117676,
+"tps": 218.71550009481527
+},
+"usaco-1495#0": {
+"pid": "usaco-1495",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 23913,
+"latency": 116.62169194221497,
+"ttft": 0.8016834259033203,
+"tps": 206.46691626371435
+},
+"usaco-1543#0": {
+"pid": "usaco-1543",
+"tier": "L2",
+"score": 69.231,
+"solved": false,
+"fail": "TLE",
+"out": 16386,
+"latency": 79.03619503974915,
+"ttft": 0.7892360687255859,
+"tps": 209.41388924862972
+},
+"usaco-1542#0": {
+"pid": "usaco-1542",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 21541,
+"latency": 95.61394667625427,
+"ttft": 0.4180488586425781,
+"tps": 226.28075887546083
+},
+"usaco-1494#0": {
+"pid": "usaco-1494",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42535,
+"latency": 218.6734960079193,
+"ttft": 0.7169747352600098,
+"tps": 195.15360105600857
+},
+"usaco-1591#0": {
+"pid": "usaco-1591",
+"tier": "L2",
+"score": 73.913,
+"solved": false,
+"fail": "TLE",
+"out": 15527,
+"latency": 74.02116537094116,
+"ttft": 0.5748617649078369,
+"tps": 211.4061462274123
+},
+"egoi26-biscuits#0": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12836,
+"latency": 61.932368755340576,
+"ttft": 0.30319809913635254,
+"tps": 208.27799341329927
+},
+"egoi26-biscuits#1": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8629,
+"latency": 41.59248876571655,
+"ttft": 0.5010957717895508,
+"tps": 209.9953146216119
+},
+"usaco-1567#0": {
+"pid": "usaco-1567",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 27431,
+"latency": 154.60337615013123,
+"ttft": 0.6042957305908203,
+"tps": 178.124440258147
+},
+"egoi26-cakes#0": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 9584,
+"latency": 45.971680641174316,
+"ttft": 0.6282572746276855,
+"tps": 211.3647203592233
+},
+"egoi26-biscuits#2": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15449,
+"latency": 71.06100869178772,
+"ttft": 0.37058281898498535,
+"tps": 218.5444465676053
+},
+"egoi26-cakes#1": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11784,
+"latency": 56.7695038318634,
+"ttft": 0.5092709064483643,
+"tps": 209.45522951570803
+},
+"usaco-1592#0": {
+"pid": "usaco-1592",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29024,
+"latency": 137.78708577156067,
+"ttft": 0.7997243404388428,
+"tps": 211.87356042764182
+},
+"egoi26-cakes#2": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15278,
+"latency": 73.03897643089294,
+"ttft": 0.5546250343322754,
+"tps": 210.77652908024683
+},
+"egoi26-ferriswheel#0": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3856,
+"latency": 19.122835636138916,
+"ttft": 0.6039102077484131,
+"tps": 208.21942476686826
+},
+"usaco-1568#0": {
+"pid": "usaco-1568",
+"tier": "L2",
+"score": 64.706,
+"solved": false,
+"fail": "TLE",
+"out": 37723,
+"latency": 182.93718242645264,
+"ttft": 0.5173964500427246,
+"tps": 206.79226103728817
+},
+"egoi26-ferriswheel#2": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3226,
+"latency": 16.703075170516968,
+"ttft": 0.4263949394226074,
+"tps": 198.19766403207765
+},
+"usaco-1519#0": {
+"pid": "usaco-1519",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 58757,
+"latency": 298.9358994960785,
+"ttft": 0.534407377243042,
+"tps": 196.90585185345054
+},
+"egoi26-ferriswheel#1": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5671,
+"latency": 29.383370876312256,
+"ttft": 0.527869462966919,
+"tps": 196.5309809995964
+},
+"usaco-1590#0": {
+"pid": "usaco-1590",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 49376,
+"latency": 264.4573783874512,
+"ttft": 0.4125075340270996,
+"tps": 186.99851976071704
+},
+"egoi26-foxfamilies#0": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28939,
+"latency": 153.4273042678833,
+"ttft": 0.2914445400238037,
+"tps": 188.97598545127195
+},
+"egoi26-ovenmasters#0": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 30298,
+"latency": 155.40126824378967,
+"ttft": 0.4611337184906006,
+"tps": 195.54649344294234
+},
+"egoi26-foxfamilies#2": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42855,
+"latency": 208.95373582839966,
+"ttft": 0.7790713310241699,
+"tps": 205.86078571794832
+},
+"egoi26-ovenmasters#1": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29076,
+"latency": 151.83239197731018,
+"ttft": 0.471909761428833,
+"tps": 192.0976966664898
+},
+"egoi26-foxfamilies#1": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 44923,
+"latency": 232.32364869117737,
+"ttft": 0.37356042861938477,
+"tps": 193.6752873710874
+},
+"egoi26-wateringplants#0": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6201,
+"latency": 29.744831085205078,
+"ttft": 0.3503880500793457,
+"tps": 210.9582410726387
+},
+"egoi26-wateringplants#1": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5676,
+"latency": 27.208219528198242,
+"ttft": 0.4044158458709717,
+"tps": 211.76098986810572
+},
+"egoi26-ovenmasters#2": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29855,
+"latency": 162.43797850608826,
+"ttft": 0.6586499214172363,
+"tps": 184.54150021011296
+},
+"egoi26-wateringplants#2": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6289,
+"latency": 29.655588626861572,
+"ttft": 0.7391886711120605,
+"tps": 217.48903769570197
+},
+"usaco-1449#0": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 40720,
+"latency": 201.59934067726135,
+"ttft": 0.24399065971374512,
+"tps": 202.22954094068697
+},
+"usaco-1451#0": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2231,
+"latency": 10.596283674240112,
+"ttft": 0.43129801750183105,
+"tps": 219.47891274407155
+},
+"usaco-1451#1": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 1615,
+"latency": 7.9303998947143555,
+"ttft": 0.5346322059631348,
+"tps": 218.36813539402743
+},
+"usaco-1451#2": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 2297,
+"latency": 11.796728134155273,
+"ttft": 0.49820423126220703,
+"tps": 203.30089308496636
+},
+"usaco-1449#1": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 51724,
+"latency": 247.9514513015747,
+"ttft": 0.5661640167236328,
+"tps": 209.08276546148255
+},
+"usaco-1449#2": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 50482,
+"latency": 243.8486762046814,
+"ttft": 0.466869592666626,
+"tps": 207.4189550268048
+},
+"usaco-1473#1": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 18163,
+"latency": 90.16889667510986,
+"ttft": 0.4332461357116699,
+"tps": 202.40562018353657
+},
+"usaco-1473#0": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 23004,
+"latency": 118.58750557899475,
+"ttft": 0.35162973403930664,
+"tps": 194.56023677758776
+},
+"usaco-1450#0": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42001,
+"latency": 204.9611554145813,
+"ttft": 0.25090765953063965,
+"tps": 205.17292348870083
+},
+"usaco-1473#2": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 25545,
+"latency": 126.03211116790771,
+"ttft": 0.3466057777404785,
+"tps": 203.24539349784453
+},
+"usaco-1450#2": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 45272,
+"latency": 226.35996866226196,
+"ttft": 0.5935962200164795,
+"tps": 200.5258777481632
+},
+"usaco-1474#2": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15323,
+"latency": 83.55381560325623,
+"ttft": 0.4009428024291992,
+"tps": 184.27505248919795
+},
+"usaco-1450#1": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 46966,
+"latency": 236.86121821403503,
+"ttft": 0.21256232261657715,
+"tps": 198.4629907281173
+},
+"usaco-1497#2": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17263,
+"latency": 80.07596230506897,
+"ttft": 0.2780604362487793,
+"tps": 216.33400873595215
+},
+"usaco-1497#1": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20840,
+"latency": 99.07830286026001,
+"ttft": 0.6195459365844727,
+"tps": 211.66222945669531
+},
+"usaco-1497#0": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29051,
+"latency": 131.40926694869995,
+"ttft": 0.5124797821044922,
+"tps": 221.93822040128532
+},
+"usaco-1498#0": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 27637,
+"latency": 132.0815234184265,
+"ttft": 0.584007740020752,
+"tps": 210.17127097358912
+},
+"usaco-1498#2": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 55.0,
+"solved": false,
+"fail": "WA",
+"out": 19420,
+"latency": 93.98951530456543,
+"ttft": 0.660813570022583,
+"tps": 208.08175447716812
+},
+"usaco-1498#1": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26284,
+"latency": 124.98282480239868,
+"ttft": 0.6717102527618408,
+"tps": 211.43724835243853
+},
+"usaco-1499#0": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4485,
+"latency": 22.68744730949402,
+"ttft": 0.5522000789642334,
+"tps": 202.6180215332818
+},
+"usaco-1499#1": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4590,
+"latency": 22.64233684539795,
+"ttft": 0.5311586856842041,
+"tps": 207.58731022134836
+},
+"usaco-1499#2": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6573,
+"latency": 31.632914304733276,
+"ttft": 0.4999535083770752,
+"tps": 211.1267233140673
+},
+"usaco-1521#0": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12933,
+"latency": 68.69863533973694,
+"ttft": 0.6946017742156982,
+"tps": 190.17989554309565
+},
+"usaco-1521#2": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11086,
+"latency": 58.220364570617676,
+"ttft": 0.5433151721954346,
+"tps": 192.20816799104946
+},
+"usaco-1521#1": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16715,
+"latency": 85.20186972618103,
+"ttft": 0.3834710121154785,
+"tps": 197.06809198731227
+},
+"usaco-1475#0": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 80015,
+"latency": 399.7337055206299,
+"ttft": 0.31972527503967285,
+"tps": 200.33099480093477
+},
+"usaco-1474#0": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 95.652,
+"solved": false,
+"fail": "TLE",
+"out": 93886,
+"latency": 481.4377067089081,
+"ttft": 0.2725818157196045,
+"tps": 195.1222047126572
+},
+"usaco-1475#1": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 84767,
+"latency": 414.3486065864563,
+"ttft": 0.21286892890930176,
+"tps": 204.6840982124916
+},
+"usaco-1522#1": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 31124,
+"latency": 156.11573219299316,
+"ttft": 0.2987794876098633,
+"tps": 199.74719990095596
+},
+"usaco-1474#1": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 113106,
+"latency": 589.6749966144562,
+"ttft": 0.3016984462738037,
+"tps": 191.9089316593442
+},
+"usaco-1522#0": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 34549,
+"latency": 175.96550798416138,
+"ttft": 0.624272346496582,
+"tps": 197.03864795041162
+},
+"usaco-1523#0": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 30085,
+"latency": 159.63053107261658,
+"ttft": 0.505535364151001,
+"tps": 189.06520541322757
+},
+"usaco-1523#1": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 32852,
+"latency": 162.5220446586609,
+"ttft": 0.743628740310669,
+"tps": 203.06788030722495
+},
+"usaco-1522#2": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 37018,
+"latency": 187.78412699699402,
+"ttft": 0.29584336280822754,
+"tps": 197.4416709271656
+},
+"usaco-1523#2": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33522,
+"latency": 177.54491925239563,
+"ttft": 0.7922179698944092,
+"tps": 189.6548101203969
+},
+"usaco-1475#2": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 113931,
+"latency": 577.3325543403625,
+"ttft": 0.38930368423461914,
+"tps": 197.473494785548
+},
+"usaco-1547#0": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17583,
+"latency": 92.88113236427307,
+"ttft": 0.5463070869445801,
+"tps": 190.42652593091825
+},
+"usaco-1547#1": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14021,
+"latency": 72.68881058692932,
+"ttft": 0.6103780269622803,
+"tps": 194.52420789443443
+},
+"usaco-1546#0": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28873,
+"latency": 149.29127192497253,
+"ttft": 0.33756327629089355,
+"tps": 193.8387453520819
+},
+"usaco-1546#1": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28524,
+"latency": 144.76088976860046,
+"ttft": 0.5432407855987549,
+"tps": 197.78439186289881
+},
+"usaco-1546#2": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26163,
+"latency": 139.04067873954773,
+"ttft": 0.6803452968597412,
+"tps": 189.09321298244276
+},
+"usaco-1545#1": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38606,
+"latency": 195.35318875312805,
+"ttft": 0.5770142078399658,
+"tps": 198.20699369482475
+},
+"usaco-1547#2": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11190,
+"latency": 58.97539281845093,
+"ttft": 0.4160912036895752,
+"tps": 191.08834448905515
+},
+"usaco-1545#2": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 9.524,
+"solved": false,
+"fail": "WA",
+"out": 41073,
+"latency": 208.55792832374573,
+"ttft": 0.5908312797546387,
+"tps": 197.49758776174033
+},
+"usaco-1545#0": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42556,
+"latency": 224.53685545921326,
+"ttft": 0.689723014831543,
+"tps": 190.11188365602
+},
+"usaco-1569#0": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20301,
+"latency": 97.24455118179321,
+"ttft": 0.5389885902404785,
+"tps": 209.92587660901836
+},
+"usaco-1569#1": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 19309,
+"latency": 94.41432547569275,
+"ttft": 0.4392974376678467,
+"tps": 205.46947846812074
+},
+"usaco-1569#2": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 19920,
+"latency": 95.03618168830872,
+"ttft": 0.3445608615875244,
+"tps": 210.36708238897037
+},
+"usaco-1593#0": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12324,
+"latency": 55.478357791900635,
+"ttft": 0.261843204498291,
+"tps": 223.19409495672375
+},
+"usaco-1593#1": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15650,
+"latency": 69.95608568191528,
+"ttft": 0.5844504833221436,
+"tps": 225.59652738757097
+},
+"usaco-1593#2": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 14671,
+"latency": 65.48922085762024,
+"ttft": 0.4957432746887207,
+"tps": 225.73034319143548
+},
+"usaco-1570#1": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 47626,
+"latency": 264.11314368247986,
+"ttft": 0.29056644439697266,
+"tps": 180.5228365918835
+},
+"usaco-1594#0": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29664,
+"latency": 150.90297603607178,
+"ttft": 0.5024652481079102,
+"tps": 197.23337270988793
+},
+"usaco-1570#0": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 57760,
+"latency": 318.16260600090027,
+"ttft": 0.744804859161377,
+"tps": 181.96837036939843
+},
+"usaco-1594#1": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26738,
+"latency": 133.04542541503906,
+"ttft": 0.6377570629119873,
+"tps": 201.93694468580577
+},
+"usaco-1571#2": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 51236,
+"latency": 290.9484021663666,
+"ttft": 0.37465596199035645,
+"tps": 176.3270105068713
+},
+"usaco-1595#0": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11029,
+"latency": 52.574236154556274,
+"ttft": 0.5978193283081055,
+"tps": 212.19238788369765
+},
+"usaco-1595#1": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10349,
+"latency": 50.434330224990845,
+"ttft": 0.5396938323974609,
+"tps": 207.4170842446756
+},
+"usaco-1571#1": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 64218,
+"latency": 353.66760778427124,
+"ttft": 0.782006025314331,
+"tps": 181.97965482271204
+},
+"usaco-1595#2": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13268,
+"latency": 60.74676752090454,
+"ttft": 0.620373010635376,
+"tps": 220.66847859526848
+},
+"usaco-1571#0": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 68965,
+"latency": 382.1841278076172,
+"ttft": 0.299511194229126,
+"tps": 180.59119692118605
+},
+"usaco-1594#2": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 30892,
+"latency": 157.39709329605103,
+"ttft": 0.6522181034088135,
+"tps": 197.08459343269237
+},
+"usaco-1452#2": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17233,
+"latency": 78.74780416488647,
+"ttft": 0.5376527309417725,
+"tps": 220.3422405409197
+},
+"usaco-1570#2": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 88035,
+"latency": 456.54057264328003,
+"ttft": 0.5585253238677979,
+"tps": 193.06681154999967
+},
+"usaco-1452#1": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 43722,
+"latency": 192.68825697898865,
+"ttft": 0.5205662250518799,
+"tps": 227.52003642477192
+},
+"usaco-1452#0": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 50505,
+"latency": 232.1156108379364,
+"ttft": 0.47314023971557617,
+"tps": 218.02996604884214
+},
+"usaco-1476#0": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11557,
+"latency": 57.298654317855835,
+"ttft": 0.4489262104034424,
+"tps": 203.2903302220895
+},
+"usaco-1476#2": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13021,
+"latency": 65.41713762283325,
+"ttft": 0.5388844013214111,
+"tps": 200.69899162578864
+},
+"usaco-1453#0": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 62492,
+"latency": 298.91665482521057,
+"ttft": 0.5750398635864258,
+"tps": 209.4645763985637
+},
+"usaco-1476#1": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 19670,
+"latency": 100.34339118003845,
+"ttft": 0.6371109485626221,
+"tps": 197.27944874018544
+},
+"usaco-1453#1": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 80782,
+"latency": 384.3601336479187,
+"ttft": 0.68499755859375,
+"tps": 210.54791515390983
+},
+"usaco-1454#2": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 15.0,
+"solved": false,
+"fail": "WA",
+"out": 103558,
+"latency": 548.8311421871185,
+"ttft": 1.0531578063964844,
+"tps": 189.05104431510722
+},
+"usaco-1478#0": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 43337,
+"latency": 254.68082928657532,
+"ttft": 0.5228538513183594,
+"tps": 170.512060169599
+},
+"usaco-1454#0": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 124795,
+"latency": 634.6751110553741,
+"ttft": 0.5527360439300537,
+"tps": 196.79955307955788
+},
+"usaco-1454#1": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 10.0,
+"solved": false,
+"fail": "WA",
+"out": 121726,
+"latency": 650.7163600921631,
+"ttft": 0.6146838665008545,
+"tps": 187.24147998927273
+},
+"usaco-1453#2": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "no code",
+"out": 142543,
+"latency": 724.49702501297,
+"ttft": 0.37964844703674316,
+"tps": 196.8506827939945
+},
+"usaco-1477#0": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 113310,
+"latency": 592.5738155841827,
+"ttft": 0.42069578170776367,
+"tps": 191.3525340165343
+},
+"usaco-1478#2": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 45524,
+"latency": 257.14902997016907,
+"ttft": 0.7282137870788574,
+"tps": 177.53628850278224
+},
+"usaco-1478#1": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 54586,
+"latency": 319.1536421775818,
+"ttft": 0.7253608703613281,
+"tps": 171.4232158522857
+},
+"usaco-1477#1": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 14.286,
+"solved": false,
+"fail": "WA",
+"out": 119706,
+"latency": 660.0389223098755,
+"ttft": 0.44767093658447266,
+"tps": 181.48512393208387
+},
+"usaco-1500#1": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 54179,
+"latency": 294.3691203594208,
+"ttft": 0.7580680847167969,
+"tps": 184.52643243589432
+},
+"usaco-1477#2": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 7.143,
+"solved": false,
+"fail": "WA",
+"out": 135836,
+"latency": 734.2841053009033,
+"ttft": 0.5849814414978027,
+"tps": 185.13856100232914
+},
+"usaco-1500#2": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 57616,
+"latency": 302.7872760295868,
+"ttft": 0.7192542552947998,
+"tps": 190.738495460639
+},
+"usaco-1502#0": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 37823,
+"latency": 292.86661982536316,
+"ttft": 0.8404252529144287,
+"tps": 129.5192030816828
+},
+"usaco-1502#1": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42250,
+"latency": 326.297411441803,
+"ttft": 0.8631305694580078,
+"tps": 129.82651946422635
+},
+"usaco-1500#0": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 53378,
+"latency": 398.074747800827,
+"ttft": 0.8614277839660645,
+"tps": 134.3811934547769
+},
+"usaco-1501#0": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 56046,
+"latency": 407.7657287120819,
+"ttft": 0.8051016330718994,
+"tps": 137.71848250351468
+},
+"usaco-1501#1": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 67182,
+"latency": 536.0047688484192,
+"ttft": 0.9111220836639404,
+"tps": 125.55185509338595
+},
+"usaco-1525#0": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26168,
+"latency": 211.08216071128845,
+"ttft": 0.4864628314971924,
+"tps": 124.25704923439027
+},
+"usaco-1502#2": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 39147,
+"latency": 301.49113178253174,
+"ttft": 0.592033863067627,
+"tps": 130.10009092974326
+},
+"usaco-1501#2": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 80549,
+"latency": 609.9000563621521,
+"ttft": 0.6947529315948486,
+"tps": 132.2197944542052
+},
+"usaco-1525#1": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26833,
+"latency": 220.69329857826233,
+"ttft": 0.384002685546875,
+"tps": 121.79694865470829
+},
+"usaco-1525#2": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 37003,
+"latency": 290.5034010410309,
+"ttft": 0.6887593269348145,
+"tps": 127.67815932675923
+},
+"usaco-1548#0": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26477,
+"latency": 190.60765552520752,
+"ttft": 0.9010694026947021,
+"tps": 139.56816440153065
+},
+"usaco-1548#1": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 36876,
+"latency": 301.49141359329224,
+"ttft": 0.9866061210632324,
+"tps": 122.71351100899734
+},
+"usaco-1548#2": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33319,
+"latency": 248.37543272972107,
+"ttft": 0.7664167881011963,
+"tps": 134.56295148742
+},
+"usaco-1549#2": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 40976,
+"latency": 312.40185022354126,
+"ttft": 0.6671063899993896,
+"tps": 131.4450853186904
+},
+"usaco-1549#1": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 48986,
+"latency": 397.4004182815552,
+"ttft": 0.5403707027435303,
+"tps": 123.433941760721
+},
+"usaco-1526#2": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 10.0,
+"solved": false,
+"fail": "WA",
+"out": 93714,
+"latency": 742.4129807949066,
+"ttft": 0.6731705665588379,
+"tps": 126.3434949934125
+},
+"usaco-1549#0": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 75043,
+"latency": 590.1322569847107,
+"ttft": 0.40453243255615234,
+"tps": 127.2502493536122
+},
+"usaco-1526#1": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 20.0,
+"solved": false,
+"fail": "RE",
+"out": 109636,
+"latency": 872.1973764896393,
+"ttft": 0.49672794342041016,
+"tps": 125.77253462280399
+},
+"usaco-1526#0": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 99127,
+"latency": 883.9859964847565,
+"ttft": 0.6190831661224365,
+"tps": 112.21497942185717
+},
+"usaco-1550#0": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 55960,
+"latency": 519.6113650798798,
+"ttft": 0.6986715793609619,
+"tps": 107.8408770895562
+},
+"usaco-1572#2": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 84085,
+"latency": 503.95252442359924,
+"ttft": 1.0559699535369873,
+"tps": 167.20138416658338
+},
+"usaco-1573#0": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 89239,
+"latency": 540.7966630458832,
+"ttft": 0.6112732887268066,
+"tps": 165.2006916368433
+},
+"usaco-1550#2": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 96082,
+"latency": 584.6567475795746,
+"ttft": 0.6132059097290039,
+"tps": 164.51170699583605
+},
+"usaco-1572#1": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 77.273,
+"solved": false,
+"fail": "TLE",
+"out": 111545,
+"latency": 675.4326102733612,
+"ttft": 0.5473587512969971,
+"tps": 165.27994907050243
+},
+"usaco-1572#0": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 27.273,
+"solved": false,
+"fail": "WA",
+"out": 117254,
+"latency": 725.921923160553,
+"ttft": 0.5741763114929199,
+"tps": 161.65211860015575
+},
+"usaco-1550#1": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 121146,
+"latency": 743.2643065452576,
+"ttft": 0.7658438682556152,
+"tps": 163.15993377712937
+},
+"usaco-1574#0": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 48332,
+"latency": 288.1834578514099,
+"ttft": 0.5770821571350098,
+"tps": 168.0491257654762
+},
+"usaco-1573#1": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 75196,
+"latency": 458.9592344760895,
+"ttft": 0.601006031036377,
+"tps": 164.0550890841361
+},
+"usaco-1574#2": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42549,
+"latency": 250.10122418403625,
+"ttft": 0.6866030693054199,
+"tps": 170.5954519018652
+},
+"usaco-1574#1": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 53680,
+"latency": 315.8918993473053,
+"ttft": 0.6989269256591797,
+"tps": 170.3083656579441
+},
+"usaco-1573#2": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 85990,
+"latency": 525.6819748878479,
+"ttft": 0.8276784420013428,
+"tps": 163.83594567539618
+},
+"fcs-6#0": {
+"pid": "fcs-6",
+"tier": "L5",
+"score": 2.568,
+"solved": false,
+"fail": "partial",
+"out": 18406,
+"latency": 119.37501215934753,
+"ttft": 0.7467055320739746,
+"tps": 155.15689739912648
+},
+"fcs-0#0": {
+"pid": "fcs-0",
+"tier": "L5",
+"score": 60.163,
+"solved": false,
+"fail": "partial",
+"out": 31677,
+"latency": 158.7624213695526,
+"ttft": 0.7071142196655273,
+"tps": 200.41718668744258
+},
+"usaco-1596#0": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 69512,
+"latency": 409.06277775764465,
+"ttft": 0.28397440910339355,
+"tps": 170.04795608428668
+},
+"fcs-42#0": {
+"pid": "fcs-42",
+"tier": "L5",
+"score": 58.967,
+"solved": false,
+"fail": "partial",
+"out": 19330,
+"latency": 112.71444272994995,
+"ttft": 0.6389970779418945,
+"tps": 172.47310405545252
+},
+"usaco-1596#1": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 98535,
+"latency": 588.1666533946991,
+"ttft": 0.6690242290496826,
+"tps": 167.71982576327522
+},
+"fcs-48#0": {
+"pid": "fcs-48",
+"tier": "L5",
+"score": 2.239,
+"solved": false,
+"fail": "partial",
+"out": 43427,
+"latency": 223.14505290985107,
+"ttft": 0.8492896556854248,
+"tps": 195.35684965055768
+},
+"fcs-23#0": {
+"pid": "fcs-23",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 69045,
+"latency": 383.44128131866455,
+"ttft": 0.5113365650177002,
+"tps": 180.30713175074158
+},
+"fcs-30#0": {
+"pid": "fcs-30",
+"tier": "L5",
+"score": 42.299,
+"solved": false,
+"fail": "partial",
+"out": 62197,
+"latency": 399.55337142944336,
+"ttft": 0.8023295402526855,
+"tps": 155.97952974699433
+},
+"usaco-1596#2": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 110784,
+"latency": 655.3083648681641,
+"ttft": 0.32878875732421875,
+"tps": 169.14115193914446
+},
+"fcs-77#0": {
+"pid": "fcs-77",
+"tier": "L5",
+"score": 52.659,
+"solved": false,
+"fail": "partial",
+"out": 23906,
+"latency": 125.04656457901001,
+"ttft": 0.6432194709777832,
+"tps": 192.1652506951478
+},
+"fcs-13#0": {
+"pid": "fcs-13",
+"tier": "L5",
+"score": 53.574,
+"solved": false,
+"fail": "partial",
+"out": 103824,
+"latency": 574.1433482170105,
+"ttft": 0.5838277339935303,
+"tps": 181.01695864548765
+},
+"fcs-58#0": {
+"pid": "fcs-58",
+"tier": "L5",
+"score": 59.905,
+"solved": false,
+"fail": "partial",
+"out": 61065,
+"latency": 335.1151053905487,
+"ttft": 0.40691542625427246,
+"tps": 182.44250314434856
+},
+"fcs-68#0": {
+"pid": "fcs-68",
+"tier": "L5",
+"score": 46.816,
+"solved": false,
+"fail": "partial",
+"out": 69460,
+"latency": 379.46158504486084,
+"ttft": 0.5782098770141602,
+"tps": 183.3281810510397
+},
+"fcs-132#0": {
+"pid": "fcs-132",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "no code",
+"out": 14878,
+"latency": 82.25909042358398,
+"ttft": 0.6930780410766602,
+"tps": 182.40440552897178
+},
+"fcs-121#0": {
+"pid": "fcs-121",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "no code",
+"out": 57339,
+"latency": 282.3005735874176,
+"ttft": 0.4564669132232666,
+"tps": 203.44225279928466
+},
+"fcs-85#0": {
+"pid": "fcs-85",
+"tier": "L5",
+"score": 59.786,
+"solved": false,
+"fail": "partial",
+"out": 71337,
+"latency": 407.6611747741699,
+"ttft": 0.6912052631378174,
+"tps": 175.28811790636607
+},
+"fcs-104#0": {
+"pid": "fcs-104",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 63131,
+"latency": 372.7224020957947,
+"ttft": 0.7608842849731445,
+"tps": 169.724546699232
+},
+"fcs-148#0": {
+"pid": "fcs-148",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 24581,
+"latency": 138.4226381778717,
+"ttft": 0.47710204124450684,
+"tps": 178.19351527006947
+},
+"fcs-111#0": {
+"pid": "fcs-111",
+"tier": "L5",
+"score": 60.0,
+"solved": false,
+"fail": "partial",
+"out": 71263,
+"latency": 408.43107533454895,
+"ttft": 0.47208523750305176,
+"tps": 174.6817737318348
+},
+"fcs-160#0": {
+"pid": "fcs-160",
+"tier": "L5",
+"score": 2.578,
+"solved": false,
+"fail": "partial",
+"out": 24393,
+"latency": 140.70257115364075,
+"ttft": 0.6191990375518799,
+"tps": 174.13201603817197
+},
+"fcs-154#0": {
+"pid": "fcs-154",
+"tier": "L5",
+"score": 0.583,
+"solved": false,
+"fail": "partial",
+"out": 43020,
+"latency": 200.44169235229492,
+"ttft": 0.39943408966064453,
+"tps": 215.05456083943673
+},
+"fcs-174#0": {
+"pid": "fcs-174",
+"tier": "L5",
+"score": 3.333,
+"solved": false,
+"fail": "partial",
+"out": 22142,
+"latency": 110.93152117729187,
+"ttft": 0.643841028213501,
+"tps": 200.76585136318175
+},
+"fcs-193#0": {
+"pid": "fcs-193",
+"tier": "L5",
+"score": 60.435,
+"solved": false,
+"fail": "partial",
+"out": 19061,
+"latency": 98.11949396133423,
+"ttft": 0.5721805095672607,
+"tps": 195.4026136191322
+},
+"fcs-166#0": {
+"pid": "fcs-166",
+"tier": "L5",
+"score": 2.128,
+"solved": false,
+"fail": "partial",
+"out": 35311,
+"latency": 197.22516798973083,
+"ttft": 0.578406810760498,
+"tps": 179.5656322448305
+},
+"fcs-183#0": {
+"pid": "fcs-183",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 37346,
+"latency": 195.6326620578766,
+"ttft": 0.4652256965637207,
+"tps": 191.3536432935537
+},
+"fcs-222#0": {
+"pid": "fcs-222",
+"tier": "L5",
+"score": 9.314,
+"solved": false,
+"fail": "partial",
+"out": 24466,
+"latency": 146.52377367019653,
+"ttft": 0.49419093132019043,
+"tps": 167.54139497713297
+},
+"fcs-211#0": {
+"pid": "fcs-211",
+"tier": "L5",
+"score": 52.432,
+"solved": false,
+"fail": "partial",
+"out": 57806,
+"latency": 319.44999408721924,
+"ttft": 0.37246060371398926,
+"tps": 181.16599864900326
+},
+"fcs-141#0": {
+"pid": "fcs-141",
+"tier": "L5",
+"score": 7.943,
+"solved": false,
+"fail": "partial",
+"out": 101458,
+"latency": 606.7219634056091,
+"ttft": 0.45659565925598145,
+"tps": 167.34915995143498
+},
+"fcs-304#0": {
+"pid": "fcs-304",
+"tier": "L5",
+"score": 56.191,
+"solved": false,
+"fail": "partial",
+"out": 41834,
+"latency": 236.72736144065857,
+"ttft": 0.48792052268981934,
+"tps": 177.0830469181746
+},
+"fcs-249#0": {
+"pid": "fcs-249",
+"tier": "L5",
+"score": 53.754,
+"solved": false,
+"fail": "partial",
+"out": 64788,
+"latency": 338.1641757488251,
+"ttft": 0.7928624153137207,
+"tps": 192.03766722143698
+},
+"fcs-310#0": {
+"pid": "fcs-310",
+"tier": "L5",
+"score": 62.231,
+"solved": false,
+"fail": "partial",
+"out": 40961,
+"latency": 228.37054800987244,
+"ttft": 0.7806282043457031,
+"tps": 179.9772153134056
+},
+"fcs-257#0": {
+"pid": "fcs-257",
+"tier": "L5",
+"score": 47.924,
+"solved": false,
+"fail": "partial",
+"out": 80919,
+"latency": 512.2519450187683,
+"ttft": 0.6208860874176025,
+"tps": 158.15888927661348
+},
+"fcs-239#0": {
+"pid": "fcs-239",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 156609,
+"latency": 815.803902387619,
+"ttft": 0.4647407531738281,
+"tps": 192.07834894874725
+}
+},
+"MiniMax-M3.1-Flash": {
+"usaco-1492#0": {
+"pid": "usaco-1492",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5249,
+"latency": 13.139804363250732,
+"ttft": 0.7707936763763428,
+"tps": 424.367003382904
+},
+"usaco-1468#0": {
+"pid": "usaco-1468",
+"tier": "L1",
+"score": 9.091,
+"solved": false,
+"fail": "WA",
+"out": 2742,
+"latency": 17.024492979049683,
+"ttft": 0.8481583595275879,
+"tps": 169.50687930817594
+},
+"usaco-1491#0": {
+"pid": "usaco-1491",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 5366,
+"latency": 28.677184581756592,
+"ttft": 0.7909724712371826,
+"tps": 192.42484345788233
+},
+"usaco-1444#0": {
+"pid": "usaco-1444",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6505,
+"latency": 36.38571572303772,
+"ttft": 0.8414902687072754,
+"tps": 183.01144326124228
+},
+"usaco-1516#0": {
+"pid": "usaco-1516",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4579,
+"latency": 26.830132007598877,
+"ttft": 0.5241186618804932,
+"tps": 174.06666452350473
+},
+"usaco-1445#0": {
+"pid": "usaco-1445",
+"tier": "L1",
+"score": 0.0,
+"solved": false,
+"fail": "RE",
+"out": 9870,
+"latency": 55.98424434661865,
+"ttft": 1.2324299812316895,
+"tps": 180.26799868461754
+},
+"usaco-1517#0": {
+"pid": "usaco-1517",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 18544,
+"latency": 44.91849660873413,
+"ttft": 0.6538934707641602,
+"tps": 418.9351916744746
+},
+"usaco-1515#0": {
+"pid": "usaco-1515",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13171,
+"latency": 76.16546559333801,
+"ttft": 1.0065510272979736,
+"tps": 175.24201987279912
+},
+"usaco-1541#0": {
+"pid": "usaco-1541",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 6529,
+"latency": 43.371697664260864,
+"ttft": 0.5973927974700928,
+"tps": 152.6383659613602
+},
+"usaco-1443#0": {
+"pid": "usaco-1443",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16043,
+"latency": 117.97221088409424,
+"ttft": 1.677074670791626,
+"tps": 137.95073914849496
+},
+"usaco-1564#0": {
+"pid": "usaco-1564",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12872,
+"latency": 72.86030101776123,
+"ttft": 1.0591158866882324,
+"tps": 179.2728069390801
+},
+"usaco-1493#0": {
+"pid": "usaco-1493",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 21850,
+"latency": 141.32046461105347,
+"ttft": 0.6765346527099609,
+"tps": 155.35686471838224
+},
+"usaco-1588#0": {
+"pid": "usaco-1588",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8835,
+"latency": 42.80455040931702,
+"ttft": 0.6701149940490723,
+"tps": 209.68597093859543
+},
+"usaco-1539#0": {
+"pid": "usaco-1539",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 18099,
+"latency": 150.23055410385132,
+"ttft": 0.7374923229217529,
+"tps": 121.06916390890886
+},
+"usaco-1587#0": {
+"pid": "usaco-1587",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17019,
+"latency": 111.0108699798584,
+"ttft": 0.7182881832122803,
+"tps": 154.30774874215095
+},
+"usaco-1467#0": {
+"pid": "usaco-1467",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 32192,
+"latency": 258.23213171958923,
+"ttft": 3.264110565185547,
+"tps": 126.25897104368688
+},
+"usaco-1565#0": {
+"pid": "usaco-1565",
+"tier": "L1",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 25835,
+"latency": 184.83571219444275,
+"ttft": 0.7571146488189697,
+"tps": 140.34765770961945
+},
+"usaco-1470#0": {
+"pid": "usaco-1470",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13904,
+"latency": 76.08748602867126,
+"ttft": 0.9829573631286621,
+"tps": 185.128649990171
+},
+"usaco-1447#0": {
+"pid": "usaco-1447",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16788,
+"latency": 129.21345162391663,
+"ttft": 1.1614124774932861,
+"tps": 131.10294933143132
+},
+"usaco-1471#0": {
+"pid": "usaco-1471",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17125,
+"latency": 90.3206832408905,
+"ttft": 0.8026711940765381,
+"tps": 191.3022821713733
+},
+"usaco-1469#0": {
+"pid": "usaco-1469",
+"tier": "L1",
+"score": 84.615,
+"solved": false,
+"fail": "TLE",
+"out": 45223,
+"latency": 312.5914330482483,
+"ttft": 0.8569314479827881,
+"tps": 145.06896018198546
+},
+"usaco-1446#0": {
+"pid": "usaco-1446",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 25169,
+"latency": 187.6276557445526,
+"ttft": 0.67803955078125,
+"tps": 134.62985649519916
+},
+"usaco-1448#0": {
+"pid": "usaco-1448",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28580,
+"latency": 197.58524537086487,
+"ttft": 0.6500113010406494,
+"tps": 145.12385320478936
+},
+"usaco-1496#0": {
+"pid": "usaco-1496",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15959,
+"latency": 89.36750984191895,
+"ttft": 0.6480505466461182,
+"tps": 179.88161928360998
+},
+"usaco-1520#0": {
+"pid": "usaco-1520",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10804,
+"latency": 78.96812605857849,
+"ttft": 0.7191650867462158,
+"tps": 138.07212090508366
+},
+"usaco-1495#0": {
+"pid": "usaco-1495",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16460,
+"latency": 130.53000593185425,
+"ttft": 1.0053861141204834,
+"tps": 127.08008734681027
+},
+"usaco-1472#0": {
+"pid": "usaco-1472",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33179,
+"latency": 193.79168677330017,
+"ttft": 0.9987657070159912,
+"tps": 172.0965677396045
+},
+"usaco-1544#0": {
+"pid": "usaco-1544",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 15741,
+"latency": 86.38448905944824,
+"ttft": 0.9629287719726562,
+"tps": 184.2743207572612
+},
+"usaco-1543#0": {
+"pid": "usaco-1543",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 24755,
+"latency": 146.77740716934204,
+"ttft": 1.023174524307251,
+"tps": 169.8406938225083
+},
+"usaco-1519#0": {
+"pid": "usaco-1519",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 48781,
+"latency": 289.7199275493622,
+"ttft": 1.150979995727539,
+"tps": 169.04452268182237
+},
+"usaco-1568#0": {
+"pid": "usaco-1568",
+"tier": "L2",
+"score": 5.882,
+"solved": false,
+"fail": "WA",
+"out": 39672,
+"latency": 248.15844249725342,
+"ttft": 0.73710036277771,
+"tps": 160.3418672688224
+},
+"usaco-1542#0": {
+"pid": "usaco-1542",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 151451,
+"latency": 324.37985038757324,
+"ttft": 0.6710152626037598,
+"tps": 467.86180532122813
+},
+"usaco-1494#0": {
+"pid": "usaco-1494",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 52423,
+"latency": 396.82469725608826,
+"ttft": 0.8207104206085205,
+"tps": 132.37998036059972
+},
+"egoi26-biscuits#0": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13078,
+"latency": 94.53750610351562,
+"ttft": 0.9449632167816162,
+"tps": 139.73335478048756
+},
+"egoi26-cakes#0": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 7532,
+"latency": 45.63981533050537,
+"ttft": 0.72402024269104,
+"tps": 167.69156563463426
+},
+"usaco-1591#0": {
+"pid": "usaco-1591",
+"tier": "L2",
+"score": 47.826,
+"solved": false,
+"fail": "TLE",
+"out": 44063,
+"latency": 262.7604374885559,
+"ttft": 1.003889560699463,
+"tps": 168.3358080201468
+},
+"egoi26-cakes#1": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8586,
+"latency": 53.074883222579956,
+"ttft": 0.6369669437408447,
+"tps": 163.73648324132228
+},
+"egoi26-ferriswheel#0": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3624,
+"latency": 23.57283043861389,
+"ttft": 0.7538511753082275,
+"tps": 158.81516689169428
+},
+"egoi26-ferriswheel#1": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3625,
+"latency": 25.67352533340454,
+"ttft": 0.7180697917938232,
+"tps": 145.25881901677477
+},
+"egoi26-ferriswheel#2": {
+"pid": "egoi26-ferriswheel",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 3322,
+"latency": 23.550943851470947,
+"ttft": 0.7903213500976562,
+"tps": 145.9538288023345
+},
+"egoi26-biscuits#2": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17545,
+"latency": 129.67803573608398,
+"ttft": 0.6814103126525879,
+"tps": 136.0113099269732
+},
+"egoi26-biscuits#1": {
+"pid": "egoi26-biscuits",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 18107,
+"latency": 135.45369005203247,
+"ttft": 0.712313175201416,
+"tps": 134.38336775014446
+},
+"usaco-1592#0": {
+"pid": "usaco-1592",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 48695,
+"latency": 313.8183846473694,
+"ttft": 0.660287618637085,
+"tps": 155.49653820872538
+},
+"egoi26-cakes#2": {
+"pid": "egoi26-cakes",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16321,
+"latency": 105.87496709823608,
+"ttft": 0.691964864730835,
+"tps": 155.16765687831898
+},
+"usaco-1567#0": {
+"pid": "usaco-1567",
+"tier": "L2",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 61710,
+"latency": 496.4311361312866,
+"ttft": 1.1799426078796387,
+"tps": 124.6034352001686
+},
+"egoi26-foxfamilies#1": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29620,
+"latency": 193.59321093559265,
+"ttft": 0.6749930381774902,
+"tps": 153.53656239842795
+},
+"egoi26-wateringplants#0": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10656,
+"latency": 86.26926612854004,
+"ttft": 2.9040000438690186,
+"tps": 127.82301911178565
+},
+"egoi26-foxfamilies#2": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 36159,
+"latency": 230.07618260383606,
+"ttft": 0.6168794631958008,
+"tps": 157.583499579607
+},
+"egoi26-ovenmasters#2": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 20.0,
+"solved": false,
+"fail": "WA",
+"out": 33887,
+"latency": 278.4094421863556,
+"ttft": 0.8648476600646973,
+"tps": 122.09569441565901
+},
+"egoi26-ovenmasters#0": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 41151,
+"latency": 337.2362949848175,
+"ttft": 1.100024700164795,
+"tps": 122.42356341120761
+},
+"egoi26-wateringplants#1": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16471,
+"latency": 178.65529441833496,
+"ttft": 2.6853277683258057,
+"tps": 93.60119975904503
+},
+"egoi26-foxfamilies#0": {
+"pid": "egoi26-foxfamilies",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 63212,
+"latency": 431.9053816795349,
+"ttft": 0.6842753887176514,
+"tps": 146.5883721316961
+},
+"egoi26-ovenmasters#1": {
+"pid": "egoi26-ovenmasters",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 53544,
+"latency": 427.2908651828766,
+"ttft": 1.029831886291504,
+"tps": 125.61317084488229
+},
+"usaco-1590#0": {
+"pid": "usaco-1590",
+"tier": "L2",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 86708,
+"latency": 804.4215006828308,
+"ttft": 2.7840631008148193,
+"tps": 108.16361104782966
+},
+"egoi26-wateringplants#2": {
+"pid": "egoi26-wateringplants",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 24001,
+"latency": 292.2910599708557,
+"ttft": 2.7450151443481445,
+"tps": 82.89182473337222
+},
+"usaco-1451#0": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 4282,
+"latency": 25.97121810913086,
+"ttft": 0.6264162063598633,
+"tps": 168.94983107095584
+},
+"usaco-1450#0": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26965,
+"latency": 189.62738490104675,
+"ttft": 0.7813026905059814,
+"tps": 142.78824153702723
+},
+"usaco-1451#1": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 11950,
+"latency": 79.07793736457825,
+"ttft": 0.8157587051391602,
+"tps": 152.69189031908874
+},
+"usaco-1449#0": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 45183,
+"latency": 322.735857963562,
+"ttft": 0.6743743419647217,
+"tps": 140.29308780396505
+},
+"usaco-1449#1": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 33114,
+"latency": 244.09391832351685,
+"ttft": 0.6791703701019287,
+"tps": 136.03941535349128
+},
+"usaco-1451#2": {
+"pid": "usaco-1451",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13084,
+"latency": 90.7537534236908,
+"ttft": 1.0077459812164307,
+"tps": 145.7892152849988
+},
+"usaco-1449#2": {
+"pid": "usaco-1449",
+"tier": "L3",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 33425,
+"latency": 244.4484510421753,
+"ttft": 1.5054476261138916,
+"tps": 137.58371111744563
+},
+"usaco-1450#1": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 32047,
+"latency": 215.2830126285553,
+"ttft": 1.077949047088623,
+"tps": 149.60897498957513
+},
+"usaco-1473#0": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 27389,
+"latency": 186.5902464389801,
+"ttft": 0.6919312477111816,
+"tps": 147.3332341491085
+},
+"usaco-1450#2": {
+"pid": "usaco-1450",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38637,
+"latency": 291.2907953262329,
+"ttft": 0.6959149837493896,
+"tps": 132.9582955985459
+},
+"usaco-1474#1": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 25872,
+"latency": 172.2871220111847,
+"ttft": 0.7563140392303467,
+"tps": 150.83004800064913
+},
+"usaco-1473#2": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 32333,
+"latency": 213.80034637451172,
+"ttft": 0.7490072250366211,
+"tps": 151.7615431523546
+},
+"usaco-1474#0": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 30868,
+"latency": 219.0295181274414,
+"ttft": 0.7709403038024902,
+"tps": 141.42857663510708
+},
+"usaco-1473#1": {
+"pid": "usaco-1473",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 32737,
+"latency": 224.83006477355957,
+"ttft": 0.6504762172698975,
+"tps": 146.0302439255303
+},
+"usaco-1474#2": {
+"pid": "usaco-1474",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 28910,
+"latency": 202.88204836845398,
+"ttft": 0.639786958694458,
+"tps": 142.9473731082642
+},
+"usaco-1497#2": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 19706,
+"latency": 46.589195013046265,
+"ttft": 0.6897125244140625,
+"tps": 429.3294593219113
+},
+"usaco-1497#1": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 24970,
+"latency": 78.40137791633606,
+"ttft": 0.6763029098510742,
+"tps": 321.26054555645817
+},
+"usaco-1499#0": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7967,
+"latency": 58.84878611564636,
+"ttft": 0.8840160369873047,
+"tps": 137.44555510508644
+},
+"usaco-1499#1": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 8112,
+"latency": 49.35742497444153,
+"ttft": 0.8251438140869141,
+"tps": 167.1464807763165
+},
+"usaco-1497#0": {
+"pid": "usaco-1497",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 26847,
+"latency": 214.23853421211243,
+"ttft": 1.454951524734497,
+"tps": 126.17044821283824
+},
+"usaco-1499#2": {
+"pid": "usaco-1499",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 7381,
+"latency": 52.62853264808655,
+"ttft": 0.7516019344329834,
+"tps": 142.27904192599783
+},
+"usaco-1498#2": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 35996,
+"latency": 211.3516297340393,
+"ttft": 0.5841469764709473,
+"tps": 170.78535801181332
+},
+"usaco-1521#0": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 13507,
+"latency": 81.8429684638977,
+"ttft": 0.9800543785095215,
+"tps": 167.03578089873335
+},
+"usaco-1498#1": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 10.0,
+"solved": false,
+"fail": "WA",
+"out": 45312,
+"latency": 270.80534386634827,
+"ttft": 0.6371688842773438,
+"tps": 167.71775581267863
+},
+"usaco-1521#1": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 10524,
+"latency": 64.87408757209778,
+"ttft": 1.126694679260254,
+"tps": 165.0891043919452
+},
+"usaco-1498#0": {
+"pid": "usaco-1498",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 50313,
+"latency": 296.7420597076416,
+"ttft": 0.6027023792266846,
+"tps": 169.89636383995898
+},
+"usaco-1521#2": {
+"pid": "usaco-1521",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 20279,
+"latency": 125.01085376739502,
+"ttft": 0.9625129699707031,
+"tps": 163.4765920256554
+},
+"usaco-1475#0": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 84252,
+"latency": 576.8937041759491,
+"ttft": 3.4689948558807373,
+"tps": 146.92774592832043
+},
+"usaco-1475#2": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 33.333,
+"solved": false,
+"fail": "WA",
+"out": 68268,
+"latency": 454.56194400787354,
+"ttft": 1.5471949577331543,
+"tps": 150.69708026756538
+},
+"usaco-1522#0": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 34178,
+"latency": 200.18435430526733,
+"ttft": 0.9762706756591797,
+"tps": 171.56934285632647
+},
+"usaco-1522#2": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 35299,
+"latency": 209.7360339164734,
+"ttft": 1.0537230968475342,
+"tps": 169.15185509187992
+},
+"usaco-1475#1": {
+"pid": "usaco-1475",
+"tier": "L3",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 113368,
+"latency": 773.0976734161377,
+"ttft": 0.7111797332763672,
+"tps": 146.7762589418717
+},
+"usaco-1523#0": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 73085,
+"latency": 511.7833049297333,
+"ttft": 0.7032394409179688,
+"tps": 143.00107739498483
+},
+"usaco-1545#1": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 50703,
+"latency": 387.6235382556915,
+"ttft": 0.8563389778137207,
+"tps": 131.09436398605195
+},
+"usaco-1545#2": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 49774,
+"latency": 368.74079632759094,
+"ttft": 0.7337667942047119,
+"tps": 135.25285118360603
+},
+"usaco-1547#0": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 17701,
+"latency": 115.99557662010193,
+"ttft": 0.6608963012695312,
+"tps": 153.47508616720634
+},
+"usaco-1545#0": {
+"pid": "usaco-1545",
+"tier": "L3",
+"score": 14.286,
+"solved": false,
+"fail": "WA",
+"out": 81254,
+"latency": 591.401040315628,
+"ttft": 0.689511775970459,
+"tps": 137.55275811337918
+},
+"usaco-1546#0": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 58706,
+"latency": 342.714218378067,
+"ttft": 1.1179187297821045,
+"tps": 171.857833531701
+},
+"usaco-1523#2": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 86763,
+"latency": 647.5218937397003,
+"ttft": 2.1999971866607666,
+"tps": 134.44918026715195
+},
+"usaco-1523#1": {
+"pid": "usaco-1523",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 97343,
+"latency": 699.9728338718414,
+"ttft": 2.4234819412231445,
+"tps": 139.5499827081514
+},
+"usaco-1547#1": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 17658,
+"latency": 114.32344889640808,
+"ttft": 0.7233264446258545,
+"tps": 155.43997329311833
+},
+"usaco-1547#2": {
+"pid": "usaco-1547",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 21011,
+"latency": 135.8486008644104,
+"ttft": 0.6856582164764404,
+"tps": 155.44941230473546
+},
+"usaco-1546#1": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 65682,
+"latency": 393.8852274417877,
+"ttft": 0.9353868961334229,
+"tps": 167.1511048555034
+},
+"usaco-1522#1": {
+"pid": "usaco-1522",
+"tier": "L3",
+"score": 66.667,
+"solved": false,
+"fail": "WA",
+"out": 146075,
+"latency": 927.7436316013336,
+"ttft": 1.178638219833374,
+"tps": 157.65218958564265
+},
+"usaco-1569#0": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 23881,
+"latency": 165.30630946159363,
+"ttft": 0.7940478324890137,
+"tps": 145.16243204922972
+},
+"usaco-1569#1": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 24494,
+"latency": 167.96850275993347,
+"ttft": 0.7029569149017334,
+"tps": 146.43780867276286
+},
+"usaco-1546#2": {
+"pid": "usaco-1546",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 71229,
+"latency": 428.84257912635803,
+"ttft": 0.9929525852203369,
+"tps": 166.4813887436018
+},
+"usaco-1569#2": {
+"pid": "usaco-1569",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 30911,
+"latency": 231.522474527359,
+"ttft": 0.6426994800567627,
+"tps": 133.88353307979017
+},
+"usaco-1570#0": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 65783,
+"latency": 1059.2114610671997,
+"ttft": 2.785400629043579,
+"tps": 62.269383976306194
+},
+"usaco-1570#1": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 49145,
+"latency": 810.0454227924347,
+"ttft": 2.7900962829589844,
+"tps": 60.87912756488096
+},
+"usaco-1570#2": {
+"pid": "usaco-1570",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 43567,
+"latency": 469.82426500320435,
+"ttft": 2.95233416557312,
+"tps": 93.31681157578895
+},
+"usaco-1571#0": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 79499,
+"latency": 624.2761766910553,
+"ttft": 0.7189412117004395,
+"tps": 127.49270712717454
+},
+"usaco-1571#1": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 4.762,
+"solved": false,
+"fail": "WA",
+"out": 85051,
+"latency": 684.5339164733887,
+"ttft": 0.820695161819458,
+"tps": 124.39572228374698
+},
+"usaco-1571#2": {
+"pid": "usaco-1571",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 64338,
+"latency": 480.786497592926,
+"ttft": 0.7152318954467773,
+"tps": 134.0176023793582
+},
+"usaco-1593#0": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 25468,
+"latency": 155.09565949440002,
+"ttft": 0.8573079109191895,
+"tps": 165.1210593119932
+},
+"usaco-1593#1": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 24082,
+"latency": 146.6513032913208,
+"ttft": 0.6817784309387207,
+"tps": 164.97964231255884
+},
+"usaco-1593#2": {
+"pid": "usaco-1593",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 23819,
+"latency": 145.61477184295654,
+"ttft": 0.754286527633667,
+"tps": 164.4271724490799
+},
+"usaco-1594#0": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 86.957,
+"solved": false,
+"fail": "WA",
+"out": 22318,
+"latency": 54.219003677368164,
+"ttft": 0.7546069622039795,
+"tps": 417.43667508119313
+},
+"usaco-1594#1": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42569,
+"latency": 107.93923115730286,
+"ttft": 0.6381030082702637,
+"tps": 396.7246266122673
+},
+"usaco-1594#2": {
+"pid": "usaco-1594",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42751,
+"latency": 105.93193626403809,
+"ttft": 0.6504664421081543,
+"tps": 406.06385978755634
+},
+"usaco-1595#0": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12290,
+"latency": 69.20292067527771,
+"ttft": 1.005859136581421,
+"tps": 180.21304324126083
+},
+"usaco-1595#1": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 12266,
+"latency": 69.77023792266846,
+"ttft": 1.0105822086334229,
+"tps": 178.38949123033927
+},
+"usaco-1595#2": {
+"pid": "usaco-1595",
+"tier": "L3",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 16017,
+"latency": 91.7531042098999,
+"ttft": 1.4094696044921875,
+"tps": 177.28974564679808
+},
+"usaco-1452#0": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 15445,
+"latency": 102.73810267448425,
+"ttft": 1.2359809875488281,
+"tps": 152.16430694559523
+},
+"usaco-1452#1": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 47557,
+"latency": 349.00649642944336,
+"ttft": 0.6752877235412598,
+"tps": 136.52810546801342
+},
+"usaco-1452#2": {
+"pid": "usaco-1452",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 19397,
+"latency": 137.07153940200806,
+"ttft": 2.6915829181671143,
+"tps": 144.34444323050863
+},
+"usaco-1453#0": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 16.667,
+"solved": false,
+"fail": "WA",
+"out": 47653,
+"latency": 490.8147029876709,
+"ttft": 0.8585896492004395,
+"tps": 97.2597314386002
+},
+"usaco-1453#1": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 64010,
+"latency": 635.9262030124664,
+"ttft": 0.6077497005462646,
+"tps": 100.75262203752364
+},
+"usaco-1453#2": {
+"pid": "usaco-1453",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 73594,
+"latency": 744.5393886566162,
+"ttft": 0.6484720706939697,
+"tps": 98.93117170694691
+},
+"usaco-1454#0": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 10.0,
+"solved": false,
+"fail": "WA",
+"out": 235430,
+"latency": 1484.5413732528687,
+"ttft": 1.2117762565612793,
+"tps": 158.71725372212478
+},
+"usaco-1454#1": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 108729,
+"latency": 1059.047622680664,
+"ttft": 0.9914069175720215,
+"tps": 102.76297079506536
+},
+"usaco-1454#2": {
+"pid": "usaco-1454",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 99842,
+"latency": 958.325413942337,
+"ttft": 1.1558010578155518,
+"tps": 104.30962146731409
+},
+"usaco-1476#0": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38077,
+"latency": 105.26933097839355,
+"ttft": 0.7439141273498535,
+"tps": 364.28460318185085
+},
+"usaco-1476#1": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 29161,
+"latency": 83.95795488357544,
+"ttft": 0.6257498264312744,
+"tps": 349.9367379034691
+},
+"usaco-1476#2": {
+"pid": "usaco-1476",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 47503,
+"latency": 129.96122646331787,
+"ttft": 0.6994168758392334,
+"tps": 367.49446840949633
+},
+"usaco-1477#0": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 82244,
+"latency": 701.3716588020325,
+"ttft": 0.6038722991943359,
+"tps": 117.36270071778893
+},
+"usaco-1477#1": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 81996,
+"latency": 733.1481127738953,
+"ttft": 0.6139121055603027,
+"tps": 111.93470547203137
+},
+"usaco-1477#2": {
+"pid": "usaco-1477",
+"tier": "L4",
+"score": 7.143,
+"solved": false,
+"fail": "WA",
+"out": 96752,
+"latency": 876.5259704589844,
+"ttft": 0.9647870063781738,
+"tps": 110.5028430091855
+},
+"usaco-1478#0": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 44419,
+"latency": 377.70923686027527,
+"ttft": 0.8299558162689209,
+"tps": 117.86002105754763
+},
+"usaco-1478#1": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38870,
+"latency": 327.624858379364,
+"ttft": 0.7745850086212158,
+"tps": 118.92295392364616
+},
+"usaco-1478#2": {
+"pid": "usaco-1478",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 57479,
+"latency": 534.6268405914307,
+"ttft": 0.7106478214263916,
+"tps": 107.65547248491168
+},
+"usaco-1500#0": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 77293,
+"latency": 467.00071573257446,
+"ttft": 0.9876060485839844,
+"tps": 165.86014082825562
+},
+"usaco-1500#1": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 70875,
+"latency": 441.49485206604004,
+"ttft": 0.9898722171783447,
+"tps": 160.89488937064317
+},
+"usaco-1500#2": {
+"pid": "usaco-1500",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 78180,
+"latency": 449.03784918785095,
+"ttft": 1.277437448501587,
+"tps": 174.6023050503853
+},
+"usaco-1501#0": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 86684,
+"latency": 525.0368523597717,
+"ttft": 1.012730360031128,
+"tps": 165.4198659199183
+},
+"usaco-1501#1": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 52469,
+"latency": 307.42488503456116,
+"ttft": 1.0434343814849854,
+"tps": 171.2538402313789
+},
+"usaco-1501#2": {
+"pid": "usaco-1501",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 63807,
+"latency": 397.44715642929077,
+"ttft": 1.9417681694030762,
+"tps": 161.33029256752437
+},
+"usaco-1502#0": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 42434,
+"latency": 262.16155099868774,
+"ttft": 1.0238375663757324,
+"tps": 162.49663613218038
+},
+"usaco-1502#1": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 55762,
+"latency": 339.11461329460144,
+"ttft": 1.0475244522094727,
+"tps": 164.94359208682522
+},
+"usaco-1502#2": {
+"pid": "usaco-1502",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 43029,
+"latency": 269.45989871025085,
+"ttft": 1.3362693786621094,
+"tps": 160.48193927281955
+},
+"usaco-1525#0": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 62899,
+"latency": 663.5508334636688,
+"ttft": 0.7346720695495605,
+"tps": 94.89659978673849
+},
+"usaco-1525#1": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 56181,
+"latency": 582.1812555789948,
+"ttft": 0.6911208629608154,
+"tps": 96.61556859848628
+},
+"usaco-1525#2": {
+"pid": "usaco-1525",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 93197,
+"latency": 759.561995267868,
+"ttft": 0.7423760890960693,
+"tps": 122.81838482360524
+},
+"usaco-1548#0": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 38428,
+"latency": 387.1366672515869,
+"ttft": 0.64821457862854,
+"tps": 99.42858508250772
+},
+"usaco-1548#1": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 40648,
+"latency": 461.3802080154419,
+"ttft": 0.7780165672302246,
+"tps": 88.24968867863127
+},
+"usaco-1548#2": {
+"pid": "usaco-1548",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 34704,
+"latency": 422.0420870780945,
+"ttft": 1.4710664749145508,
+"tps": 82.51638439145849
+},
+"usaco-1549#0": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 28.571,
+"solved": false,
+"fail": "WA",
+"out": 61568,
+"latency": 527.1063160896301,
+"ttft": 1.2265348434448242,
+"tps": 117.0761877440912
+},
+"usaco-1549#2": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 37439,
+"latency": 304.9756712913513,
+"ttft": 0.8905768394470215,
+"tps": 123.12014197039687
+},
+"usaco-1549#1": {
+"pid": "usaco-1549",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 53848,
+"latency": 450.27588176727295,
+"ttft": 1.2656702995300293,
+"tps": 119.92600307235655
+},
+"usaco-1550#1": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 103907,
+"latency": 1572.992241859436,
+"ttft": 7.995223522186279,
+"tps": 66.39437569689255
+},
+"usaco-1572#0": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 106192,
+"latency": 1219.879878282547,
+"ttft": 1.5230588912963867,
+"tps": 87.16001610518222
+},
+"usaco-1572#1": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 153496,
+"latency": 1200.7633068561554,
+"ttft": 1.4265246391296387,
+"tps": 127.98406775806211
+},
+"usaco-1572#2": {
+"pid": "usaco-1572",
+"tier": "L4",
+"score": 18.182,
+"solved": false,
+"fail": "WA",
+"out": 161862,
+"latency": 1224.7759685516357,
+"ttft": 1.2489275932312012,
+"tps": 132.29131403030652
+},
+"usaco-1550#0": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 132423,
+"latency": 1435.5196619033813,
+"ttft": 2.7374184131622314,
+"tps": 92.42367470818253
+},
+"usaco-1550#2": {
+"pid": "usaco-1550",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 131244,
+"latency": 1419.0923700332642,
+"ttft": 1.290281057357788,
+"tps": 92.56863212467049
+},
+"usaco-1573#0": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "timeout",
+"out": 30479,
+"latency": 1500.7041051387787,
+"ttft": 5.294914960861206,
+"tps": null
+},
+"usaco-1526#1": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 145086,
+"latency": 936.1618502140045,
+"ttft": 1.0387277603149414,
+"tps": 155.15176185495847
+},
+"usaco-1526#2": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 103784,
+"latency": 1108.939152956009,
+"ttft": 0.9961071014404297,
+"tps": 93.67268506112629
+},
+"usaco-1526#0": {
+"pid": "usaco-1526",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 89492,
+"latency": 619.1054344177246,
+"ttft": 0.9901237487792969,
+"tps": 144.78204706359517
+},
+"usaco-1574#0": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 59924,
+"latency": 355.5679829120636,
+"ttft": 1.5308730602264404,
+"tps": 169.25909271228068
+},
+"usaco-1574#2": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 30.435,
+"solved": false,
+"fail": "WA",
+"out": 79314,
+"latency": 500.62654876708984,
+"ttft": 1.3383874893188477,
+"tps": 158.85415708039375
+},
+"fcs-0#0": {
+"pid": "fcs-0",
+"tier": "L5",
+"score": 34.112,
+"solved": false,
+"fail": "partial",
+"out": 71384,
+"latency": 485.61897134780884,
+"ttft": 1.2900817394256592,
+"tps": 147.3874499985318
+},
+"usaco-1596#0": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 76197,
+"latency": 973.6020777225494,
+"ttft": 1.091202735900879,
+"tps": 78.35079479295909
+},
+"usaco-1574#1": {
+"pid": "usaco-1574",
+"tier": "L4",
+"score": 30.435,
+"solved": false,
+"fail": "WA",
+"out": 159942,
+"latency": 986.5238807201385,
+"ttft": 1.3391695022583008,
+"tps": 162.34722096151953
+},
+"usaco-1596#2": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 81749,
+"latency": 1072.4032661914825,
+"ttft": 1.0034356117248535,
+"tps": 76.301113428181
+},
+"usaco-1573#2": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 81572,
+"latency": 1099.482857465744,
+"ttft": 1.0916211605072021,
+"tps": 74.26497708994066
+},
+"usaco-1573#1": {
+"pid": "usaco-1573",
+"tier": "L4",
+"score": 100.0,
+"solved": true,
+"fail": null,
+"out": 76885,
+"latency": 490.0524351596832,
+"ttft": 1.0023493766784668,
+"tps": 157.21293633330322
+},
+"usaco-1596#1": {
+"pid": "usaco-1596",
+"tier": "L4",
+"score": 14.286,
+"solved": false,
+"fail": "WA",
+"out": 61706,
+"latency": 451.7873537540436,
+"ttft": 1.5440013408660889,
+"tps": 137.05032993662923
+},
+"fcs-48#0": {
+"pid": "fcs-48",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 67752,
+"latency": 446.41359972953796,
+"ttft": 1.0006871223449707,
+"tps": 152.11054300922365
+},
+"fcs-6#0": {
+"pid": "fcs-6",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 80738,
+"latency": 1131.7091052532196,
+"ttft": 0.7678000926971436,
+"tps": 71.39008862050564
+},
+"fcs-58#0": {
+"pid": "fcs-58",
+"tier": "L5",
+"score": 60.067,
+"solved": false,
+"fail": "partial",
+"out": 36136,
+"latency": 435.2478210926056,
+"ttft": 0.6769039630889893,
+"tps": 83.15328655375774
+},
+"fcs-77#0": {
+"pid": "fcs-77",
+"tier": "L5",
+"score": 59.12,
+"solved": false,
+"fail": "partial",
+"out": 49916,
+"latency": 349.77515053749084,
+"ttft": 1.1698815822601318,
+"tps": 143.18773823929325
+},
+"fcs-42#0": {
+"pid": "fcs-42",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 93311,
+"latency": 853.1026351451874,
+"ttft": 0.8312397003173828,
+"tps": 109.48507775659111
+},
+"fcs-68#0": {
+"pid": "fcs-68",
+"tier": "L5",
+"score": 54.395,
+"solved": false,
+"fail": "partial",
+"out": 70360,
+"latency": 754.574319601059,
+"ttft": 2.2521069049835205,
+"tps": 93.52375725801434
+},
+"fcs-13#0": {
+"pid": "fcs-13",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 65191,
+"latency": 683.6431782245636,
+"ttft": 0.6483278274536133,
+"tps": 95.44874307924336
+},
+"fcs-30#0": {
+"pid": "fcs-30",
+"tier": "L5",
+"score": 42.553,
+"solved": false,
+"fail": "partial",
+"out": 75709,
+"latency": 1083.1365158557892,
+"ttft": 0.9826149940490723,
+"tps": 69.96139822599305
+},
+"fcs-23#0": {
+"pid": "fcs-23",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 70265,
+"latency": 891.584846496582,
+"ttft": 0.9706399440765381,
+"tps": 78.8949912128508
+},
+"fcs-141#0": {
+"pid": "fcs-141",
+"tier": "L5",
+"score": 39.47,
+"solved": false,
+"fail": "partial",
+"out": 119547,
+"latency": 831.3057012557983,
+"ttft": 1.041231393814087,
+"tps": 143.98665044629988
+},
+"fcs-148#0": {
+"pid": "fcs-148",
+"tier": "L5",
+"score": 14.167,
+"solved": false,
+"fail": "partial",
+"out": 65369,
+"latency": 635.8986654281616,
+"ttft": 1.2177340984344482,
+"tps": 102.99505904966243
+},
+"fcs-154#0": {
+"pid": "fcs-154",
+"tier": "L5",
+"score": 0.173,
+"solved": false,
+"fail": "partial",
+"out": 84543,
+"latency": 931.9192073345184,
+"ttft": 1.359755039215088,
+"tps": 90.85179865882569
+},
+"fcs-160#0": {
+"pid": "fcs-160",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 44318,
+"latency": 449.25474977493286,
+"ttft": 0.8458411693572998,
+"tps": 98.83389725198904
+},
+"fcs-166#0": {
+"pid": "fcs-166",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 69492,
+"latency": 824.6527397632599,
+"ttft": 0.8006086349487305,
+"tps": 84.3500882917264
+},
+"fcs-85#0": {
+"pid": "fcs-85",
+"tier": "L5",
+"score": 59.554,
+"solved": false,
+"fail": "partial",
+"out": 81723,
+"latency": 971.0221116542816,
+"ttft": 0.7428646087646484,
+"tps": 84.22626810667659
+},
+"fcs-174#0": {
+"pid": "fcs-174",
+"tier": "L5",
+"score": 29.836,
+"solved": false,
+"fail": "partial",
+"out": 57856,
+"latency": 681.4909789562225,
+"ttft": 0.7564060688018799,
+"tps": 84.99054154778206
+},
+"fcs-183#0": {
+"pid": "fcs-183",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 72597,
+"latency": 684.9596719741821,
+"ttft": 1.6503567695617676,
+"tps": 106.24324648385698
+},
+"fcs-104#0": {
+"pid": "fcs-104",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "WA",
+"out": 83938,
+"latency": 952.0240941047668,
+"ttft": 1.3752079010009766,
+"tps": 88.29548029576968
+},
+"fcs-193#0": {
+"pid": "fcs-193",
+"tier": "L5",
+"score": 60.407,
+"solved": false,
+"fail": "partial",
+"out": 51749,
+"latency": 498.42031931877136,
+"ttft": 0.8364934921264648,
+"tps": 104.00056696784398
+},
+"fcs-121#0": {
+"pid": "fcs-121",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 79256,
+"latency": 931.7189981937408,
+"ttft": 0.8037047386169434,
+"tps": 85.13771398667075
+},
+"fcs-211#0": {
+"pid": "fcs-211",
+"tier": "L5",
+"score": 52.262,
+"solved": false,
+"fail": "partial",
+"out": 82153,
+"latency": 493.1331033706665,
+"ttft": 1.6799826622009277,
+"tps": 167.16345168705095
+},
+"fcs-222#0": {
+"pid": "fcs-222",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "TLE",
+"out": 97471,
+"latency": 1158.5989186763763,
+"ttft": 0.9637875556945801,
+"tps": 84.19837769232211
+},
+"fcs-111#0": {
+"pid": "fcs-111",
+"tier": "L5",
+"score": 60.008,
+"solved": false,
+"fail": "partial",
+"out": 89434,
+"latency": 1118.471726179123,
+"ttft": 0.7445321083068848,
+"tps": 80.01415772508592
+},
+"fcs-132#0": {
+"pid": "fcs-132",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "TLE",
+"out": 158301,
+"latency": 1088.105738401413,
+"ttft": 0.9946222305297852,
+"tps": 145.6162094612568
+},
+"fcs-239#0": {
+"pid": "fcs-239",
+"tier": "L5",
+"score": 59.643,
+"solved": false,
+"fail": "partial",
+"out": 97901,
+"latency": 879.9025654792786,
+"ttft": 0.8559541702270508,
+"tps": 111.37179614879419
+},
+"fcs-249#0": {
+"pid": "fcs-249",
+"tier": "L5",
+"score": 60.158,
+"solved": false,
+"fail": "partial",
+"out": 125129,
+"latency": 602.4707243442535,
+"ttft": 0.6275811195373535,
+"tps": 207.90965454811095
+},
+"fcs-257#0": {
+"pid": "fcs-257",
+"tier": "L5",
+"score": 22.959,
+"solved": false,
+"fail": "partial",
+"out": 76865,
+"latency": 985.2217819690704,
+"ttft": 0.8005015850067139,
+"tps": 78.08140836818538
+},
+"fcs-304#0": {
+"pid": "fcs-304",
+"tier": "L5",
+"score": 0.0,
+"solved": false,
+"fail": "CE",
+"out": 83141,
+"latency": 564.1921465396881,
+"ttft": 1.2927298545837402,
+"tps": 147.7013433227814
+},
+"fcs-310#0": {
+"pid": "fcs-310",
+"tier": "L5",
+"score": 26.068,
+"solved": false,
+"fail": "partial",
+"out": 76735,
+"latency": 700.4490141868591,
+"ttft": 0.7394275665283203,
+"tps": 109.66692677548971
+}
+}
+},
+"agg": {
+"kimi-k3.1-pro": {
+"tiers": {
+"L1": {
+"perf_n": 12,
+"perf_geo": 0.4661952420067491,
+"perf_faster": 10,
+"perf_2x": 2,
+"mem_geo": 0.9544255490336764,
+"fails": {
+"TLE": 1
+}
+},
+"L2": {
+"perf_n": 9,
+"perf_geo": 0.871508239945431,
+"perf_faster": 6,
+"perf_2x": 0,
+"mem_geo": 1.248586730961602,
+"fails": {}
+},
+"L3": {
+"perf_n": 56,
+"perf_geo": 0.6316739555139909,
+"perf_faster": 43,
+"perf_2x": 0,
+"mem_geo": 0.8973142347945072,
+"fails": {
+"WA": 4
+}
+},
+"L4": {
+"perf_n": 47,
+"perf_geo": 0.7523269519537399,
+"perf_faster": 33,
+"perf_2x": 4,
+"mem_geo": 1.1122609009386872,
+"fails": {
+"TLE": 1,
+"WA": 3
+}
+},
+"L5": {
+"perf_n": 0,
+"perf_geo": null,
+"perf_faster": 0,
+"perf_2x": 0,
+"mem_geo": null,
+"fails": {
+"partial": 25,
+"CE": 2,
+"WA": 2,
+"RE": 1
+}
+}
+},
+"subsets": {
+"L3|2026": {
+"problems": 6,
+"samples": 18,
+"pass1": 100.0,
+"score": 100.0
+},
+"L3|USACO 2024-25": {
+"problems": 12,
+"samples": 36,
+"pass1": 100.0,
+"score": 100.0
+},
+"L3|USACO 2025-26": {
+"problems": 9,
+"samples": 27,
+"pass1": 85.18518518518519,
+"score": 89.01014814814815
+},
+"L4|USACO 2024-25": {
+"problems": 11,
+"samples": 33,
+"pass1": 100.0,
+"score": 100.0
+},
+"L4|USACO 2025-26": {
+"problems": 7,
+"samples": 21,
+"pass1": 80.95238095238095,
+"score": 88.12614285714285
+}
+},
+"complexity": {
+"L1": {
+"time": {
+"classes": {
+"same": 7,
+"better": 1,
+"no reference": 5,
+"uncertain": 3,
+"not measurable": 1
+},
+"k_median": 0.853,
+"better": [
+"usaco-1445#0"
+]
+},
+"space": {
+"classes": {
+"not measurable": 10,
+"same": 1,
+"no reference": 5,
+"uncertain": 1
+},
+"k_median": 1.002,
+"better": []
+}
+},
+"L2": {
+"time": {
+"classes": {
+"same": 8,
+"no reference": 10,
+"not measurable": 1
+},
+"k_median": 0.971,
+"better": []
+},
+"space": {
+"classes": {
+"same": 4,
+"not measurable": 5,
+"no reference": 10
+},
+"k_median": 0.9085000000000001,
+"better": []
+}
+},
+"L3": {
+"time": {
+"classes": {
+"no reference": 18,
+"uncertain": 10,
+"same": 42,
+"better": 7
+},
+"k_median": 0.982,
+"better": [
+"usaco-1473#0",
+"usaco-1473#1",
+"usaco-1473#2",
+"usaco-1499#1",
+"usaco-1522#2",
+"usaco-1569#1",
+"usaco-1569#2"
+]
+},
+"space": {
+"classes": {
+"no reference": 18,
+"not measurable": 53,
+"uncertain": 4,
+"same": 2
+},
+"k_median": 0.9495,
+"better": []
+}
+},
+"L4": {
+"time": {
+"classes": {
+"worse": 2,
+"same": 37,
+"uncertain": 4,
+"no reference": 3,
+"better": 4
+},
+"k_median": 0.952,
+"better": [
+"usaco-1526#2",
+"usaco-1549#2",
+"usaco-1572#1",
+"usaco-1596#0"
+]
+},
+"space": {
+"classes": {
+"worse": 2,
+"uncertain": 4,
+"not measurable": 41,
+"no reference": 3
+},
+"k_median": 1.5805,
+"better": []
+}
+}
+},
+"quality": {
+"all": {
+"n": 37,
+"pylint_issues": 5.216216216216216,
+"pylint_score": 8.90891891891892,
+"cc": 14.378378378378379,
+"mi": 58.09876121602737,
+"sloc": 55.729729729729726,
+"issues_per_100sloc": 9.35984481086324,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct": {
+"n": 36,
+"pylint_issues": 5.305555555555555,
+"pylint_score": 8.90638888888889,
+"cc": 14.666666666666666,
+"mi": 57.65289463223356,
+"sloc": 56.583333333333336,
+"issues_per_100sloc": 9.37653411880216,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L1": {
+"n": 17,
+"pylint_issues": 5.0588235294117645,
+"pylint_score": 8.696470588235295,
+"cc": 10.529411764705882,
+"mi": 64.09799624317651,
+"sloc": 39.705882352941174,
+"issues_per_100sloc": 12.74074074074074,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L2": {
+"n": 19,
+"pylint_issues": 5.526315789473684,
+"pylint_score": 9.09421052631579,
+"cc": 18.36842105263158,
+"mi": 51.88622476981092,
+"sloc": 71.6842105263158,
+"issues_per_100sloc": 7.709251101321586,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L3": null,
+"correct|L4": null,
+"correct|L5": null
+},
+"usage": {
+"per_tier": {
+"L1": {
+"completion": 126056,
+"calls": 18,
+"cost": 1.294716,
+"latency_median": 167.81532037258148,
+"tps_median": 30.0012705547092,
+"ttft_median": 1.903896689414978
+},
+"L2": {
+"completion": 341437,
+"calls": 19,
+"cost": 3.4498844,
+"latency_median": 394.0186605453491,
+"tps_median": 27.99498029978861,
+"ttft_median": 1.8763699531555176
+},
+"L3": {
+"completion": 1251883,
+"calls": 81,
+"cost": 12.689915600000003,
+"latency_median": 379.5777328014374,
+"tps_median": 24.32436741675827,
+"ttft_median": 2.9715607166290283
+},
+"L4": {
+"completion": 2217268,
+"calls": 54,
+"cost": 22.276441600000002,
+"latency_median": 1274.3022527694702,
+"tps_median": 24.80255997047403,
+"ttft_median": 2.537556529045105
+},
+"L5": {
+"completion": 1033213,
+"calls": 30,
+"cost": 10.408514,
+"latency_median": 1213.7317953109741,
+"tps_median": 28.39633347294814,
+"ttft_median": 2.0070955753326416
+}
+},
+"cost": 50.1194716,
+"calls": 202,
+"completion": 4969857,
+"reasoning": 4727645,
+"tps_median": 25.573813887145278,
+"ttft": {
+"n": 202,
+"mean": 2.91005000973692,
+"median": 2.318902373313904,
+"p90": 4.1356728076934814,
+"max": 32.62498497962952
+},
+"latency": {
+"n": 202,
+"mean": 982.3679846123894,
+"median": 674.988088965416,
+"p90": 2217.5452930927277,
+"max": 5422.231184720993
+}
+}
+},
+"kimi-k3.1-pro-high": {
+"tiers": {
+"L4": {
+"perf_n": 32,
+"perf_geo": 0.7399037053335702,
+"perf_faster": 23,
+"perf_2x": 3,
+"mem_geo": 1.1140427418222596,
+"fails": {
+"WA": 18,
+"TLE": 1
+}
+},
+"L5": {
+"perf_n": 0,
+"perf_geo": null,
+"perf_faster": 0,
+"perf_2x": 0,
+"mem_geo": null,
+"fails": {
+"partial": 27,
+"WA": 2,
+"CE": 1
+}
+}
+},
+"subsets": {
+"L4|USACO 2024-25": {
+"problems": 11,
+"samples": 33,
+"pass1": 81.81818181818181,
+"score": 86.62645454545455
+},
+"L4|USACO 2025-26": {
+"problems": 7,
+"samples": 21,
+"pass1": 38.095238095238095,
+"score": 51.229238095238095
+}
+},
+"complexity": {
+"L4": {
+"time": {
+"classes": {
+"worse": 1,
+"same": 26,
+"uncertain": 3,
+"no reference": 3,
+"better": 2
+},
+"k_median": 0.952,
+"better": [
+"usaco-1549#2",
+"usaco-1596#0"
+]
+},
+"space": {
+"classes": {
+"worse": 2,
+"uncertain": 2,
+"not measurable": 28,
+"no reference": 3
+},
+"k_median": 1.5805,
+"better": []
+}
+}
+},
+"quality": {
+"all": null,
+"correct": null,
+"correct|L1": null,
+"correct|L2": null,
+"correct|L3": null,
+"correct|L4": null,
+"correct|L5": null
+},
+"usage": {
+"per_tier": {
+"L4": {
+"completion": 1716306,
+"calls": 54,
+"cost": 17.266857599999998,
+"latency_median": 1200.2534192800522,
+"tps_median": 24.3529163594414,
+"ttft_median": 3.024460792541504
+},
+"L5": {
+"completion": 459226,
+"calls": 30,
+"cost": 4.668704000000001,
+"latency_median": 550.7637236118317,
+"tps_median": 25.42199745402676,
+"ttft_median": 2.32530677318573
+}
+},
+"cost": 21.9355616,
+"calls": 84,
+"completion": 2175532,
+"reasoning": 2034356,
+"tps_median": 24.716651267005343,
+"ttft": {
+"n": 84,
+"mean": 3.040263823100499,
+"median": 2.493939757347107,
+"p90": 5.293114185333252,
+"max": 12.910468578338623
+},
+"latency": {
+"n": 84,
+"mean": 1080.9805256355376,
+"median": 938.765373468399,
+"p90": 2288.133098602295,
+"max": 3693.204461336136
+}
+}
+},
+"deepseek-flash": {
+"tiers": {
+"L1": {
+"perf_n": 11,
+"perf_geo": 0.4871712375959452,
+"perf_faster": 10,
+"perf_2x": 1,
+"mem_geo": 0.9772823014515586,
+"fails": {
+"TLE": 3
+}
+},
+"L2": {
+"perf_n": 8,
+"perf_geo": 0.805971170404319,
+"perf_faster": 7,
+"perf_2x": 0,
+"mem_geo": 1.3382372391779136,
+"fails": {
+"TLE": 3
+}
+},
+"L3": {
+"perf_n": 57,
+"perf_geo": 0.5596964975371168,
+"perf_faster": 47,
+"perf_2x": 2,
+"mem_geo": 0.888040554424935,
+"fails": {
+"WA": 2,
+"TLE": 1
+}
+},
+"L4": {
+"perf_n": 36,
+"perf_geo": 0.9411355580045501,
+"perf_faster": 18,
+"perf_2x": 8,
+"mem_geo": 1.2619406300204385,
+"fails": {
+"WA": 12,
+"no code": 1,
+"RE": 1,
+"TLE": 1
+}
+},
+"L5": {
+"perf_n": 0,
+"perf_geo": null,
+"perf_faster": 0,
+"perf_2x": 0,
+"mem_geo": null,
+"fails": {
+"partial": 23,
+"WA": 4,
+"no code": 2,
+"CE": 1
+}
+}
+},
+"subsets": {
+"L3|2026": {
+"problems": 6,
+"samples": 18,
+"pass1": 100.0,
+"score": 100.0
+},
+"L3|USACO 2024-25": {
+"problems": 12,
+"samples": 36,
+"pass1": 94.44444444444444,
+"score": 98.62922222222223
+},
+"L3|USACO 2025-26": {
+"problems": 9,
+"samples": 27,
+"pass1": 96.29629629629629,
+"score": 96.64903703703703
+},
+"L4|USACO 2024-25": {
+"problems": 11,
+"samples": 33,
+"pass1": 75.75757575757575,
+"score": 78.07360606060607
+},
+"L4|USACO 2025-26": {
+"problems": 7,
+"samples": 21,
+"pass1": 66.66666666666667,
+"score": 74.2424761904762
+}
+},
+"complexity": {
+"L1": {
+"time": {
+"classes": {
+"not measurable": 4,
+"better": 1,
+"same": 4,
+"no reference": 4,
+"uncertain": 2
+},
+"k_median": 0.914,
+"better": [
+"usaco-1444#0"
+]
+},
+"space": {
+"classes": {
+"not measurable": 9,
+"same": 1,
+"no reference": 4,
+"uncertain": 1
+},
+"k_median": 0.832,
+"better": []
+}
+},
+"L2": {
+"time": {
+"classes": {
+"same": 5,
+"no reference": 8,
+"not measurable": 3
+},
+"k_median": 1.01,
+"better": []
+},
+"space": {
+"classes": {
+"same": 3,
+"not measurable": 5,
+"no reference": 8
+},
+"k_median": 0.926,
+"better": []
+}
+},
+"L3": {
+"time": {
+"classes": {
+"no reference": 18,
+"uncertain": 10,
+"same": 42,
+"worse": 1,
+"not measurable": 3,
+"better": 4
+},
+"k_median": 0.965,
+"better": [
+"usaco-1547#0",
+"usaco-1547#2",
+"usaco-1569#1",
+"usaco-1569#2"
+]
+},
+"space": {
+"classes": {
+"no reference": 18,
+"not measurable": 52,
+"uncertain": 6,
+"same": 2
+},
+"k_median": 1.1840000000000002,
+"better": []
+}
+},
+"L4": {
+"time": {
+"classes": {
+"not measurable": 4,
+"same": 27,
+"uncertain": 1,
+"better": 4,
+"no reference": 3
+},
+"k_median": 0.947,
+"better": [
+"usaco-1502#0",
+"usaco-1502#2",
+"usaco-1596#0",
+"usaco-1596#1"
+]
+},
+"space": {
+"classes": {
+"worse": 1,
+"same": 1,
+"uncertain": 5,
+"not measurable": 29,
+"no reference": 3
+},
+"k_median": 1.395,
+"better": []
+}
+}
+},
+"quality": {
+"all": {
+"n": 37,
+"pylint_issues": 8.72972972972973,
+"pylint_score": 8.684594594594595,
+"cc": 19.027027027027028,
+"mi": 51.152050146228746,
+"sloc": 67.10810810810811,
+"issues_per_100sloc": 13.008457511075312,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct": {
+"n": 31,
+"pylint_issues": 8.225806451612904,
+"pylint_score": 8.718387096774194,
+"cc": 18.580645161290324,
+"mi": 51.44345962251584,
+"sloc": 65.19354838709677,
+"issues_per_100sloc": 12.617516081147947,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L1": {
+"n": 15,
+"pylint_issues": 6.066666666666666,
+"pylint_score": 8.564,
+"cc": 10.933333333333334,
+"mi": 56.18306071624216,
+"sloc": 40.93333333333333,
+"issues_per_100sloc": 14.82084690553746,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L2": {
+"n": 16,
+"pylint_issues": 10.25,
+"pylint_score": 8.863125,
+"cc": 25.75,
+"mi": 47.0000835971474,
+"sloc": 87.9375,
+"issues_per_100sloc": 11.656005685856432,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L3": null,
+"correct|L4": null,
+"correct|L5": null
+},
+"usage": {
+"per_tier": {
+"L1": {
+"completion": 180163,
+"calls": 18,
+"cost": 0.108677292,
+"latency_median": 49.217981934547424,
+"tps_median": 202.20327745463953,
+"ttft_median": 0.5641722679138184
+},
+"L2": {
+"completion": 478519,
+"calls": 19,
+"cost": 0.287704995,
+"latency_median": 105.69694638252258,
+"tps_median": 206.46691626371435,
+"ttft_median": 0.5714414119720459
+},
+"L3": {
+"completion": 2408044,
+"calls": 81,
+"cost": 1.4490881160000002,
+"latency_median": 126.03211116790771,
+"tps_median": 201.93694468580577,
+"ttft_median": 0.505535364151001
+},
+"L4": {
+"completion": 3706120,
+"calls": 54,
+"cost": 3.006121308,
+"latency_median": 397.7375830411911,
+"tps_median": 166.2406666185429,
+"ttft_median": 0.6168835163116455
+},
+"L5": {
+"completion": 1554980,
+"calls": 30,
+"cost": 0.9383396219999999,
+"latency_median": 232.5489547252655,
+"tps_median": 180.6620451981146,
+"ttft_median": 0.5811172723770142
+}
+},
+"cost": 5.789931332999999,
+"calls": 202,
+"completion": 8327826,
+"reasoning": 8094630,
+"tps_median": 195.25522535328312,
+"ttft": {
+"n": 202,
+"mean": 0.5876746272096539,
+"median": 0.5565751791000366,
+"p90": 0.7806282043457031,
+"max": 5.74660849571228
+},
+"latency": {
+"n": 202,
+"mean": 235.18382271681682,
+"median": 162.48001158237457,
+"p90": 577.3325543403625,
+"max": 883.9859964847565
+}
+}
+},
+"MiniMax-M3.1-Flash": {
+"tiers": {
+"L1": {
+"perf_n": 10,
+"perf_geo": 0.4188941466685478,
+"perf_faster": 9,
+"perf_2x": 1,
+"mem_geo": 0.7957046827245126,
+"fails": {
+"WA": 1,
+"RE": 1,
+"TLE": 1
+}
+},
+"L2": {
+"perf_n": 8,
+"perf_geo": 0.5449219638337186,
+"perf_faster": 8,
+"perf_2x": 0,
+"mem_geo": 1.135140541685881,
+"fails": {
+"WA": 2,
+"TLE": 1
+}
+},
+"L3": {
+"perf_n": 51,
+"perf_geo": 0.44841555993443105,
+"perf_faster": 43,
+"perf_2x": 0,
+"mem_geo": 0.8329795031022931,
+"fails": {
+"WA": 9,
+"CE": 3
+}
+},
+"L4": {
+"perf_n": 27,
+"perf_geo": 0.542530311103107,
+"perf_faster": 22,
+"perf_2x": 2,
+"mem_geo": 0.978225962649406,
+"fails": {
+"WA": 12,
+"CE": 11,
+"timeout": 1
+}
+},
+"L5": {
+"perf_n": 0,
+"perf_geo": null,
+"perf_faster": 0,
+"perf_2x": 0,
+"mem_geo": null,
+"fails": {
+"partial": 17,
+"CE": 7,
+"WA": 4,
+"TLE": 2
+}
+}
+},
+"subsets": {
+"L3|2026": {
+"problems": 6,
+"samples": 18,
+"pass1": 83.33333333333333,
+"score": 84.44444444444444
+},
+"L3|USACO 2024-25": {
+"problems": 12,
+"samples": 36,
+"pass1": 86.11111111111111,
+"score": 89.16666666666667
+},
+"L3|USACO 2025-26": {
+"problems": 9,
+"samples": 27,
+"pass1": 85.18518518518519,
+"score": 89.1112962962963
+},
+"L4|USACO 2024-25": {
+"problems": 11,
+"samples": 33,
+"pass1": 66.66666666666667,
+"score": 67.69121212121212
+},
+"L4|USACO 2025-26": {
+"problems": 7,
+"samples": 21,
+"pass1": 38.095238095238095,
+"score": 45.63204761904762
+}
+},
+"complexity": {
+"L1": {
+"time": {
+"classes": {
+"better": 4,
+"same": 4,
+"no reference": 5,
+"uncertain": 2
+},
+"k_median": 0.736,
+"better": [
+"usaco-1443#0",
+"usaco-1444#0",
+"usaco-1515#0",
+"usaco-1539#0"
+]
+},
+"space": {
+"classes": {
+"not measurable": 9,
+"no reference": 5,
+"uncertain": 1
+},
+"k_median": null,
+"better": []
+}
+},
+"L2": {
+"time": {
+"classes": {
+"same": 6,
+"no reference": 8,
+"uncertain": 1,
+"better": 1
+},
+"k_median": 0.866,
+"better": [
+"usaco-1542#0"
+]
+},
+"space": {
+"classes": {
+"same": 3,
+"not measurable": 5,
+"no reference": 8
+},
+"k_median": 0.891,
+"better": []
+}
+},
+"L3": {
+"time": {
+"classes": {
+"no reference": 15,
+"uncertain": 9,
+"same": 29,
+"better": 16
+},
+"k_median": 0.921,
+"better": [
+"usaco-1473#1",
+"usaco-1473#2",
+"usaco-1497#0",
+"usaco-1497#1",
+"usaco-1498#0",
+"usaco-1498#2",
+"usaco-1499#0",
+"usaco-1499#1",
+"usaco-1522#0",
+"usaco-1522#2",
+"usaco-1547#1",
+"usaco-1547#2",
+"usaco-1569#0",
+"usaco-1569#1",
+"usaco-1569#2",
+"usaco-1594#2"
+]
+},
+"space": {
+"classes": {
+"no reference": 15,
+"not measurable": 49,
+"uncertain": 4,
+"same": 1
+},
+"k_median": 1.142,
+"better": []
+}
+},
+"L4": {
+"time": {
+"classes": {
+"uncertain": 1,
+"same": 20,
+"better": 6,
+"no reference": 3
+},
+"k_median": 0.9025000000000001,
+"better": [
+"usaco-1502#0",
+"usaco-1502#2",
+"usaco-1526#2",
+"usaco-1549#1",
+"usaco-1549#2",
+"usaco-1596#2"
+]
+},
+"space": {
+"classes": {
+"worse": 1,
+"not measurable": 23,
+"uncertain": 3,
+"no reference": 3
+},
+"k_median": 1.376,
+"better": []
+}
+}
+},
+"quality": {
+"all": {
+"n": 37,
+"pylint_issues": 4.891891891891892,
+"pylint_score": 9.003783783783783,
+"cc": 14.72972972972973,
+"mi": 62.41986738065288,
+"sloc": 54.75675675675676,
+"issues_per_100sloc": 8.933859822309971,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct": {
+"n": 31,
+"pylint_issues": 5.032258064516129,
+"pylint_score": 8.964516129032258,
+"cc": 14.870967741935484,
+"mi": 62.62555834882226,
+"sloc": 53.12903225806452,
+"issues_per_100sloc": 9.47176684881603,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L1": {
+"n": 15,
+"pylint_issues": 4.333333333333333,
+"pylint_score": 8.874666666666666,
+"cc": 11.6,
+"mi": 65.47643084248168,
+"sloc": 40.86666666666667,
+"issues_per_100sloc": 10.603588907014682,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L2": {
+"n": 16,
+"pylint_issues": 5.6875,
+"pylint_score": 9.04875,
+"cc": 17.9375,
+"mi": 59.952865386016555,
+"sloc": 64.625,
+"issues_per_100sloc": 8.800773694390715,
+"sonar_maintainability": null,
+"sonar_reliability": null,
+"sonar_security": null
+},
+"correct|L3": null,
+"correct|L4": null,
+"correct|L5": null
+},
+"usage": {
+"per_tier": {
+"L1": {
+"completion": 270523,
+"calls": 18,
+"cost": 0.16486773000000002,
+"latency_median": 64.42227268218994,
+"tps_median": 171.78677191584035,
+"ttft_median": 0.7808830738067627
+},
+"L2": {
+"completion": 751967,
+"calls": 19,
+"cost": 0.454146285,
+"latency_median": 193.79168677330017,
+"tps_median": 160.3418672688224,
+"ttft_median": 0.9629287719726562
+},
+"L3": {
+"completion": 2948749,
+"calls": 81,
+"cost": 1.7761135950000004,
+"latency_median": 200.18435430526733,
+"tps_median": 146.92774592832043,
+"ttft_median": 0.7563140392303467
+},
+"L4": {
+"completion": 4112857,
+"calls": 54,
+"cost": 2.4717172950000004,
+"latency_median": 526.0715842247009,
+"tps_median": 122.81838482360524,
+"ttft_median": 1.012730360031128
+},
+"L5": {
+"completion": 2378280,
+"calls": 30,
+"cost": 1.4324292150000004,
+"latency_median": 789.6135296821594,
+"tps_median": 97.14132016561621,
+"ttft_median": 0.9098708629608154
+}
+},
+"cost": 6.29927412,
+"calls": 202,
+"completion": 10462376,
+"reasoning": 10054616,
+"tps_median": 144.78204706359517,
+"ttft": {
+"n": 202,
+"mean": 1.0984022912412588,
+"median": 0.8566352128982544,
+"p90": 1.5471949577331543,
+"max": 7.995223522186279
+},
+"latency": {
+"n": 202,
+"mean": 428.1129586177297,
+"median": 323.5578541755676,
+"p90": 973.6020777225494,
+"max": 1572.992241859436
+}
+}
+}
+}
+}

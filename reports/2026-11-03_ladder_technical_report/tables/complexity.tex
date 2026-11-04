@@ -1,0 +1,22 @@
+\begin{tabular}{@{}llrrrrrr@{}}
+\toprule
+档位 & 模型 & 更优 & 同阶 & 更差 & 不确定 & 不可测 & $k$ 中位数 \\
+\midrule
+\multirow{3}{*}{L1 基础} & Kimi & 1 & 7 & 0 & 3 & 1 & 0.85 \\
+ & DeepSeek & 1 & 4 & 0 & 2 & 4 & 0.91 \\
+ & MiniMax & 4 & 4 & 0 & 2 & 0 & 0.74 \\
+\cmidrule(lr){1-8}
+\multirow{3}{*}{L2 中等} & Kimi & 0 & 8 & 0 & 0 & 1 & 0.97 \\
+ & DeepSeek & 0 & 5 & 0 & 0 & 3 & 1.01 \\
+ & MiniMax & 1 & 6 & 0 & 1 & 0 & 0.87 \\
+\cmidrule(lr){1-8}
+\multirow{3}{*}{L3 困难} & Kimi & 7 & 42 & 0 & 10 & 0 & 0.98 \\
+ & DeepSeek & 4 & 42 & 1 & 10 & 3 & 0.96 \\
+ & MiniMax & 16 & 29 & 0 & 9 & 0 & 0.92 \\
+\cmidrule(lr){1-8}
+\multirow{4}{*}{L4 顶尖} & Kimi & 4 & 37 & 2 & 4 & 0 & 0.95 \\
+ & Kimi（high） & 2 & 26 & 1 & 3 & 0 & 0.95 \\
+ & DeepSeek & 4 & 27 & 0 & 1 & 4 & 0.95 \\
+ & MiniMax & 6 & 20 & 0 & 1 & 0 & 0.90 \\
+\bottomrule
+\end{tabular}
