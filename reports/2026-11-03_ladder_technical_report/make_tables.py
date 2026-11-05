@@ -202,6 +202,7 @@ write("cost.tex", "\\begin{tabular}{@{}llrrrrrrrr@{}}\n\\toprule\n档位 & 模�
 lines = []
 for t in ("L4", "L5"):
     for q, h, mx in e[t]["samples"]:
-        lines.append(f"{q.replace('#0', '') if t == 'L5' else q.replace('#', '\\#')} & {t} & {h:.1f} & {mx:.1f} & {sgn(mx - h)} \\\\")
+        qid = q.replace("#0", "") if t == "L5" else q.replace("#", "\\#")  # outside the f-string: Python 3.11 allows no backslash in one
+        lines.append(f"{qid} & {t} & {h:.1f} & {mx:.1f} & {sgn(mx - h)} \\\\")
 write("effort_samples.tex", "\\begin{longtable}{@{}llrrr@{}}\n\\toprule\n采样 & 档位 & high 得分 $\\uparrow$ & max 得分 $\\uparrow$ & 变化 \\\\\n\\midrule\\endhead\n" + "\n".join(lines) + "\n\\bottomrule\n\\end{longtable}\n")
 print("tables:", sorted(os.listdir(OUT)))

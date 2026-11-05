@@ -15,6 +15,10 @@ bash build.sh      # collect → analysis → 图 → 表 → xelatex + bibtex�
 | `make_figures.py` | 生成 `figures/fig*.pdf`（同时生成 png，用于检查） |
 | `make_tables.py` | 生成 `tables/*.tex` |
 | `main.tex`、`refs.bib` | 正文与参考文献 |
+| `site.py`、`site_assets/` | 生成公开网站 [bai-ai-lab.github.io/coding-eval](https://bai-ai-lab.github.io/coding-eval/)（仓库 `BAI-AI-Lab/coding-eval`），数字与 `main.pdf` 同源 |
+| `problem_summaries.json` | 每题一句题意概述，据官方题面撰写，不含题面原文 |
+
+网站：`python site.py <coding-eval 仓库目录>`，需要 `data/` 与 pygments；`archive/` 下的往期评测不会被改动。
 
 `data/` 存放原始运行数据，其中的调用记录带有完整题面，**不得提交到公开仓库**（见 `.gitignore`）。
 
