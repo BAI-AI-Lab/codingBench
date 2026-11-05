@@ -780,7 +780,7 @@ def results():
 </ul>
 <h3 id="pairwise">差距是否可信？</h3>
 {pairwise_table()}
-<p class="note">L1–L4 与合计为 pass@1 之差（百分点），L5 为平均得分之差；方括号内为配对 bootstrap 的 95% 区间，* 与粗体表示区间不含 0。胜/平/负为逐题比较的题数（每题所有采样的平均得分，相差不到 0.05 分记为持平），p 为精确符号检验。</p>
+<p class="note">L1–L4 与合计为 pass@1 之差（百分点），L5 为平均得分之差；方括号内为配对 bootstrap 的 95% 区间，* 与粗体表示区间不含 0。胜/平/负为逐题比较的题数（每题所有采样的平均得分，相差不到 0.05 分记为持平）。</p>
 <ul class="list">
 <li><b>三组差距在 L1–L4 合计上都显著。</b>Kimi 领先 DeepSeek {kd['diff']:.1f} 个百分点 {ci(kd['ci'])}，领先 MiniMax {km['diff']:.1f} 个百分点 {ci(km['ci'])}；DeepSeek 领先 MiniMax {dm['diff']:.1f} 个百分点 {ci(dm['ci'])}。逐题比较全部 {len(ORDER)} 题，胜负分别为 {kda['wins']} 比 {kda['losses']}（{pv(kda['p'])}）、{kma['wins']} 比 {kma['losses']}（{pv(kma['p'])}）与 {dma['wins']} 比 {dma['losses']}（{pv(dma['p'])}）。</li>
 <li><b>显著差距出现在 L3 以上。</b>L1、L2 的差值区间都含 0；Kimi 与 DeepSeek 在 L3 上没有差别，在 L4 与 L5 上 Kimi 显著领先；DeepSeek 与 MiniMax 的差距在 L3、L4 上显著，在 L5 上不显著。</li>
@@ -1004,7 +1004,7 @@ def custom():
         [("<code>CB_POST</code>", "nw"), ("1", "nw"), ("生成结束后自动判题、复测性能、拟合复杂度、统计静态质量并写报告", ""), ("保持默认；设 <code>0</code> 跳过，之后用 <code>cb ladder-post</code> 补跑", "")],
     ])
     fixed = table([("项目", ""), ("固定为", "")], [
-        [("题单", "nw"), (f"<code>samples/ladder.json</code>：本站的 {len(ORDER)} 题", "")],
+        [("题单", "nw"), (f"本站的 {len(ORDER)} 题，题号见 <a href=\"problems.html\">题目</a> 与 <code>data/ladder.json</code>；服务器上的清单由 <code>cb ladder-build --manifest</code> 生成", "")],
         [("提示词", "nw"), ("USACO、EGOI 沿用 LiveCodeBench 的写法；FrontierCS 用其官方提示词（见 <a href=\"method.html#prompts\">原理 › 提示词</a>）", "")],
         [("判题", "nw"), ("官方时限、官方测试数据与 checker，按来源的官方规则计分", "")],
         [("运行效率与复杂度", "nw"), ("与官方解在同一台机器上交替运行比较", "")],
