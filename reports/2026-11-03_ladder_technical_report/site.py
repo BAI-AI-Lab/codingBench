@@ -15,7 +15,9 @@ import os
 import re
 import shutil
 import statistics
+import subprocess
 import sys
+from html.parser import HTMLParser
 
 from pygments import highlight
 from pygments.formatters import HtmlFormatter
@@ -30,7 +32,7 @@ ARCHIVE = "archive/2026-10-23/index.html"  # the LiveCodeBench newest-35 evaluat
 A = json.load(open(os.path.join(HERE, "analysis.json")))
 D = json.load(open(os.path.join(HERE, "paper_data.json")))
 META = json.load(open(os.path.join(HERE, "data", "dirs", "meta.json")))["meta"]
-SUMMARY = json.load(open(os.path.join(HERE, "problem_summaries.json")))
+SRC = os.path.join(HERE, "data", "statements_src")  # official statements, from fetch_statements.py
 esc = html.escape
 
 KIMI, HIGH, DS, MM = "kimi-k3.1-pro", "kimi-k3.1-pro-high", "deepseek-flash", "MiniMax-M3.1-Flash"
@@ -69,7 +71,7 @@ ANS, JUDGE, PERF, CPLXR, QUAL = load("answers.jsonl"), load("judge.jsonl"), load
 for m in ALL:
     assert set(ANS[m]) == set(SAMP[m]), m
 ORDER = [p for t in TIERS for p in D["tiers"][t]]
-assert set(ORDER) == set(META) == set(SUMMARY) and len(ORDER) == 112
+assert set(ORDER) == set(META) and len(ORDER) == 112
 
 
 def models_in(t):
@@ -158,8 +160,6 @@ def title(pid):
     t = META[pid]["title"]
     if META[pid]["source"] == "egoi2026":
         return re.sub(r"^[A-Z]\. ", "", t)
-    if META[pid]["source"] == "frontiercs":
-        return f"FrontierCS 第 {pid.split('-')[1]} 题"
     return t
 
 
@@ -174,6 +174,74 @@ def time_limit(pid):
             if tl:
                 return max(tl)
     return None
+
+
+# ---------------------------------------------------------------- official statements
+class Clean(HTMLParser):
+    """The statement part of a USACO page with only plain formatting tags kept (no attributes, scripts or styles)."""
+    KEEP = {"p", "br", "pre", "code", "b", "strong", "i", "em", "ul", "ol", "li", "h3", "h4", "sup", "sub", "center", "tt"}
+
+    def __init__(self, img):
+        super().__init__(convert_charrefs=True)
+        self.out, self.skip, self.img = [], 0, img
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ("script", "style"):
+            self.skip += 1
+        elif tag == "img":
+            src = dict(attrs).get("src", "")
+            self.out.append(f'<img src="img/{esc(os.path.basename(src))}" alt="figure">')
+            self.img.append(os.path.basename(src))
+        elif tag in self.KEEP and not self.skip:
+            self.out.append("<br>" if tag == "br" else f"<{tag}>")
+
+    def handle_endtag(self, tag):
+        if tag in ("script", "style"):
+            self.skip -= 1
+        elif tag in self.KEEP and tag != "br" and not self.skip:
+            self.out.append(f"</{tag}>")
+
+    def handle_data(self, data):
+        if not self.skip:
+            self.out.append(esc(data, quote=False))
+
+
+USACO_IMG = set()
+
+
+def statement(pid):
+    """(html, note) of the official English statement: the USACO page text, the EGOI PDF pages, FrontierCS's statement.txt."""
+    kind, rest = pid.split("-", 1)
+    if kind == "usaco":
+        h = open(os.path.join(SRC, "usaco", f"{rest}.html"), errors="replace").read()
+        body = re.search(r'<span id="probtext-text"[^>]*>(.*?)</span>\s*</div>', h, re.S).group(1)
+        imgs = []
+        c = Clean(imgs)
+        c.feed(body)
+        c.close()
+        USACO_IMG.update(imgs)
+        return f'<div class="stmt">{"".join(c.out)}</div>', "来源：USACO 官网。模型收到的是同一份题面的文字" + ("，不含图片。" if imgs else "。")
+    if kind == "egoi26":
+        pdf = os.path.join(SRC, "egoi", f"{rest}.pdf")
+        dst = os.path.join(OUT, "p", "egoi")
+        os.makedirs(dst, exist_ok=True)
+        subprocess.run(["pdftoppm", "-png", "-r", "110", pdf, os.path.join(dst, rest)], check=True, capture_output=True)
+        pages = sorted(f for f in os.listdir(dst) if re.fullmatch(re.escape(rest) + r"-\d+\.png", f))
+        imgs = "".join(f'<img loading="lazy" src="egoi/{f}" alt="EGOI 2026 {esc(title(pid))} 官方题面第 {i + 1} 页">'
+                       for i, f in enumerate(pages))
+        return f'<div class="pdfpages">{imgs}</div>', "来源：EGOI 2026 官方 PDF。模型收到的是由同一份 Typst 源文件转换的文字。"
+    text = open(os.path.join(SRC, "frontiercs", f"{rest}.txt")).read().strip()
+    return f'<div class="stmt plain">{esc(text, quote=False)}</div>', "来源：FrontierCS 官方 statement.txt，与模型收到的题面相同。"
+
+
+KATEX = """<link rel="stylesheet" href="../assets/katex/katex.min.css">
+<script defer src="../assets/katex/katex.min.js"></script>
+<script defer src="../assets/katex/contrib/auto-render.min.js"></script>
+<script>document.addEventListener("DOMContentLoaded", function () {
+  var el = document.querySelector(".stmt");
+  if (el && window.renderMathInElement) renderMathInElement(el, {delimiters: [{left: "$$", right: "$$", display: true},
+    {left: "$", right: "$", display: false}, {left: "\\\\(", right: "\\\\)", display: false}], throwOnError: false});
+});</script>"""
 
 
 # ---------------------------------------------------------------- references (refs.bib, plus the agent section)
@@ -237,7 +305,7 @@ NAV = [("index.html", "概览"), ("problems.html", "题目"), ("method.html", "�
        ("custom.html", "自定义评测"), (REPORT, "报告")]
 
 
-def page(path, title_, body, desc, extra_css=""):
+def page(path, title_, body, desc, extra_css="", head=""):
     up = "../" * path.count("/")
     cur = ' aria-current="page"'
     links = "".join(f'<li><a href="{up}{h}"{cur if h == path else ""}>{t}</a></li>' for h, t in NAV)
@@ -251,7 +319,7 @@ def page(path, title_, body, desc, extra_css=""):
 <title>{esc(title_)}</title>
 <meta name="description" content="{esc(desc)}">
 <link rel="icon" href="{up}assets/icon.svg" type="image/svg+xml">
-{css}
+{css}{head}
 </head>
 <body>
 <nav class="nav"><div class="nav-in"><a class="brand" href="{up}index.html"><span class="hide-sm">BAI AI Lab </span>代码评测</a><ul>{links}</ul></div></nav>
@@ -260,7 +328,7 @@ def page(path, title_, body, desc, extra_css=""):
 </main>
 <footer><div class="wrap">
 <p>BAI AI Lab 代码能力阶梯评测 · 数据截至 {DATE}</p>
-<p>题目来自 USACO、EGOI 2026 与 FrontierCS，题面与测试数据的版权归原作者，本站只给出概述与原题链接；运行与判分用 <a href="https://github.com/BAI-AI-Lab/codingBench">codingBench</a>。</p>
+<p>题目来自 USACO、EGOI 2026 与 FrontierCS，题面版权归原作者，本站转载官方英文原文并附原题链接；测试数据不公开。运行与判分用 <a href="https://github.com/BAI-AI-Lab/codingBench">codingBench</a>。</p>
 <p>全部数据：<a href="{up}data/ladder.json">data/ladder.json</a> · 上一版评测：<a href="{up}{ARCHIVE}">LiveCodeBench 最新 35 题（2026-10-23）</a></p>
 <p>如有任何问题，联系 <a href="https://alberthx86.github.io/" target="_blank" rel="noopener">Albert Huang</a>。</p>
 </div></footer>
@@ -419,9 +487,9 @@ def problems():
 {seg("source", [("all", "全部来源"), ("usaco", "USACO"), ("egoi2026", "EGOI 2026"), ("frontiercs", "FrontierCS")])}
 </div>
 {table([("题号", ""), ("题目", ""), ("档位", ""), ("比赛", "hide-sm"), ("日期", "hide-sm")], rows, "plist")}
-<p class="note">点击一行查看题意概述、原题链接、各模型的得分与代码。</p>
+<p class="note">点击一行查看英文原题面、各模型的得分与代码。</p>
 </div></section>"""
-    page("problems.html", "题目 · 代码能力阶梯评测", body, f"codingBench 阶梯评测的 {len(ORDER)} 道题：组成、题意概述与原题链接")
+    page("problems.html", "题目 · 代码能力阶梯评测", body, f"codingBench 阶梯评测的 {len(ORDER)} 道题：组成、原题面与原题链接")
 
 
 def sample_line(m, q):
@@ -439,13 +507,18 @@ def problem_page(i, p):
     tl = time_limit(p)
     rec = {"id": p, "title": title(p), "tier": t, "source": source(p), "contest": contest(p), "date": meta["date"],
            "language": LANG[meta["lang"]], "scoring": SCORING[meta["scoring"]["type"]], "time_limit_s": tl, "url": url(p),
-           "summary": SUMMARY[p], "results": {}}
+           "results": {}}
+    stmt, stmt_src = statement(p)
     parts = [f"""<section class="section tight"><div class="wrap">
 <p class="crumb"><a href="../problems.html">题目</a> › <span class="mono">{p}</span></p>
 <h1 class="ptitle">{esc(title(p))}</h1>
 <p class="meta">{contest(p)} · {meta['date']} · <span class="pill">{TN[t]}</span> · {LANG[meta['lang']]}{f' · 时限 {tl:g} 秒' if tl else ''} · {SCORING[meta['scoring']['type']]}</p>
-<p class="summary">{esc(SUMMARY[p])}</p>
-<p><a class="btn" href="{url(p)}" target="_blank" rel="noopener">查看原题</a></p>
+<p><a class="btn" href="{url(p)}" target="_blank" rel="noopener">查看原题</a><a class="more jump" href="#results">跳到结果</a></p>
+</div></section>
+<section class="section tight stmt-sec"><div class="wrap">
+<h2>题面</h2>
+<p class="note">{stmt_src}</p>
+{stmt}
 </div></section>"""]
     cols, tabs, panels = [], [], []
     lexer = PythonLexer() if meta["lang"] == "python" else CppLexer()
@@ -503,7 +576,7 @@ def problem_page(i, p):
         seg = f'<div class="samples"><div class="seg sm" data-tabs="s-{CLS[m]}">{"".join(stabs)}</div></div>' if len(qs) > 1 else ""
         panels.append(f'<div data-panel-group="code" data-panel="{CLS[m]}"{"" if j == 0 else " hidden"}>{seg}{"".join(spanels)}</div>')
         rec["results"][m] = {"name": NAME[m], "reasoning_effort": effort(m, t), "samples": res}
-    parts.append(f"""<section class="section alt"><div class="wrap">
+    parts.append(f"""<section class="section alt" id="results"><div class="wrap">
 <h2>结果</h2>
 <div class="compare small{' four' if len(ms) == 4 else ''}" style="--rows:{nrows}">{''.join(cols)}</div>
 <p class="note">{LEGEND}。得分 0–100，按官方时限判定，所有测试点都满分才算解出。CPU 时间 / 官方解为解出的答案在官方解最慢的 3 个测试点上的 CPU 时间之比（几何平均），只比较官方解至少需要 0.05 秒的题；复杂度按增长幂次相对官方解分类。判题与计分见 <a href="../method.html#judge">原理</a>。</p>
@@ -516,7 +589,8 @@ def problem_page(i, p):
     pager = (f'<a href="{prev_p}.html">‹ {prev_p}</a>' if prev_p else "<span></span>") + \
             (f'<a href="{next_p}.html">{next_p} ›</a>' if next_p else "<span></span>")
     parts.append(f'<div class="wrap"><nav class="pager">{pager}</nav></div>')
-    page(f"p/{p}.html", f"{p} {title(p)} · 代码能力阶梯评测", "\n".join(parts), f"{p} {title(p)}：{SUMMARY[p]}", "code.css")
+    page(f"p/{p}.html", f"{p} {title(p)} · 代码能力阶梯评测", "\n".join(parts), f"{p} {title(p)}：{contest(p)}，题面、各模型的得分与代码", "code.css",
+         KATEX if META[p]["source"] != "egoi2026" else "")
     return rec
 
 
@@ -878,7 +952,7 @@ def method():
 <li><b>按官方时限判题。</b>每个测试点按实际 CPU 时间判定是否在官方时限内完成，与人类选手的判题条件一致。</li>
 <li><b>先验证判题本身。</b>建库时先用判题程序运行官方题解；没有任何一份官方解能全部通过的题直接剔除，这同时检验了测试数据、比对规则与判题程序。能通过的官方解中最快的一份作为该题的性能对照。</li>
 </ul>
-<p>USACO 取 2024–25 赛季的 12 月、1 月、2 月与美国公开赛共 4 场，以及 2025–26 赛季的 3 场线上赛（3 月的公开赛为线下监考赛，官网没有公布题目与测试数据）。EGOI 2026 共 8 题，其中 Census 与 Seating Plan 为交互题，不在题库中。IOI 2026 的题目为通信题或只提供 PDF 题面，未纳入。FrontierCS 的题库有 180 道开放式难题，没有类别标签，按题号均匀抽取 30 题。题面与测试数据只存放在评测服务器上，不进入代码仓库；仓库只记录题号、档位、日期与时限。各档组成见 <a href="problems.html">题目</a>。</p>
+<p>USACO 取 2024–25 赛季的 12 月、1 月、2 月与美国公开赛共 4 场，以及 2025–26 赛季的 3 场线上赛（3 月的公开赛为线下监考赛，官网没有公布题目与测试数据）。EGOI 2026 共 8 题，其中 Census 与 Seating Plan 为交互题，不在题库中。IOI 2026 的题目为通信题或只提供 PDF 题面，未纳入。FrontierCS 的题库有 180 道开放式难题，没有类别标签，按题号均匀抽取 30 题。测试数据只存放在评测服务器上，不公开；各题的英文原题面见 <a href="problems.html">题目</a>。</p>
 </div></section>
 <section class="section alt"><div class="wrap">
 <h2 id="judge">判题与计分</h2>
@@ -1074,6 +1148,7 @@ def assets():
     os.makedirs(a, exist_ok=True)
     for name in ("style.css", "app.js"):
         shutil.copy(os.path.join(HERE, "site_assets", name), a)
+    shutil.copytree(os.path.join(HERE, "site_assets", "katex"), os.path.join(a, "katex"))
     light = [x for x in HtmlFormatter(style="xcode").get_style_defs(".code").splitlines() if x.startswith(".code .")]
     dark = [x for x in HtmlFormatter(style="github-dark").get_style_defs(".code").splitlines() if x.startswith(".code .")]
     open(os.path.join(a, "code.css"), "w").write(
@@ -1098,6 +1173,9 @@ def main():
     results()
     custom()
     probs = [problem_page(i, p) for i, p in enumerate(ORDER)]
+    os.makedirs(os.path.join(OUT, "p", "img"), exist_ok=True)
+    for f_ in USACO_IMG:
+        shutil.copy(os.path.join(SRC, "usaco", "img", f_), os.path.join(OUT, "p", "img", f_))
     os.makedirs(os.path.join(OUT, "data"), exist_ok=True)
     data = {
         "date": DATE,

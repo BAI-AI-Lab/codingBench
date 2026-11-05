@@ -317,3 +317,16 @@ footer a { color: var(--text); }
 .legend i.ds-bg { background: var(--ds); }
 .legend i.mm-bg { background: var(--mm); }
 .legend i.kimih-bg { background: repeating-linear-gradient(45deg, var(--kimi) 0 2px, transparent 2px 4px); box-shadow: inset 0 0 0 1.5px var(--kimi); }
+
+/* official statements on the problem pages */
+.stmt-sec { padding-bottom: 56px; }
+.stmt { max-width: 820px; font-size: 16px; line-height: 1.6; overflow-wrap: anywhere; }
+.stmt p { margin: 0 0 12px; }
+.stmt h3, .stmt h4 { font-size: 16px; font-weight: 600; margin: 22px 0 8px; }
+.stmt pre { background: var(--code-bg); border-radius: 10px; padding: 12px 16px; overflow-x: auto; font-family: var(--mono); font-size: 13px; line-height: 1.5; }
+.stmt img { display: block; max-width: 100%; height: auto; margin: 12px 0; background: #fff; border-radius: 6px; }
+.stmt.plain { white-space: pre-wrap; font-size: 15px; }
+.stmt .katex { font-size: 1.05em; }
+.pdfpages img { display: block; width: 100%; max-width: 820px; height: auto; margin: 0 0 16px; border-radius: 8px; background: #fff; box-shadow: 0 0 0 1px var(--hairline); }
+.more.jump { margin-left: 28px; }
+.stmt-sec .note { margin: 0 0 20px; }

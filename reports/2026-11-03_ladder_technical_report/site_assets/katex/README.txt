@@ -1,0 +1,1 @@
+KaTeX 0.16.11 (MIT License, https://github.com/KaTeX/KaTeX): katex.min.css, katex.min.js, contrib/auto-render.min.js and the woff2 fonts, from https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/. Self-hosted because CDNs are unreliable from China.
